@@ -1,267 +1,42 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Gunabati Yatri Niwas | Hotel Near Tripureswari Temple Udaipur Tripura</title>
-
-<meta name="description" content="Gunabati Yatri Niwas is a comfortable hotel near Tripureswari Temple in Udaipur Tripura. Affordable rooms for pilgrims visiting Mata Tripureswari Temple.">
-
-<style>
-
-body{
-margin:0;
-font-family:Arial, sans-serif;
-background:#f4f6f8;
-}
-
-header{
-background:#1e2a38;
-color:white;
-padding:30px;
-text-align:center;
-}
-
-nav{
-background:#2f3e50;
-padding:15px;
-text-align:center;
-}
-
-nav a{
-color:white;
-margin:15px;
-text-decoration:none;
-font-size:18px;
-}
-
-.hero{
-background:url('https://images.unsplash.com/photo-1566073771259-6a8506099945');
-background-size:cover;
-background-position:center;
-padding:140px 20px;
-color:white;
-text-align:center;
-}
-
-section{
-padding:40px;
-text-align:center;
-}
-
-.rooms{
-display:flex;
-flex-wrap:wrap;
-justify-content:center;
-gap:20px;
-}
-
-.room{
-background:white;
-padding:15px;
-width:260px;
-box-shadow:0 0 10px #ccc;
-border-radius:8px;
-}
-
-.room img{
-width:100%;
-border-radius:6px;
-}
-
-.price{
-font-size:18px;
-color:green;
-font-weight:bold;
-}
-
-.gallery img{
-width:280px;
-margin:10px;
-border-radius:8px;
-}
-
-form{
-max-width:400px;
-margin:auto;
-background:white;
-padding:20px;
-box-shadow:0 0 10px #ccc;
-}
-
-input,select{
-width:100%;
-padding:10px;
-margin:10px 0;
-}
-
-button{
-padding:12px 25px;
-background:#27ae60;
-color:white;
-border:none;
-font-size:16px;
-cursor:pointer;
-}
-
-footer{
-background:#222;
-color:white;
-text-align:center;
-padding:20px;
-}
-
-.whatsapp{
-position:fixed;
-bottom:20px;
-right:20px;
-background:#25D366;
-color:white;
-padding:15px;
-border-radius:50%;
-font-size:22px;
-text-decoration:none;
-}
-
-</style>
-
-</head>
-
-<body>
-
-<header>
-<h1>Gunabati Yatri Niwas</h1>
-<p>Near Mata Tripureswari Temple, Udaipur Tripura</p>
-</header>
-
-<nav>
-<a href="#">Home</a>
-<a href="#rooms">Rooms</a>
-<a href="#gallery">Gallery</a>
-<a href="#booking">Booking</a>
-<a href="#contact">Contact</a>
-</nav>
-
-<div class="hero">
-<h1>Welcome to Gunabati Yatri Niwas</h1>
-<p>Comfortable Stay for Pilgrims Visiting Tripureswari Temple</p>
-</div>
-
-<section id="rooms">
-
-<h2>Our Rooms & Price</h2>
-
-<div class="rooms">
-
-<div class="room">
-<img src="https://images.unsplash.com/photo-1631049035634-c04c6376519a">
-<h3>Standard Room</h3>
-<p>Comfortable room for pilgrims.</p>
-<p class="price">₹1500 / Night</p>
-</div>
-
-<div class="room">
-<img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2">
-<h3>Deluxe Room</h3>
-<p>Modern room with better facilities.</p>
-<p class="price">₹2000 / Night</p>
-</div>
-
-<div class="room">
-<img src="https://images.unsplash.com/photo-1590490360182-c33d57733427">
-<h3>Family Room</h3>
-<p>Spacious room for family stay.</p>
-<p class="price">₹3000 / Night</p>
-</div>
-
-</div>
-
-</section>
-
-<section id="gallery">
-
-<h2>Photo Gallery</h2>
-
-<div class="gallery">
-
-<img src="https://images.unsplash.com/photo-1560448204-603b3fc33ddc">
-<img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b">
-<img src="https://images.unsplash.com/photo-1618773928121-c32242e63f39">
-
-</div>
-
-</section>
-
-<section id="booking">
-
-<h2>Room Booking</h2>
-
-<form>
-
-<input type="text" placeholder="Your Name" required>
-
-<input type="tel" placeholder="Mobile Number" required>
-
-<input type="date">
-
-<select>
-<option>Standard Room</option>
-<option>Deluxe Room</option>
-<option>Family Room</option>
-</select>
-
-<button type="button" onclick="whatsappBooking()">Book on WhatsApp</button>
-
-</form>
-
-</section>
-
-<section id="contact">
-
-<h2>Location</h2>
-
-<iframe
-src="https://maps.google.com/maps?q=Tripureswari%20Temple%20Udaipur%20Tripura&t=&z=13&ie=UTF8&iwloc=&output=embed"
-width="90%"
-height="300"
-style="border:0;">
-</iframe>
-
-<p>📞 Phone: 9863653392</p>
-
-</section>
-
-<footer>
-
-<p>© 2026 Gunabati Yatri Niwas</p>
-<p>Website Developed by <b>Matindra Tripura</b></p>
-
-</footer>
-
-<a class="whatsapp" href="https://wa.me/919863653392">💬</a>
-
-<script>
-
-function whatsappBooking(){
-
-var name=document.querySelector("input[type=text]").value;
-
-var phone=document.querySelector("input[type=tel]").value;
-
-var room=document.querySelector("select").value;
-
-var message="Hello, I want to book "+room+" at Gunabati Yatri Niwas. Name: "+name+" Phone: "+phone;
-
-var url="https://wa.me/919863653392?text="+encodeURIComponent(message);
-
-window.open(url);
-
-}
-
-</script>
-
-</body>
-</html>
+Create a professional Job Application Form for a Data Entry Operator position.
+
+The form should include the following sections:
+
+1. Personal Information
+- Full Name
+- Date of Birth
+- Gender
+- Marital Status
+- Nationality
+- Phone Number
+- Email Address
+- Address
+
+2. Educational Qualification (in table format)
+Columns:
+- Degree / Course
+- Institution / Board
+- Year of Passing
+- Percentage / Grade
+
+3. Work Experience
+- Company Name
+- Position
+- Duration
+- Responsibilities
+
+4. Computer Skills
+- Typing Speed
+- Software Knowledge (MS Word, Excel, etc.)
+- Other Skills
+
+5. Declaration
+Statement confirming that the information provided is correct.
+
+6. Signature Section
+- Signature
+- Date
+- Place
+
+The form should be clean, professional, and easy to fill.
