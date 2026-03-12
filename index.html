@@ -1,156 +1,367 @@
 
 
+```html
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Gunabati Yatri Niwas | Hotel Near Tripureswari Temple Udaipur Tripura</title>
-<meta name="description" content="Gunabati Yatri Niwas is a comfortable hotel near Tripureswari Temple in Udaipur Tripura. AC and Non‑AC rooms available for pilgrims and travelers.">
-<meta name="keywords" content="Hotel near Tripureswari Temple, Udaipur Tripura hotel, Gunabati Yatri Niwas, rooms near Tripura Sundari Temple">
+<title>Gunabati Yatri Niwas Hotel System</title>
 
 <style>
-body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f6f8;color:#333}
-header{background:#1e2a38;color:white;padding:25px;text-align:center}
-nav{background:#0f1720;padding:10px;text-align:center}
-nav a{color:white;margin:0 15px;text-decoration:none;font-weight:bold}
-.hero{background:url('https://images.unsplash.com/photo-1566073771259-6a8506099945');background-size:cover;background-position:center;color:white;padding:120px 20px;text-align:center}
-.hero h1{font-size:42px;margin-bottom:10px}
-.container{max-width:1100px;margin:auto;padding:40px 20px}
-.section-title{text-align:center;margin-bottom:25px;color:#1e2a38}
-.rooms{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px}
-.room{background:white;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);padding:20px;text-align:center}
-.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px}
-.gallery img{width:100%;border-radius:8px}
-.facilities ul{list-style:none;padding:0;columns:2}
-.facilities li{padding:8px 0}
-.contact{background:white;border-radius:8px;padding:25px;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
-.reviews{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px}
-.review{background:white;padding:20px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
-.btn{display:inline-block;background:#1e2a38;color:white;padding:12px 20px;border-radius:5px;text-decoration:none;margin-top:10px}
-.whatsapp{position:fixed;bottom:20px;right:20px;background:#25D366;color:white;padding:14px 18px;border-radius:50px;text-decoration:none;font-weight:bold}
-footer{background:#1e2a38;color:white;text-align:center;padding:15px;margin-top:40px}
+
+body{
+font-family:Arial;
+background:#f2f2f2;
+margin:0;
+}
+
+.header{
+background:#8B0000;
+color:white;
+padding:15px;
+text-align:center;
+}
+
+.menu{
+background:#333;
+padding:10px;
+}
+
+.menu button{
+padding:10px;
+margin:5px;
+color:white;
+background:#555;
+border:none;
+cursor:pointer;
+}
+
+.container{
+padding:20px;
+}
+
+input,select{
+padding:8px;
+margin:5px;
+}
+
+table{
+border-collapse:collapse;
+width:100%;
+margin-top:15px;
+}
+
+table,th,td{
+border:1px solid #ccc;
+padding:8px;
+text-align:center;
+}
+
 </style>
+
 </head>
 
 <body>
 
-<header>
-<h1>Gunabati Yatri Niwas</h1>
-<p>Comfortable & Affordable Stay Near Tripureswari Temple</p>
-</header>
-
-<nav>
-<a href="#about">About</a>
-<a href="#rooms">Rooms</a>
-<a href="#gallery">Gallery</a>
-<a href="#facilities">Facilities</a>
-<a href="#map">Location</a>
-<a href="#contact">Contact</a>
-</nav>
-
-<section class="hero">
-<h1>Welcome to Gunabati Yatri Niwas</h1>
-<p>Peaceful stay for pilgrims and travelers in Udaipur, Tripura</p>
-</section>
-
-<div class="container" id="about">
-<h2 class="section-title">About Our Hotel</h2>
-<p style="text-align:center;max-width:750px;margin:auto">
-Gunabati Yatri Niwas offers comfortable accommodation near the famous Tripureswari Temple in Udaipur, Tripura. Our hotel provides clean rooms, peaceful surroundings, and friendly service for pilgrims, families, and travelers visiting the sacred temple.
-</p>
+<div class="header">
+<h2>Gunabati Yatri Niwas Hotel Management</h2>
 </div>
 
-<div class="container" id="rooms">
-<h2 class="section-title">Our Rooms</h2>
-<div class="rooms">
+<div class="container" id="login">
 
-<div class="room">
-<h3>AC Room</h3>
-<p>Comfortable air‑conditioned room suitable for families and travelers.</p>
-</div>
+<h3>Login</h3>
 
-<div class="room">
-<h3>Non‑AC Room</h3>
-<p>Affordable and clean rooms for pilgrims and short stays.</p>
-</div>
-
-<div class="room">
-<h3>Family Room</h3>
-<p>Spacious rooms suitable for family visits and group travelers.</p>
-</div>
+<input id="user" placeholder="Username"><br>
+<input id="pass" type="password" placeholder="Password"><br>
+<button onclick="login()">Login</button>
 
 </div>
-</div>
 
-<div class="container" id="gallery">
-<h2 class="section-title">Room Gallery</h2>
-<div class="gallery">
-<img src="https://images.unsplash.com/photo-1590490360182-c33d57733427">
-<img src="https://images.unsplash.com/photo-1566665797739-1674de7a421a">
-<img src="https://images.unsplash.com/photo-1618773928121-c32242e63f39">
-<img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b">
-</div>
-<p style="text-align:center;margin-top:10px">(You can replace these with real photos of your hotel rooms later)</p>
-</div>
+<div id="system" style="display:none">
 
-<div class="container facilities" id="facilities">
-<h2 class="section-title">Hotel Facilities</h2>
-<ul>
-<li>Clean & Hygienic Rooms</li>
-<li>Comfortable Beds</li>
-<li>Peaceful Environment</li>
-<li>Family Friendly Stay</li>
-<li>Nearby Temple Location</li>
-<li>24 Hour Assistance</li>
-<li>Easy Transportation Access</li>
-<li>Safe Accommodation</li>
-</ul>
-</div>
+<div class="menu">
 
-<div class="container" id="map">
-<h2 class="section-title">Our Location</h2>
-<iframe src="https://www.google.com/maps?q=Tripureswari%20Temple%20Udaipur%20Tripura&output=embed" width="100%" height="350" style="border:0;border-radius:8px"></iframe>
-</div>
-
-<div class="container" id="reviews">
-<h2 class="section-title">Customer Reviews</h2>
-<div class="reviews">
-
-<div class="review">
-<p>"Very comfortable stay near the temple. Clean rooms and helpful staff."</p>
-<b>– Temple Visitor</b>
-</div>
-
-<div class="review">
-<p>"Good location and peaceful environment. Perfect for pilgrims."</p>
-<b>– Traveler</b>
-</div>
-
-<div class="review">
-<p>"Affordable rooms and friendly service."</p>
-<b>– Family Guest</b>
-</div>
+<button onclick="show('checkin')">Guest Check-In</button>
+<button onclick="show('booking')">Room Booking</button>
+<button onclick="show('water')">Water Sale</button>
+<button onclick="show('tea')">Tea/Coffee Sale</button>
+<button onclick="show('expense')">Expense</button>
+<button onclick="show('report')">Monthly Report</button>
 
 </div>
+
+<div class="container">
+
+<div id="checkin">
+
+<h3>Guest Check-In</h3>
+
+<input id="gname" placeholder="Guest Name">
+<input id="gmobile" placeholder="Mobile"><br>
+
+<select id="room">
+
+<option>201</option>
+<option>202</option>
+<option>203</option>
+<option>204</option>
+<option>205</option>
+<option>206</option>
+<option>207</option>
+<option>208</option>
+<option>209</option>
+<option>210</option>
+<option>211</option>
+<option>212</option>
+
+</select>
+
+<input id="cin" type="date">
+<input id="cout" type="date">
+
+<button onclick="addGuest()">Save</button>
+
+<table id="guestTable">
+
+<tr>
+<th>Name</th>
+<th>Room</th>
+<th>CheckIn</th>
+<th>CheckOut</th>
+</tr>
+
+</table>
+
 </div>
 
-<div class="container" id="contact">
-<h2 class="section-title">Contact Us</h2>
-<div class="contact">
-<p><b>Address:</b> Near Mata Tripureswari Temple, Gomati, Udaipur, Tripura</p>
-<p><b>Phone:</b> 9863653392</p>
-<p><b>Email:</b> tripuramatindra3@gmail.com</p>
-<a class="btn" href="tel:9863653392">Call for Room Booking</a>
-</div>
+<div id="booking" style="display:none">
+
+<h3>Room Booking</h3>
+
+<input id="bname" placeholder="Guest Name">
+<select id="broom">
+
+<option>201</option>
+<option>202</option>
+<option>203</option>
+<option>204</option>
+<option>205</option>
+<option>206</option>
+<option>207</option>
+<option>208</option>
+<option>209</option>
+<option>210</option>
+<option>211</option>
+<option>212</option>
+
+</select>
+
+<input id="bin" type="date">
+<input id="bout" type="date">
+
+<button onclick="addBooking()">Book</button>
+
+<table id="bookTable">
+
+<tr>
+<th>Name</th>
+<th>Room</th>
+<th>From</th>
+<th>To</th>
+</tr>
+
+</table>
+
 </div>
 
-<a class="whatsapp" href="https://wa.me/919863653392" target="_blank">WhatsApp</a>
+<div id="water" style="display:none">
 
-<footer>
-<p>© 2026 Gunabati Yatri Niwas | All Rights Reserved<br>Website Design by MATINDRA TRIPURA</p>
-</footer>
+<h3>Water Sale</h3>
+
+<input id="wqty" placeholder="Quantity">
+<input id="wprice" placeholder="Price">
+
+<button onclick="waterSale()">Add</button>
+
+<table id="waterTable">
+
+<tr>
+<th>Quantity</th>
+<th>Amount</th>
+</tr>
+
+</table>
+
+</div>
+
+<div id="tea" style="display:none">
+
+<h3>Tea / Coffee Sale</h3>
+
+<input id="tqty" placeholder="Quantity">
+<input id="tprice" placeholder="Amount">
+
+<button onclick="teaSale()">Add</button>
+
+<table id="teaTable">
+
+<tr>
+<th>Quantity</th>
+<th>Amount</th>
+</tr>
+
+</table>
+
+</div>
+
+<div id="expense" style="display:none">
+
+<h3>Expense Entry</h3>
+
+<input id="etype" placeholder="Expense Type">
+<input id="eamount" placeholder="Amount">
+
+<button onclick="addExpense()">Add</button>
+
+<table id="expenseTable">
+
+<tr>
+<th>Type</th>
+<th>Amount</th>
+</tr>
+
+</table>
+
+</div>
+
+<div id="report" style="display:none">
+
+<h3>Monthly Report</h3>
+
+<button onclick="calculate()">Show Report</button>
+
+<p id="result"></p>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+function login(){
+
+let u=document.getElementById("user").value
+let p=document.getElementById("pass").value
+
+if(u=="admin" && p=="1234"){
+document.getElementById("login").style.display="none"
+document.getElementById("system").style.display="block"
+}else{
+alert("Wrong Login")
+}
+
+}
+
+function show(id){
+
+document.querySelectorAll(".container > div").forEach(d=>{
+d.style.display="none"
+})
+
+document.getElementById(id).style.display="block"
+
+}
+
+let waterTotal=0
+let teaTotal=0
+let expenseTotal=0
+
+function addGuest(){
+
+let table=document.getElementById("guestTable")
+let row=table.insertRow()
+
+row.insertCell(0).innerHTML=document.getElementById("gname").value
+row.insertCell(1).innerHTML=document.getElementById("room").value
+row.insertCell(2).innerHTML=document.getElementById("cin").value
+row.insertCell(3).innerHTML=document.getElementById("cout").value
+
+}
+
+function addBooking(){
+
+let table=document.getElementById("bookTable")
+let row=table.insertRow()
+
+row.insertCell(0).innerHTML=document.getElementById("bname").value
+row.insertCell(1).innerHTML=document.getElementById("broom").value
+row.insertCell(2).innerHTML=document.getElementById("bin").value
+row.insertCell(3).innerHTML=document.getElementById("bout").value
+
+}
+
+function waterSale(){
+
+let qty=document.getElementById("wqty").value
+let price=document.getElementById("wprice").value
+
+waterTotal+=Number(price)
+
+let table=document.getElementById("waterTable")
+let row=table.insertRow()
+
+row.insertCell(0).innerHTML=qty
+row.insertCell(1).innerHTML=price
+
+}
+
+function teaSale(){
+
+let qty=document.getElementById("tqty").value
+let price=document.getElementById("tprice").value
+
+teaTotal+=Number(price)
+
+let table=document.getElementById("teaTable")
+let row=table.insertRow()
+
+row.insertCell(0).innerHTML=qty
+row.insertCell(1).innerHTML=price
+
+}
+
+function addExpense(){
+
+let type=document.getElementById("etype").value
+let amount=document.getElementById("eamount").value
+
+expenseTotal+=Number(amount)
+
+let table=document.getElementById("expenseTable")
+let row=table.insertRow()
+
+row.insertCell(0).innerHTML=type
+row.insertCell(1).innerHTML=amount
+
+}
+
+function calculate(){
+
+let totalIncome=waterTotal+teaTotal
+let balance=totalIncome-expenseTotal
+
+document.getElementById("result").innerHTML=
+
+"Water Sale: "+waterTotal+
+"<br>Tea/Coffee Sale: "+teaTotal+
+"<br>Total Expense: "+expenseTotal+
+"<br><b>Balance: "+balance+"</b>"
+
+}
+
+</script>
 
 </body>
 </html>
+```
