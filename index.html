@@ -1,31 +1,36 @@
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 
-<title>Gunabati Yatri Niwas</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gunabati Yatri Niwas | Hotel Near Tripureswari Temple Udaipur Tripura</title>
+
+<meta name="description" content="Gunabati Yatri Niwas is a comfortable hotel near Tripureswari Temple in Udaipur Tripura. Affordable rooms for pilgrims visiting Mata Tripureswari Temple.">
+
+<meta name="keywords" content="Hotel near Tripureswari Temple, Udaipur Tripura hotel, Gunabati Yatri Niwas, Tripura temple hotel">
 
 <style>
 
 body{
 margin:0;
 font-family:Arial;
-background:#f5f5f5;
+background:#f4f6f8;
 }
 
 header{
-background:#2c3e50;
+background:#1e2a38;
 color:white;
+padding:30px;
 text-align:center;
-padding:40px;
 }
 
 nav{
-background:#34495e;
-text-align:center;
+background:#2f3e50;
 padding:15px;
+text-align:center;
 }
 
 nav a{
@@ -35,6 +40,15 @@ text-decoration:none;
 font-size:18px;
 }
 
+.hero{
+background:url('hotel.jpg');
+background-size:cover;
+background-position:center;
+padding:120px 20px;
+color:white;
+text-align:center;
+}
+
 section{
 padding:40px;
 text-align:center;
@@ -42,16 +56,48 @@ text-align:center;
 
 .rooms{
 display:flex;
+flex-wrap:wrap;
 justify-content:center;
 gap:20px;
-flex-wrap:wrap;
 }
 
 .room{
 background:white;
-padding:20px;
-width:250px;
+padding:15px;
+width:260px;
 box-shadow:0 0 10px #ccc;
+border-radius:8px;
+}
+
+.room img{
+width:100%;
+border-radius:6px;
+}
+
+.gallery img{
+width:280px;
+margin:10px;
+border-radius:8px;
+}
+
+.price{
+font-size:18px;
+color:green;
+font-weight:bold;
+}
+
+form{
+max-width:400px;
+margin:auto;
+background:white;
+padding:20px;
+box-shadow:0 0 10px #ccc;
+}
+
+input,select{
+width:100%;
+padding:10px;
+margin:10px 0;
 }
 
 button{
@@ -64,7 +110,7 @@ cursor:pointer;
 }
 
 footer{
-background:#333;
+background:#222;
 color:white;
 text-align:center;
 padding:20px;
@@ -78,7 +124,7 @@ background:#25D366;
 color:white;
 padding:15px;
 border-radius:50%;
-font-size:20px;
+font-size:22px;
 text-decoration:none;
 }
 
@@ -89,61 +135,117 @@ text-decoration:none;
 <body>
 
 <header>
-
 <h1>Gunabati Yatri Niwas</h1>
-
 <p>Near Mata Tripureswari Temple, Udaipur Tripura</p>
-
 </header>
 
 <nav>
-
 <a href="#">Home</a>
-<a href="#">Rooms</a>
-<a href="#">Contact</a>
-
+<a href="#rooms">Rooms</a>
+<a href="#gallery">Gallery</a>
+<a href="#booking">Booking</a>
+<a href="#guide">Temple Guide</a>
+<a href="#contact">Contact</a>
 </nav>
 
-<section>
+<div class="hero">
+<h1>Welcome to Gunabati Yatri Niwas</h1>
+<p>Comfortable Stay for Pilgrims Visiting Tripureswari Temple</p>
+</div>
 
-<h2>Welcome to Gunabati Yatri Niwas</h2>
+<section id="rooms">
 
-<p>Comfortable and affordable stay for pilgrims visiting Mata Tripureswari Temple.</p>
-
-</section>
-
-<section>
-
-<h2>Our Rooms</h2>
+<h2>Our Rooms & Price</h2>
 
 <div class="rooms">
 
 <div class="room">
+<img src="room1.jpg">
 <h3>Standard Room</h3>
-<p>Clean and comfortable room for pilgrims.</p>
+<p>Clean and comfortable room.</p>
+<p class="price">₹800 / Night</p>
 </div>
 
 <div class="room">
+<img src="room2.jpg">
 <h3>Family Room</h3>
-<p>Spacious room for families visiting the temple.</p>
+<p>Spacious room for families.</p>
+<p class="price">₹1200 / Night</p>
 </div>
 
 <div class="room">
+<img src="room3.jpg">
 <h3>Deluxe Room</h3>
-<p>Best room with more comfort.</p>
+<p>Modern facilities with comfort.</p>
+<p class="price">₹1500 / Night</p>
 </div>
 
 </div>
 
 </section>
 
-<section>
+<section id="gallery">
 
-<h2>Contact Us</h2>
+<h2>Photo Gallery</h2>
+
+<div class="gallery">
+
+<img src="room1.jpg">
+<img src="room2.jpg">
+<img src="room3.jpg">
+
+</div>
+
+</section>
+
+<section id="booking">
+
+<h2>Room Booking</h2>
+
+<form>
+
+<input type="text" placeholder="Your Name" required>
+
+<input type="tel" placeholder="Mobile Number" required>
+
+<input type="date">
+
+<select>
+<option>Standard Room</option>
+<option>Family Room</option>
+<option>Deluxe Room</option>
+</select>
+
+<button type="button" onclick="whatsappBooking()">Book on WhatsApp</button>
+
+</form>
+
+</section>
+
+<section id="guide">
+
+<h2>Tripureswari Temple Travel Guide</h2>
+
+<p>Mata Tripureswari Temple is one of the 51 Shakti Peethas in India located in Udaipur Tripura.</p>
+
+<p>The temple attracts thousands of pilgrims every year.</p>
+
+<p>Gunabati Yatri Niwas is located very near to the temple providing comfortable stay for devotees.</p>
+
+</section>
+
+<section id="contact">
+
+<h2>Location</h2>
+
+<iframe
+src="https://maps.google.com/maps?q=Tripureswari%20Temple%20Udaipur%20Tripura&t=&z=13&ie=UTF8&iwloc=&output=embed"
+width="90%"
+height="300"
+style="border:0;">
+</iframe>
 
 <p>📞 Phone: 9863653392</p>
-
-<p>📍 Near Mata Tripureswari Temple, Udaipur Tripura</p>
 
 </section>
 
@@ -151,10 +253,31 @@ text-decoration:none;
 
 <p>© 2026 Gunabati Yatri Niwas</p>
 
+<p>Website Developed by <b>Matindra Tripura</b></p>
+
 </footer>
 
 <a class="whatsapp" href="https://wa.me/919863653392">💬</a>
 
-</body>
+<script>
 
+function whatsappBooking(){
+
+var name=document.querySelector("input[type=text]").value;
+
+var phone=document.querySelector("input[type=tel]").value;
+
+var room=document.querySelector("select").value;
+
+var message="Hello, I want to book "+room+" at Gunabati Yatri Niwas. Name: "+name+" Phone: "+phone;
+
+var url="https://wa.me/919863653392?text="+encodeURIComponent(message);
+
+window.open(url);
+
+}
+
+</script>
+
+</body>
 </html>
