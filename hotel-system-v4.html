@@ -1,0 +1,455 @@
+
+
+````html
+<!DOCTYPE html>
+<html>
+<head>
+<title>Gunabati Yatri Niwas Hotel System</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+
+body{
+font-family:Arial;
+margin:0;
+background:#f2f2f2;
+}
+
+.header{
+background:#8B0000;
+color:white;
+padding:15px;
+text-align:center;
+}
+
+.menu{
+background:#333;
+padding:10px;
+text-align:center;
+}
+
+.menu button{
+padding:8px 12px;
+margin:4px;
+background:#555;
+color:white;
+border:none;
+cursor:pointer;
+}
+
+.container{
+padding:15px;
+}
+
+input,select{
+padding:6px;
+margin:4px;
+width:160px;
+}
+
+table{
+border-collapse:collapse;
+width:100%;
+margin-top:10px;
+}
+
+table,th,td{
+border:1px solid #ccc;
+padding:6px;
+text-align:center;
+}
+
+.roomBoard{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(90px,1fr));
+gap:10px;
+margin-top:15px;
+}
+
+.room{
+padding:10px;
+color:white;
+text-align:center;
+border-radius:4px;
+}
+
+.available{background:green}
+.occupied{background:red}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+<h2>Gunabati Yatri Niwas Management</h2>
+</div>
+
+<div class="container" id="login">
+
+<h3>Login</h3>
+
+<input id="user" placeholder="Username"><br>
+<input id="pass" type="password" placeholder="Password"><br>
+
+<button onclick="login()">Login</button>
+
+</div>
+
+<div id="system" style="display:none">
+
+<div class="menu">
+
+<button onclick="showPage('dashboard')">Dashboard</button>
+<button onclick="showPage('guest')">Guest</button>
+<button onclick="showPage('income')">Income</button>
+<button onclick="showPage('expense')">Expense</button>
+<button onclick="showPage('daily')">Daily Report</button>
+<button onclick="showPage('monthly')">Monthly</button>
+
+</div>
+
+<div class="container">
+
+<!-- Dashboard -->
+
+<div id="dashboard">
+
+<h3>Room Status</h3>
+
+<div id="roomBoard" class="roomBoard"></div>
+
+</div>
+
+<!-- Guest -->
+
+<div id="guest" style="display:none">
+
+<h3>Guest Registration</h3>
+
+<input id="gname" placeholder="Guest Name">
+<input id="gmobile" placeholder="Mobile"><br>
+
+<select id="groom">
+
+<option>201</option>
+<option>202</option>
+<option>203</option>
+<option>204</option>
+<option>205</option>
+<option>206</option>
+<option>207</option>
+<option>208</option>
+<option>209</option>
+<option>210</option>
+<option>211</option>
+<option>212</option>
+
+</select>
+
+<input id="gcheckin" type="date">
+<input id="gcheckout" type="date">
+<input id="grent" placeholder="Room Rent">
+
+<button onclick="addGuest()">Save</button>
+
+<table id="guestTable">
+
+<tr>
+<th>Name</th>
+<th>Room</th>
+<th>CheckIn</th>
+<th>CheckOut</th>
+<th>Rent</th>
+<th>Action</th>
+</tr>
+
+</table>
+
+</div>
+
+<!-- Income -->
+
+<div id="income" style="display:none">
+
+<h3>Income Entry</h3>
+
+<select id="incomeType">
+<option>Room Sale</option>
+<option>Water Sale</option>
+<option>Tea Coffee</option>
+</select>
+
+<input id="incomeAmount" placeholder="Amount">
+<input id="incomeDate" type="date">
+
+<button onclick="addIncome()">Add</button>
+
+<table id="incomeTable">
+<tr>
+<th>Date</th>
+<th>Type</th>
+<th>Amount</th>
+</tr>
+</table>
+
+</div>
+
+<!-- Expense -->
+
+<div id="expense" style="display:none">
+
+<h3>Expense Entry</h3>
+
+<input id="etype" placeholder="Type">
+<input id="eamount" placeholder="Amount">
+<input id="edate" type="date">
+
+<button onclick="addExpense()">Add</button>
+
+<table id="expenseTable">
+
+<tr>
+<th>Date</th>
+<th>Type</th>
+<th>Amount</th>
+</tr>
+
+</table>
+
+</div>
+
+<!-- Daily Report -->
+
+<div id="daily" style="display:none">
+
+<h3>Daily Report</h3>
+
+<input id="reportDate" type="date">
+
+<button onclick="dailyReport()">Show</button>
+
+<p id="dailyResult"></p>
+
+</div>
+
+<!-- Monthly -->
+
+<div id="monthly" style="display:none">
+
+<h3>Monthly Report</h3>
+
+<button onclick="monthlyReport()">Generate</button>
+
+<p id="monthlyResult"></p>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+let guests=JSON.parse(localStorage.getItem("guests")||"[]")
+let income=JSON.parse(localStorage.getItem("income")||"[]")
+let expense=JSON.parse(localStorage.getItem("expense")||"[]")
+
+function login(){
+
+if(user.value=="admin" && pass.value=="1234"){
+
+login.style.display="none"
+system.style.display="block"
+
+loadGuests()
+drawRooms()
+
+}else{
+
+alert("Wrong Login")
+
+}
+
+}
+
+function showPage(id){
+
+document.querySelectorAll(".container > div").forEach(d=>{
+d.style.display="none"
+})
+
+document.getElementById(id).style.display="block"
+
+}
+
+function addGuest(){
+
+let g={
+name:gname.value,
+room:groom.value,
+cin:gcheckin.value,
+cout:gcheckout.value,
+rent:grent.value
+}
+
+guests.push(g)
+
+localStorage.setItem("guests",JSON.stringify(guests))
+
+loadGuests()
+drawRooms()
+
+}
+
+function loadGuests(){
+
+let table=document.getElementById("guestTable")
+
+table.innerHTML="<tr><th>Name</th><th>Room</th><th>CheckIn</th><th>CheckOut</th><th>Rent</th><th>Action</th></tr>"
+
+guests.forEach((g,i)=>{
+
+let row=table.insertRow()
+
+row.insertCell(0).innerHTML=g.name
+row.insertCell(1).innerHTML=g.room
+row.insertCell(2).innerHTML=g.cin
+row.insertCell(3).innerHTML=g.cout
+row.insertCell(4).innerHTML=g.rent
+
+row.insertCell(5).innerHTML=
+"<button onclick='editGuest("+i+")'>Edit</button>"+
+"<button onclick='deleteGuest("+i+")'>Delete</button>"
+
+})
+
+}
+
+function deleteGuest(i){
+
+guests.splice(i,1)
+
+localStorage.setItem("guests",JSON.stringify(guests))
+
+loadGuests()
+drawRooms()
+
+}
+
+function editGuest(i){
+
+let g=guests[i]
+
+gname.value=g.name
+groom.value=g.room
+gcheckin.value=g.cin
+gcheckout.value=g.cout
+grent.value=g.rent
+
+deleteGuest(i)
+
+}
+
+function drawRooms(){
+
+let board=document.getElementById("roomBoard")
+
+board.innerHTML=""
+
+let rooms=[201,202,203,204,205,206,207,208,209,210,211,212]
+
+rooms.forEach(r=>{
+
+let status="available"
+
+guests.forEach(g=>{
+if(g.room==r) status="occupied"
+})
+
+let div=document.createElement("div")
+
+div.className="room "+status
+
+div.innerHTML="Room "+r+"<br>"+status
+
+board.appendChild(div)
+
+})
+
+}
+
+function addIncome(){
+
+let obj={
+date:incomeDate.value,
+type:incomeType.value,
+amount:Number(incomeAmount.value)
+}
+
+income.push(obj)
+
+localStorage.setItem("income",JSON.stringify(income))
+
+}
+
+function addExpense(){
+
+let obj={
+date:edate.value,
+type:etype.value,
+amount:Number(eamount.value)
+}
+
+expense.push(obj)
+
+localStorage.setItem("expense",JSON.stringify(expense))
+
+}
+
+function dailyReport(){
+
+let date=reportDate.value
+
+let inc=0
+let exp=0
+
+income.forEach(i=>{
+if(i.date==date) inc+=i.amount
+})
+
+expense.forEach(e=>{
+if(e.date==date) exp+=e.amount
+})
+
+dailyResult.innerHTML=
+
+"Income: "+inc+
+"<br>Expense: "+exp+
+"<br><b>Balance: "+(inc-exp)+"</b>"
+
+}
+
+function monthlyReport(){
+
+let inc=0
+let exp=0
+
+income.forEach(i=>inc+=i.amount)
+expense.forEach(e=>exp+=e.amount)
+
+monthlyResult.innerHTML=
+
+"Total Income: "+inc+
+"<br>Total Expense: "+exp+
+"<br><b>Balance: "+(inc-exp)+"</b>"
+
+}
+
+</script>
+
+</body>
+</html>
+```
+
