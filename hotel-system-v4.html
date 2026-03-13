@@ -1,85 +1,18 @@
-Create a modern, professional, and fully responsive website for a local traditional clothing shop called **"Unique Gift"**.
+<header>
+  <h1>Unique Gift Shop</h1>
+  <p>Full Shop Address Here</p>
+  <a href="https://maps.google.com" target="_blank">Open in Google Maps</a>
+</header>
 
-The website should be built using modern web technologies such as **Next.js (React), Tailwind CSS for styling, Framer Motion for animations, and Node.js + Express for backend APIs. Use MongoDB as the database and Cloudinary for image/video storage.**
+<section>
+  <input type="text" placeholder="Search products" />
+</section>
 
-The website must include the following features and pages:
-
-1. **Home Page**
-
-* At the top of the page, display the shop name **"Unique Gift – Traditional Clothing Shop"**.
-* Below the shop name display the **full shop address**.
-* Next to the address, include a **"View on Google Maps" button** that redirects users to the exact shop location on Google Maps.
-* Add a **modern search bar** that allows users to search products by name or category.
-* Display **product categories** such as Saree, Kurti, Lehenga, Salwar Suit, Ethnic Wear, and Gift Items.
-* Below the categories section, show a **grid of all products** with image, name, price, and a "View Details" button.
-
-2. **Product Details Page**
-   When a user clicks on a product:
-
-* Show a **large image gallery and optional product video**.
-* Display the **product name, price, category, and detailed description**.
-* Include a **Contact for More Details section** with:
-
-  * A **WhatsApp button** that opens WhatsApp with a pre-filled message containing the product name and product page link.
-  * A **Call Now button** that allows the user to directly call the shop phone number.
-* The WhatsApp message should be editable by the user before sending.
-
-3. **Admin Panel**
-   Create a secure admin dashboard accessible at `/admin`.
-
-Admin features should include:
-
-* Admin login authentication
-* Add new products
-* Upload product images or videos
-* Add product name, category, price, and description
-* Edit or delete existing products
-* Manage product categories
-
-4. **UI / UX Requirements**
-
-* The design should look modern and professional.
-* Use **smooth animations** for scrolling, button hover, and product cards.
-* Use **Framer Motion or similar animation libraries**.
-* Include **clean layout, proper spacing, modern typography, and card-based product design**.
-
-5. **Mobile Responsive Design**
-   The website must be fully responsive and work perfectly on:
-
-* Mobile phones
-* Tablets
-* Desktop screens
-
-6. **Trust Elements**
-   Include:
-
-* Shop location
-* Contact phone number
-* WhatsApp contact option
-* Real shop images section
-* Customer review section
-
-7. **SEO Optimization**
-
-* Proper meta tags
-* Fast loading
-* Optimized images
-* Clean URLs for products
-
-8. **Project Structure**
-   Organize the project into:
-
-* components
-* pages
-* admin dashboard
-* API routes
-* database models
-
-Also include clear instructions in a README file explaining:
-
-* how to install dependencies
-* how to run the development server
-* how to configure MongoDB
-* how to deploy the website.
-
-The final result should look like a **professional online catalog website for a traditional clothing shop with WhatsApp-based customer inquiries instead of a full e-commerce checkout system.**
+<section class="products">
+  <div class="product-card">
+    <img src="product.jpg" />
+    <h3>Product Name</h3>
+    <p>₹499</p>
+    <button>View Details</button>
+  </div>
+</section>
