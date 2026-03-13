@@ -3,39 +3,48 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gunabati Yatri Niwas - Hotel Management</title>
+<title>Gunabati Yatri Niwas - Hotel PMS</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-body{font-family:Arial;margin:0;background:#f1f5f9}
+body{font-family:Arial;margin:0;background:#eef2f7}
 header{background:#1e3a8a;color:white;padding:15px;text-align:center;font-size:24px;font-weight:bold}
 .container{display:flex}
-.sidebar{width:220px;background:#111;color:white;min-height:100vh;padding-top:20px}
+.sidebar{width:240px;background:#111;color:white;min-height:100vh;padding-top:20px}
 .sidebar a{display:block;color:white;padding:12px;text-decoration:none}
 .sidebar a:hover{background:#333}
 .content{flex:1;padding:20px}
-.card{background:white;padding:15px;margin-bottom:20px;border-radius:10px;box-shadow:0 0 5px rgba(0,0,0,0.1)}
-
-table{width:100%;border-collapse:collapse}
-th,td{border:1px solid #ddd;padding:8px}
-th{background:#2563eb;color:white}
-
-input,select{padding:8px;margin:5px}
-button{padding:6px 10px;background:#2563eb;color:white;border:none;border-radius:5px;cursor:pointer}
-button:hover{background:#1e40af}
-.delete{background:#dc2626}
-.edit{background:#16a34a}
+.card{background:white;padding:15px;margin-bottom:20px;border-radius:10px;box-shadow:0 0 6px rgba(0,0,0,0.1)}
 
 .dashboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px}
-.stat{background:white;padding:20px;border-radius:10px;text-align:center;font-size:18px;box-shadow:0 0 5px rgba(0,0,0,0.1)}
+.stat{background:white;padding:20px;border-radius:10px;text-align:center;font-size:18px;box-shadow:0 0 6px rgba(0,0,0,0.1)}
+
+.room-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
+.room{padding:20px;border-radius:8px;text-align:center;color:white;font-weight:bold}
+.available{background:#16a34a}
+.occupied{background:#dc2626}
+
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.day{padding:10px;border-radius:6px;text-align:center;background:#e5e7eb}
+
+input,select{padding:8px;margin:5px}
+button{padding:6px 10px;border:none;border-radius:5px;cursor:pointer;background:#2563eb;color:white}
+button:hover{background:#1e40af}
+.delete{background:#dc2626}
+.checkout{background:#f59e0b}
 
 .login{height:100vh;display:flex;justify-content:center;align-items:center;background:#1e3a8a}
-.login-box{background:white;padding:30px;border-radius:10px;width:300px;text-align:center}
+.login-box{background:white;padding:30px;border-radius:10px;width:320px;text-align:center}
 
 @media(max-width:768px){
 .container{flex-direction:column}
 .sidebar{width:100%;display:flex;overflow:auto}
 .sidebar a{flex:1;text-align:center}
 }
+
+table{width:100%;border-collapse:collapse}
+th,td{border:1px solid #ddd;padding:8px}
+th{background:#2563eb;color:white}
 </style>
 </head>
 
@@ -43,96 +52,79 @@ button:hover{background:#1e40af}
 
 <div id="loginPage" class="login">
 <div class="login-box">
-<h2>Admin Login</h2>
-<input id="user" placeholder="Username"><br>
-<input id="pass" type="password" placeholder="Password"><br>
+<h2>Hotel Admin Login</h2>
+<input id="user" placeholder="Username"><br><br>
+<input id="pass" type="password" placeholder="Password"><br><br>
 <button onclick="login()">Login</button>
 <p id="loginMsg"></p>
 </div>
 </div>
 
 <div id="system" style="display:none">
-
-<header>GUNABATI YATRI NIWAS</header>
+<header>GUNABATI YATRI NIWAS - HOTEL PMS</header>
 
 <div class="container">
 
 <div class="sidebar">
-<a href="#">Dashboard</a>
-<a href="#rooms">Rooms</a>
-<a href="#guest">Guests</a>
-<a href="#income">Income</a>
-<a href="#expense">Expenses</a>
+<a href="#dashboard">Dashboard</a>
+<a href="#rooms">Room Status</a>
+<a href="#booking">Booking</a>
+<a href="#guests">Guests</a>
+<a href="#reports">Reports</a>
 </div>
 
 <div class="content">
 
-<div class="dashboard">
-<div class="stat">Monthly Income<br>₹<span id="monthIncome">0</span></div>
-<div class="stat">Monthly Expenses<br>₹<span id="monthExpense">0</span></div>
-<div class="stat">Profit<br>₹<span id="profit">0</span></div>
+<!-- DASHBOARD -->
+<div class="dashboard" id="dashboard">
+<div class="stat">Income ₹<span id="incomeTotal">0</span></div>
+<div class="stat">Expenses ₹<span id="expenseTotal">0</span></div>
+<div class="stat">Profit ₹<span id="profit">0</span></div>
 </div>
 
-<!-- ROOM MANAGEMENT -->
+<!-- ROOM STATUS BOARD -->
 <div class="card" id="rooms">
-<h3>Room Management</h3>
+<h3>Room Availability</h3>
+<div class="room-grid" id="roomBoard"></div>
+</div>
+
+<!-- BOOKING -->
+<div class="card" id="booking">
+<h3>Room Booking</h3>
+<input id="guestName" placeholder="Guest Name">
 <input id="roomNumber" placeholder="Room Number">
-<input id="roomPrice" placeholder="Room Price">
-<button onclick="addRoom()">Add Room</button>
-
-<table id="roomTable">
-<tr><th>Room</th><th>Price</th><th>Status</th><th>Action</th></tr>
-</table>
+<input id="roomPrice" placeholder="Room Price Per Night">
+<input type="date" id="checkin">
+<input type="date" id="checkout">
+<input id="advance" placeholder="Advance Payment">
+<button onclick="bookRoom()">Book Room</button>
 </div>
 
-<!-- GUEST -->
-<div class="card" id="guest">
-<h3>Guest Registration</h3>
-<input id="gname" placeholder="Guest Name">
-<select id="roomSelect"></select>
-<input id="checkin" type="date">
-<input id="checkout" type="date">
-<input id="advance" placeholder="Payment">
-<button onclick="bookRoom()">Book</button>
-
+<!-- GUEST TABLE -->
+<div class="card" id="guests">
+<h3>Reception Guest Register</h3>
 <table id="guestTable">
-<tr><th>Name</th><th>Room</th><th>Checkin</th><th>Checkout</th><th>Payment</th><th>Invoice</th><th>Action</th></tr>
+<tr>
+<th>Name</th>
+<th>Room</th>
+<th>Checkin</th>
+<th>Checkout</th>
+<th>Days</th>
+<th>Total Bill</th>
+<th>Advance</th>
+<th>Balance</th>
+<th>Status</th>
+<th>Actions</th>
+</tr>
 </table>
 </div>
 
-<!-- INCOME -->
-<div class="card" id="income">
-<h3>Income</h3>
-<select id="incomeType">
-<option>Room Sale</option>
-<option>Water Sale</option>
-<option>Tea Coffee</option>
-<option>Veg Hotel Joy</option>
-</select>
-<input id="incomeAmount" placeholder="Amount">
-<button onclick="addIncome()">Add</button>
-
-<table id="incomeTable">
-<tr><th>Date</th><th>Type</th><th>Amount</th><th>Action</th></tr>
-</table>
-</div>
-
-<!-- EXPENSE -->
-<div class="card" id="expense">
-<h3>Expenses</h3>
-<select id="expenseType">
-<option>Staff Salary</option>
-<option>Maintenance</option>
-<option>Gas</option>
-<option>Electricity</option>
-<option>Mobile Recharge</option>
-</select>
-<input id="expenseAmount" placeholder="Amount">
-<button onclick="addExpense()">Add</button>
-
-<table id="expenseTable">
-<tr><th>Date</th><th>Type</th><th>Amount</th><th>Action</th></tr>
-</table>
+<!-- REPORT -->
+<div class="card" id="reports">
+<h3>Daily Financial Report</h3>
+<canvas id="financeChart"></canvas>
+<br>
+<button onclick="printDailyReport()">Print Daily Report</button>
 </div>
 
 </div>
@@ -140,6 +132,9 @@ button:hover{background:#1e40af}
 </div>
 
 <script>
+
+let rooms=[101,102,103,104,105,106,107,108,109,110]
+let roomStatus={}
 let incomeTotal=0
 let expenseTotal=0
 
@@ -150,37 +145,52 @@ let p=document.getElementById("pass").value
 if(u==="admin" && p==="1234"){
 document.getElementById("loginPage").style.display="none"
 document.getElementById("system").style.display="block"
-}else{
-document.getElementById("loginMsg").innerText="Wrong Login"
+initRooms()
+}
+else{
+document.getElementById("loginMsg").innerText="Wrong login"
 }
 }
 
-function addRoom(){
-let number=document.getElementById("roomNumber").value
-let price=document.getElementById("roomPrice").value
+function initRooms(){
+let board=document.getElementById("roomBoard")
+rooms.forEach(r=>{
+roomStatus[r]="available"
+let div=document.createElement("div")
+div.className="room available"
+div.id="room"+r
+div.innerText="Room "+r
+board.appendChild(div)
+})
+}
 
-let table=document.getElementById("roomTable")
-let row=table.insertRow()
-row.insertCell(0).innerText=number
-row.insertCell(1).innerText=price
-row.insertCell(2).innerText="Available"
+function daysBetween(d1,d2){
+let date1=new Date(d1)
+let date2=new Date(d2)
+let diff=(date2-date1)/(1000*60*60*24)
+return diff||1
+}
 
-let action=row.insertCell(3)
-action.innerHTML=`<button class='edit' onclick='editRow(this)'>Edit</button> <button class='delete' onclick='deleteRow(this)'>Delete</button>`
-
-let option=document.createElement("option")
-option.text=number
-option.value=number
-
-document.getElementById("roomSelect").appendChild(option)
+function updateRoomStatus(room,status){
+roomStatus[room]=status
+let box=document.getElementById("room"+room)
+if(!box)return
+box.className="room "+(status==="available"?"available":"occupied")
 }
 
 function bookRoom(){
-let name=document.getElementById("gname").value
-let room=document.getElementById("roomSelect").value
+let name=document.getElementById("guestName").value
+let room=document.getElementById("roomNumber").value
+let price=parseFloat(document.getElementById("roomPrice").value)||0
 let checkin=document.getElementById("checkin").value
 let checkout=document.getElementById("checkout").value
-let payment=document.getElementById("advance").value
+let advance=parseFloat(document.getElementById("advance").value)||0
+
+let days=daysBetween(checkin,checkout)
+let total=days*price
+let balance=total-advance
+
+updateRoomStatus(room,"occupied")
 
 let table=document.getElementById("guestTable")
 let row=table.insertRow()
@@ -189,84 +199,65 @@ row.insertCell(0).innerText=name
 row.insertCell(1).innerText=room
 row.insertCell(2).innerText=checkin
 row.insertCell(3).innerText=checkout
-row.insertCell(4).innerText=payment
+row.insertCell(4).innerText=days
+row.insertCell(5).innerText=total
+row.insertCell(6).innerText=advance
+row.insertCell(7).innerText=balance
+row.insertCell(8).innerText="Checked In"
 
-let btn=document.createElement("button")
-btn.innerText="Print"
-btn.onclick=function(){generateInvoice(name,room,payment)}
-row.insertCell(5).appendChild(btn)
+let action=row.insertCell(9)
+action.innerHTML=`
+<button class="checkout" onclick="checkoutGuest(this,'${room}',${balance})">Check-out</button>
+<button class="delete" onclick="deleteRow(this)">Delete</button>
+`
 
-let action=row.insertCell(6)
-action.innerHTML=`<button class='edit' onclick='editRow(this)'>Edit</button> <button class='delete' onclick='deleteRow(this)'>Delete</button>`
-
-incomeTotal+=parseInt(payment||0)
+incomeTotal+=advance
 updateTotals()
+updateChart()
 }
 
-function addIncome(){
-let type=document.getElementById("incomeType").value
-let amount=parseInt(document.getElementById("incomeAmount").value)
-
-let table=document.getElementById("incomeTable")
-let row=table.insertRow()
-row.insertCell(0).innerText=new Date().toLocaleDateString()
-row.insertCell(1).innerText=type
-row.insertCell(2).innerText=amount
-
-let action=row.insertCell(3)
-action.innerHTML=`<button class='edit' onclick='editRow(this)'>Edit</button> <button class='delete' onclick='deleteRow(this)'>Delete</button>`
-
-incomeTotal+=amount
-updateTotals()
-}
-
-function addExpense(){
-let type=document.getElementById("expenseType").value
-let amount=parseInt(document.getElementById("expenseAmount").value)
-
-let table=document.getElementById("expenseTable")
-let row=table.insertRow()
-row.insertCell(0).innerText=new Date().toLocaleDateString()
-row.insertCell(1).innerText=type
-row.insertCell(2).innerText=amount
-
-let action=row.insertCell(3)
-action.innerHTML=`<button class='edit' onclick='editRow(this)'>Edit</button> <button class='delete' onclick='deleteRow(this)'>Delete</button>`
-
-expenseTotal+=amount
-updateTotals()
-}
-
-function editRow(btn){
+function checkoutGuest(btn,room,balance){
 let row=btn.parentNode.parentNode
-for(let i=0;i<row.cells.length-1;i++){
-let value=row.cells[i].innerText
-let newValue=prompt("Edit value",value)
-if(newValue!==null) row.cells[i].innerText=newValue
-}
+row.cells[8].innerText="Checked Out"
+updateRoomStatus(room,"available")
+
+incomeTotal+=balance
+updateTotals()
+updateChart()
 }
 
 function deleteRow(btn){
 let row=btn.parentNode.parentNode
-row.parentNode.removeChild(row)
+row.remove()
 }
 
 function updateTotals(){
-document.getElementById("monthIncome").innerText=incomeTotal
+document.getElementById("incomeTotal").innerText=incomeTotal
 
-document.getElementById("monthExpense").innerText=expenseTotal
+document.getElementById("expenseTotal").innerText=expenseTotal
 
 document.getElementById("profit").innerText=incomeTotal-expenseTotal
 }
 
-function generateInvoice(name,room,amount){
-let w=window.open()
-w.document.write("<h2>Gunabati Yatri Niwas</h2>")
-w.document.write("Guest: "+name+"<br>")
-w.document.write("Room: "+room+"<br>")
-w.document.write("Paid: ₹"+amount)
-w.print()
+function printDailyReport(){
+let reportWindow=window.open()
+reportWindow.document.write("<h2>Gunabati Yatri Niwas - Daily Report</h2>")
+reportWindow.document.write("Total Income: ₹"+incomeTotal+"<br>")
+reportWindow.document.write("Total Expenses: ₹"+expenseTotal+"<br>")
+reportWindow.document.write("Profit: ₹"+(incomeTotal-expenseTotal)+"<br>")
+reportWindow.print()
 }
+
+let chart
+function updateChart(){
+let ctx=document.getElementById("financeChart")
+
+if(chart) chart.destroy()
+
+chart=new Chart(ctx,{type:'bar',data:{labels:['Income','Expense','Profit'],datasets:[{data:[incomeTotal,expenseTotal,incomeTotal-expenseTotal]}]}})
+}
+
+updateChart()
 
 </script>
 
