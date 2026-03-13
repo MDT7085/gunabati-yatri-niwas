@@ -20,19 +20,16 @@ th,td{border:1px solid #ddd;padding:8px}
 th{background:#2563eb;color:white}
 
 input,select{padding:8px;margin:5px}
-button{padding:8px 14px;background:#2563eb;color:white;border:none;border-radius:5px;cursor:pointer}
+button{padding:6px 10px;background:#2563eb;color:white;border:none;border-radius:5px;cursor:pointer}
 button:hover{background:#1e40af}
+.delete{background:#dc2626}
+.edit{background:#16a34a}
 
 .dashboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px}
 .stat{background:white;padding:20px;border-radius:10px;text-align:center;font-size:18px;box-shadow:0 0 5px rgba(0,0,0,0.1)}
 
 .login{height:100vh;display:flex;justify-content:center;align-items:center;background:#1e3a8a}
 .login-box{background:white;padding:30px;border-radius:10px;width:300px;text-align:center}
-
-.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
-.day{padding:12px;text-align:center;border-radius:6px;background:#e5e7eb;cursor:pointer}
-.booked{background:#ef4444;color:white}
-.available{background:#22c55e;color:white}
 
 @media(max-width:768px){
 .container{flex-direction:column}
@@ -44,7 +41,6 @@ button:hover{background:#1e40af}
 
 <body>
 
-<!-- LOGIN PAGE -->
 <div id="loginPage" class="login">
 <div class="login-box">
 <h2>Admin Login</h2>
@@ -63,17 +59,14 @@ button:hover{background:#1e40af}
 
 <div class="sidebar">
 <a href="#">Dashboard</a>
-<a href="#guest">Guest</a>
 <a href="#rooms">Rooms</a>
+<a href="#guest">Guests</a>
 <a href="#income">Income</a>
 <a href="#expense">Expenses</a>
-<a href="#calendar">Booking</a>
-<a href="#reports">Reports</a>
 </div>
 
 <div class="content">
 
-<!-- DASHBOARD -->
 <div class="dashboard">
 <div class="stat">Monthly Income<br>₹<span id="monthIncome">0</span></div>
 <div class="stat">Monthly Expenses<br>₹<span id="monthExpense">0</span></div>
@@ -84,40 +77,26 @@ button:hover{background:#1e40af}
 <div class="card" id="rooms">
 <h3>Room Management</h3>
 <input id="roomNumber" placeholder="Room Number">
-<input id="roomPrice" placeholder="Price Per Night">
+<input id="roomPrice" placeholder="Room Price">
 <button onclick="addRoom()">Add Room</button>
 
 <table id="roomTable">
-<tr>
-<th>Room</th>
-<th>Price</th>
-<th>Status</th>
-</tr>
+<tr><th>Room</th><th>Price</th><th>Status</th><th>Action</th></tr>
 </table>
 </div>
 
-<!-- GUEST REGISTRATION -->
+<!-- GUEST -->
 <div class="card" id="guest">
 <h3>Guest Registration</h3>
-
 <input id="gname" placeholder="Guest Name">
-<input id="mobile" placeholder="Mobile">
 <select id="roomSelect"></select>
 <input id="checkin" type="date">
 <input id="checkout" type="date">
-<input id="advance" placeholder="Advance Payment">
-
-<button onclick="bookRoom()">Book Room</button>
+<input id="advance" placeholder="Payment">
+<button onclick="bookRoom()">Book</button>
 
 <table id="guestTable">
-<tr>
-<th>Name</th>
-<th>Room</th>
-<th>Checkin</th>
-<th>Checkout</th>
-<th>Payment</th>
-<th>Invoice</th>
-</tr>
+<tr><th>Name</th><th>Room</th><th>Checkin</th><th>Checkout</th><th>Payment</th><th>Invoice</th><th>Action</th></tr>
 </table>
 </div>
 
@@ -127,14 +106,14 @@ button:hover{background:#1e40af}
 <select id="incomeType">
 <option>Room Sale</option>
 <option>Water Sale</option>
-<option>Tea Coffee Sale</option>
+<option>Tea Coffee</option>
 <option>Veg Hotel Joy</option>
 </select>
 <input id="incomeAmount" placeholder="Amount">
 <button onclick="addIncome()">Add</button>
 
 <table id="incomeTable">
-<tr><th>Date</th><th>Type</th><th>Amount</th></tr>
+<tr><th>Date</th><th>Type</th><th>Amount</th><th>Action</th></tr>
 </table>
 </div>
 
@@ -152,20 +131,8 @@ button:hover{background:#1e40af}
 <button onclick="addExpense()">Add</button>
 
 <table id="expenseTable">
-<tr><th>Date</th><th>Type</th><th>Amount</th></tr>
+<tr><th>Date</th><th>Type</th><th>Amount</th><th>Action</th></tr>
 </table>
-</div>
-
-<!-- BOOKING CALENDAR -->
-<div class="card" id="calendar">
-<h3>Real Booking Calendar</h3>
-<div class="calendar" id="calendarGrid"></div>
-</div>
-
-<!-- REPORTS -->
-<div class="card" id="reports">
-<h3>Monthly Profit Report</h3>
-<button onclick="printReport()">Print Report</button>
 </div>
 
 </div>
@@ -173,10 +140,8 @@ button:hover{background:#1e40af}
 </div>
 
 <script>
-
 let incomeTotal=0
 let expenseTotal=0
-let rooms=[]
 
 function login(){
 let u=document.getElementById("user").value
@@ -185,8 +150,7 @@ let p=document.getElementById("pass").value
 if(u==="admin" && p==="1234"){
 document.getElementById("loginPage").style.display="none"
 document.getElementById("system").style.display="block"
-}
-else{
+}else{
 document.getElementById("loginMsg").innerText="Wrong Login"
 }
 }
@@ -195,21 +159,20 @@ function addRoom(){
 let number=document.getElementById("roomNumber").value
 let price=document.getElementById("roomPrice").value
 
-rooms.push({number,price,status:"Available"})
-
 let table=document.getElementById("roomTable")
 let row=table.insertRow()
 row.insertCell(0).innerText=number
 row.insertCell(1).innerText=price
 row.insertCell(2).innerText="Available"
 
+let action=row.insertCell(3)
+action.innerHTML=`<button class='edit' onclick='editRow(this)'>Edit</button> <button class='delete' onclick='deleteRow(this)'>Delete</button>`
+
 let option=document.createElement("option")
 option.text=number
 option.value=number
 
 document.getElementById("roomSelect").appendChild(option)
-
-saveData()
 }
 
 function bookRoom(){
@@ -217,7 +180,7 @@ let name=document.getElementById("gname").value
 let room=document.getElementById("roomSelect").value
 let checkin=document.getElementById("checkin").value
 let checkout=document.getElementById("checkout").value
-let payment=parseInt(document.getElementById("advance").value)
+let payment=document.getElementById("advance").value
 
 let table=document.getElementById("guestTable")
 let row=table.insertRow()
@@ -229,27 +192,20 @@ row.insertCell(3).innerText=checkout
 row.insertCell(4).innerText=payment
 
 let btn=document.createElement("button")
-btn.innerText="Print Bill"
+btn.innerText="Print"
 btn.onclick=function(){generateInvoice(name,room,payment)}
 row.insertCell(5).appendChild(btn)
 
-incomeTotal+=payment
-updateTotals()
-saveData()
-}
+let action=row.insertCell(6)
+action.innerHTML=`<button class='edit' onclick='editRow(this)'>Edit</button> <button class='delete' onclick='deleteRow(this)'>Delete</button>`
 
-function generateInvoice(name,room,amount){
-let w=window.open()
-w.document.write("<h2>Gunabati Yatri Niwas</h2>")
-w.document.write("Guest: "+name+"<br>")
-w.document.write("Room: "+room+"<br>")
-w.document.write("Paid: ₹"+amount)
-w.print()
+incomeTotal+=parseInt(payment||0)
+updateTotals()
 }
 
 function addIncome(){
-let amount=parseInt(document.getElementById("incomeAmount").value)
 let type=document.getElementById("incomeType").value
+let amount=parseInt(document.getElementById("incomeAmount").value)
 
 let table=document.getElementById("incomeTable")
 let row=table.insertRow()
@@ -257,14 +213,16 @@ row.insertCell(0).innerText=new Date().toLocaleDateString()
 row.insertCell(1).innerText=type
 row.insertCell(2).innerText=amount
 
+let action=row.insertCell(3)
+action.innerHTML=`<button class='edit' onclick='editRow(this)'>Edit</button> <button class='delete' onclick='deleteRow(this)'>Delete</button>`
+
 incomeTotal+=amount
 updateTotals()
-saveData()
 }
 
 function addExpense(){
-let amount=parseInt(document.getElementById("expenseAmount").value)
 let type=document.getElementById("expenseType").value
+let amount=parseInt(document.getElementById("expenseAmount").value)
 
 let table=document.getElementById("expenseTable")
 let row=table.insertRow()
@@ -272,9 +230,25 @@ row.insertCell(0).innerText=new Date().toLocaleDateString()
 row.insertCell(1).innerText=type
 row.insertCell(2).innerText=amount
 
+let action=row.insertCell(3)
+action.innerHTML=`<button class='edit' onclick='editRow(this)'>Edit</button> <button class='delete' onclick='deleteRow(this)'>Delete</button>`
+
 expenseTotal+=amount
 updateTotals()
-saveData()
+}
+
+function editRow(btn){
+let row=btn.parentNode.parentNode
+for(let i=0;i<row.cells.length-1;i++){
+let value=row.cells[i].innerText
+let newValue=prompt("Edit value",value)
+if(newValue!==null) row.cells[i].innerText=newValue
+}
+}
+
+function deleteRow(btn){
+let row=btn.parentNode.parentNode
+row.parentNode.removeChild(row)
 }
 
 function updateTotals(){
@@ -285,59 +259,14 @@ document.getElementById("monthExpense").innerText=expenseTotal
 document.getElementById("profit").innerText=incomeTotal-expenseTotal
 }
 
-function printReport(){
-window.print()
+function generateInvoice(name,room,amount){
+let w=window.open()
+w.document.write("<h2>Gunabati Yatri Niwas</h2>")
+w.document.write("Guest: "+name+"<br>")
+w.document.write("Room: "+room+"<br>")
+w.document.write("Paid: ₹"+amount)
+w.print()
 }
-
-function saveData(){
-localStorage.setItem("rooms",JSON.stringify(rooms))
-localStorage.setItem("incomeTotal",incomeTotal)
-localStorage.setItem("expenseTotal",expenseTotal)
-}
-
-function loadData(){
-if(localStorage.getItem("rooms")){
-rooms=JSON.parse(localStorage.getItem("rooms"))
-rooms.forEach(r=>{
-let table=document.getElementById("roomTable")
-let row=table.insertRow()
-row.insertCell(0).innerText=r.number
-row.insertCell(1).innerText=r.price
-row.insertCell(2).innerText=r.status
-
-let option=document.createElement("option")
-option.text=r.number
-option.value=r.number
-
-document.getElementById("roomSelect").appendChild(option)
-})
-}
-
-incomeTotal=parseInt(localStorage.getItem("incomeTotal"))||0
-expenseTotal=parseInt(localStorage.getItem("expenseTotal"))||0
-
-updateTotals()
-}
-
-loadData()
-
-function generateCalendar(){
-let grid=document.getElementById("calendarGrid")
-
-for(let i=1;i<=31;i++){
-let d=document.createElement("div")
-d.className="day"
-d.innerText=i
-
-d.onclick=function(){
-alert("Bookings managed through room booking form")
-}
-
-grid.appendChild(d)
-}
-}
-
-generateCalendar()
 
 </script>
 
