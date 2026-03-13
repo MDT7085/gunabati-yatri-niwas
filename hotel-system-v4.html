@@ -1,265 +1,85 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gunabati Yatri Niwas - Hotel PMS</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+Create a modern, professional, and fully responsive website for a local traditional clothing shop called **"Unique Gift"**.
 
-<style>
-body{font-family:Arial;margin:0;background:#eef2f7}
-header{background:#1e3a8a;color:white;padding:15px;text-align:center;font-size:24px;font-weight:bold}
-.container{display:flex}
-.sidebar{width:240px;background:#111;color:white;min-height:100vh;padding-top:20px}
-.sidebar a{display:block;color:white;padding:12px;text-decoration:none}
-.sidebar a:hover{background:#333}
-.content{flex:1;padding:20px}
-.card{background:white;padding:15px;margin-bottom:20px;border-radius:10px;box-shadow:0 0 6px rgba(0,0,0,0.1)}
+The website should be built using modern web technologies such as **Next.js (React), Tailwind CSS for styling, Framer Motion for animations, and Node.js + Express for backend APIs. Use MongoDB as the database and Cloudinary for image/video storage.**
 
-.dashboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px}
-.stat{background:white;padding:20px;border-radius:10px;text-align:center;font-size:18px;box-shadow:0 0 6px rgba(0,0,0,0.1)}
+The website must include the following features and pages:
 
-.room-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
-.room{padding:20px;border-radius:8px;text-align:center;color:white;font-weight:bold}
-.available{background:#16a34a}
-.occupied{background:#dc2626}
+1. **Home Page**
 
-.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
-.day{padding:10px;border-radius:6px;text-align:center;background:#e5e7eb}
+* At the top of the page, display the shop name **"Unique Gift – Traditional Clothing Shop"**.
+* Below the shop name display the **full shop address**.
+* Next to the address, include a **"View on Google Maps" button** that redirects users to the exact shop location on Google Maps.
+* Add a **modern search bar** that allows users to search products by name or category.
+* Display **product categories** such as Saree, Kurti, Lehenga, Salwar Suit, Ethnic Wear, and Gift Items.
+* Below the categories section, show a **grid of all products** with image, name, price, and a "View Details" button.
 
-input,select{padding:8px;margin:5px}
-button{padding:6px 10px;border:none;border-radius:5px;cursor:pointer;background:#2563eb;color:white}
-button:hover{background:#1e40af}
-.delete{background:#dc2626}
-.checkout{background:#f59e0b}
+2. **Product Details Page**
+   When a user clicks on a product:
 
-.login{height:100vh;display:flex;justify-content:center;align-items:center;background:#1e3a8a}
-.login-box{background:white;padding:30px;border-radius:10px;width:320px;text-align:center}
+* Show a **large image gallery and optional product video**.
+* Display the **product name, price, category, and detailed description**.
+* Include a **Contact for More Details section** with:
 
-@media(max-width:768px){
-.container{flex-direction:column}
-.sidebar{width:100%;display:flex;overflow:auto}
-.sidebar a{flex:1;text-align:center}
-}
+  * A **WhatsApp button** that opens WhatsApp with a pre-filled message containing the product name and product page link.
+  * A **Call Now button** that allows the user to directly call the shop phone number.
+* The WhatsApp message should be editable by the user before sending.
 
-table{width:100%;border-collapse:collapse}
-th,td{border:1px solid #ddd;padding:8px}
-th{background:#2563eb;color:white}
-</style>
-</head>
+3. **Admin Panel**
+   Create a secure admin dashboard accessible at `/admin`.
 
-<body>
+Admin features should include:
 
-<div id="loginPage" class="login">
-<div class="login-box">
-<h2>Hotel Admin Login</h2>
-<input id="user" placeholder="Username"><br><br>
-<input id="pass" type="password" placeholder="Password"><br><br>
-<button onclick="login()">Login</button>
-<p id="loginMsg"></p>
-</div>
-</div>
+* Admin login authentication
+* Add new products
+* Upload product images or videos
+* Add product name, category, price, and description
+* Edit or delete existing products
+* Manage product categories
 
-<div id="system" style="display:none">
-<header>GUNABATI YATRI NIWAS - HOTEL PMS</header>
+4. **UI / UX Requirements**
 
-<div class="container">
+* The design should look modern and professional.
+* Use **smooth animations** for scrolling, button hover, and product cards.
+* Use **Framer Motion or similar animation libraries**.
+* Include **clean layout, proper spacing, modern typography, and card-based product design**.
 
-<div class="sidebar">
-<a href="#dashboard">Dashboard</a>
-<a href="#rooms">Room Status</a>
-<a href="#booking">Booking</a>
-<a href="#guests">Guests</a>
-<a href="#reports">Reports</a>
-</div>
+5. **Mobile Responsive Design**
+   The website must be fully responsive and work perfectly on:
 
-<div class="content">
+* Mobile phones
+* Tablets
+* Desktop screens
 
-<!-- DASHBOARD -->
-<div class="dashboard" id="dashboard">
-<div class="stat">Income ₹<span id="incomeTotal">0</span></div>
-<div class="stat">Expenses ₹<span id="expenseTotal">0</span></div>
-<div class="stat">Profit ₹<span id="profit">0</span></div>
-</div>
+6. **Trust Elements**
+   Include:
 
-<!-- ROOM STATUS BOARD -->
-<div class="card" id="rooms">
-<h3>Room Availability</h3>
-<div class="room-grid" id="roomBoard"></div>
-</div>
+* Shop location
+* Contact phone number
+* WhatsApp contact option
+* Real shop images section
+* Customer review section
 
-<!-- BOOKING -->
-<div class="card" id="booking">
-<h3>Room Booking</h3>
-<input id="guestName" placeholder="Guest Name">
-<input id="roomNumber" placeholder="Room Number">
-<input id="roomPrice" placeholder="Room Price Per Night">
-<input type="date" id="checkin">
-<input type="date" id="checkout">
-<input id="advance" placeholder="Advance Payment">
-<button onclick="bookRoom()">Book Room</button>
-</div>
+7. **SEO Optimization**
 
-<!-- GUEST TABLE -->
-<div class="card" id="guests">
-<h3>Reception Guest Register</h3>
-<table id="guestTable">
-<tr>
-<th>Name</th>
-<th>Room</th>
-<th>Checkin</th>
-<th>Checkout</th>
-<th>Days</th>
-<th>Total Bill</th>
-<th>Advance</th>
-<th>Balance</th>
-<th>Status</th>
-<th>Actions</th>
-</tr>
-</table>
-</div>
+* Proper meta tags
+* Fast loading
+* Optimized images
+* Clean URLs for products
 
-<!-- REPORT -->
-<div class="card" id="reports">
-<h3>Daily Financial Report</h3>
-<canvas id="financeChart"></canvas>
-<br>
-<button onclick="printDailyReport()">Print Daily Report</button>
-</div>
+8. **Project Structure**
+   Organize the project into:
 
-</div>
-</div>
-</div>
+* components
+* pages
+* admin dashboard
+* API routes
+* database models
 
-<script>
+Also include clear instructions in a README file explaining:
 
-let rooms=[101,102,103,104,105,106,107,108,109,110]
-let roomStatus={}
-let incomeTotal=0
-let expenseTotal=0
+* how to install dependencies
+* how to run the development server
+* how to configure MongoDB
+* how to deploy the website.
 
-function login(){
-let u=document.getElementById("user").value
-let p=document.getElementById("pass").value
-
-if(u==="admin" && p==="1234"){
-document.getElementById("loginPage").style.display="none"
-document.getElementById("system").style.display="block"
-initRooms()
-}
-else{
-document.getElementById("loginMsg").innerText="Wrong login"
-}
-}
-
-function initRooms(){
-let board=document.getElementById("roomBoard")
-rooms.forEach(r=>{
-roomStatus[r]="available"
-let div=document.createElement("div")
-div.className="room available"
-div.id="room"+r
-div.innerText="Room "+r
-board.appendChild(div)
-})
-}
-
-function daysBetween(d1,d2){
-let date1=new Date(d1)
-let date2=new Date(d2)
-let diff=(date2-date1)/(1000*60*60*24)
-return diff||1
-}
-
-function updateRoomStatus(room,status){
-roomStatus[room]=status
-let box=document.getElementById("room"+room)
-if(!box)return
-box.className="room "+(status==="available"?"available":"occupied")
-}
-
-function bookRoom(){
-let name=document.getElementById("guestName").value
-let room=document.getElementById("roomNumber").value
-let price=parseFloat(document.getElementById("roomPrice").value)||0
-let checkin=document.getElementById("checkin").value
-let checkout=document.getElementById("checkout").value
-let advance=parseFloat(document.getElementById("advance").value)||0
-
-let days=daysBetween(checkin,checkout)
-let total=days*price
-let balance=total-advance
-
-updateRoomStatus(room,"occupied")
-
-let table=document.getElementById("guestTable")
-let row=table.insertRow()
-
-row.insertCell(0).innerText=name
-row.insertCell(1).innerText=room
-row.insertCell(2).innerText=checkin
-row.insertCell(3).innerText=checkout
-row.insertCell(4).innerText=days
-row.insertCell(5).innerText=total
-row.insertCell(6).innerText=advance
-row.insertCell(7).innerText=balance
-row.insertCell(8).innerText="Checked In"
-
-let action=row.insertCell(9)
-action.innerHTML=`
-<button class="checkout" onclick="checkoutGuest(this,'${room}',${balance})">Check-out</button>
-<button class="delete" onclick="deleteRow(this)">Delete</button>
-`
-
-incomeTotal+=advance
-updateTotals()
-updateChart()
-}
-
-function checkoutGuest(btn,room,balance){
-let row=btn.parentNode.parentNode
-row.cells[8].innerText="Checked Out"
-updateRoomStatus(room,"available")
-
-incomeTotal+=balance
-updateTotals()
-updateChart()
-}
-
-function deleteRow(btn){
-let row=btn.parentNode.parentNode
-row.remove()
-}
-
-function updateTotals(){
-document.getElementById("incomeTotal").innerText=incomeTotal
-
-document.getElementById("expenseTotal").innerText=expenseTotal
-
-document.getElementById("profit").innerText=incomeTotal-expenseTotal
-}
-
-function printDailyReport(){
-let reportWindow=window.open()
-reportWindow.document.write("<h2>Gunabati Yatri Niwas - Daily Report</h2>")
-reportWindow.document.write("Total Income: ₹"+incomeTotal+"<br>")
-reportWindow.document.write("Total Expenses: ₹"+expenseTotal+"<br>")
-reportWindow.document.write("Profit: ₹"+(incomeTotal-expenseTotal)+"<br>")
-reportWindow.print()
-}
-
-let chart
-function updateChart(){
-let ctx=document.getElementById("financeChart")
-
-if(chart) chart.destroy()
-
-chart=new Chart(ctx,{type:'bar',data:{labels:['Income','Expense','Profit'],datasets:[{data:[incomeTotal,expenseTotal,incomeTotal-expenseTotal]}]}})
-}
-
-updateChart()
-
-</script>
-
-</body>
-</html>
+The final result should look like a **professional online catalog website for a traditional clothing shop with WhatsApp-based customer inquiries instead of a full e-commerce checkout system.**
