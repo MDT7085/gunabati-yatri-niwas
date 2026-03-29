@@ -3,304 +3,268 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HOTEL ROYAL INN - Advanced Admin</title>
+    <title>HOTEL ROYAL INN - Admin System</title>
     <style>
-        :root { --primary: #2c3e50; --success: #27ae60; --danger: #e74c3c; --info: #2980b9; --warning: #f39c12; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin: 0; padding-bottom: 50px; }
-        header { background: var(--primary); color: white; padding: 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
-        .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
+        :root { --primary: #2c3e50; --success: #27ae60; --danger: #e74c3c; --info: #2980b9; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f7f6; margin: 0; padding-bottom: 50px; }
+        header { background: var(--primary); color: white; padding: 15px; text-align: center; }
+        .container { max-width: 1200px; margin: auto; padding: 20px; }
         
-        /* Grid Layouts */
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
         
-        /* Room Grid */
-        .room-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
-        .room { padding: 15px; border-radius: 8px; text-align: center; color: white; cursor: pointer; font-weight: bold; position: relative; }
+        /* Rooms */
+        .room-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        .room { padding: 15px; border-radius: 5px; text-align: center; color: white; cursor: pointer; font-weight: bold; }
         .available { background: var(--success); }
         .booked { background: var(--danger); }
-        .room small { display: block; font-size: 0.75rem; margin-top: 5px; overflow: hidden; text-overflow: ellipsis; }
 
-        /* Forms & Inputs */
-        input, select, textarea { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-        button { padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: 0.3s; margin-right: 5px; }
-        .btn-add { background: var(--primary); color: white; }
-        .btn-edit { background: var(--warning); color: white; padding: 5px 10px; font-size: 12px; }
-        .btn-del { background: var(--danger); color: white; padding: 5px 10px; font-size: 12px; }
-        
-        /* Category List Management */
-        .cat-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee; }
-
-        /* Report Tables */
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
         th { background: #f8f9fa; }
 
-        /* Receipt Print Style */
-        #receiptArea { display: none; border: 2px solid #333; padding: 30px; width: 400px; margin: 20px auto; background: white; }
-        
+        /* Inputs */
+        input, select { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-add { background: var(--primary); color: white; width: 100%; margin-top: 5px; }
+        .btn-print { background: var(--info); color: white; margin-top: 10px; width: 100%; font-size: 16px; }
+        .btn-action { padding: 3px 8px; font-size: 12px; margin-right: 2px; }
+
+        /* Receipt Slip - One Page Design */
+        #receipt-slip { 
+            display: none; width: 100%; max-width: 600px; margin: auto; 
+            padding: 40px; border: 2px solid #333; background: white; 
+        }
+        .receipt-header { text-align: center; border-bottom: 2px solid #333; margin-bottom: 20px; }
+        .receipt-row { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px dotted #ccc; }
+
         @media print {
             .no-print { display: none !important; }
-            #receiptArea { display: block !important; border: none; }
+            #receipt-slip { display: block !important; border: 1px solid #000; }
             body { background: white; }
         }
     </style>
 </head>
 <body>
 
-<header>
-    <h1>HOTEL ROYAL INN</h1>
-    <p>Advanced Management System</p>
-</header>
+<div class="no-print">
+    <header>
+        <h1>HOTEL ROYAL INN</h1>
+        <p>Managed by Admin | Designer: MATINDRA TRIPURA</p>
+    </header>
 
-<div class="container">
-    
-    <section class="card no-print">
-        <h2>Room Status (Click to Book/Checkout)</h2>
-        <div id="roomLayout"></div>
-    </section>
+    <div class="container">
+        <section class="card">
+            <h3>Room Status (Red: Booked | Green: Available)</h3>
+            <div id="roomContainer"></div>
+        </section>
 
-    <div class="grid-2 no-print">
-        <div class="card">
-            <h3>Manage Income Categories</h3>
-            <div id="incomeCatList"></div>
-            <input type="text" id="newInName" placeholder="New Category Name">
-            <button class="btn-add" onclick="createCategory('income')">+ Add Category</button>
-        </div>
-        <div class="card">
-            <h3>Manage Expense Categories</h3>
-            <div id="expenseCatList"></div>
-            <input type="text" id="newExName" placeholder="New Category Name">
-            <button class="btn-add" onclick="createCategory('expense')">+ Add Category</button>
-        </div>
-    </div>
-
-    <div class="grid-2 no-print">
-        <div class="card">
-            <h3>Add Sale/Income</h3>
-            <select id="inSelect"></select>
-            <input type="number" id="inAmt" placeholder="Amount">
-            <button class="btn-add" onclick="recordEntry('income')">Post Income</button>
-        </div>
-        <div class="card">
-            <h3>Add Expense</h3>
-            <select id="exSelect"></select>
-            <input type="number" id="exAmt" placeholder="Amount">
-            <button class="btn-add" style="background: #c0392b;" onclick="recordEntry('expense')">Post Expense</button>
-        </div>
-    </div>
-
-    <section class="card no-print">
-        <h3>Room Booking Money Receipt Slip</h3>
         <div class="grid-2">
-            <div>
-                <input type="text" id="r_name" placeholder="Guest Name">
-                <input type="text" id="r_mobile" placeholder="Mobile No">
-                <input type="text" id="r_addr" placeholder="Address">
+            <div class="card">
+                <h4>Income Categories (Edit/Delete)</h4>
+                <div id="inCatList"></div>
+                <input type="text" id="newInName" placeholder="New Income Category">
+                <button class="btn-add" onclick="manageCat('in', 'add')">Add Category</button>
             </div>
-            <div>
-                <input type="text" id="r_rooms" placeholder="Room Nos (e.g. 101, 102)">
-                <input type="text" id="r_pax" placeholder="No. of Pax (Adults/Kids)">
-                <input type="text" id="r_type" placeholder="Room Type (AC/Non-AC)">
-                <input type="number" id="r_amt" placeholder="Advance/Total Amount">
+            <div class="card">
+                <h4>Expense Categories (Edit/Delete)</h4>
+                <div id="exCatList"></div>
+                <input type="text" id="newExName" placeholder="New Expense Category">
+                <button class="btn-add" onclick="manageCat('ex', 'add')">Add Category</button>
             </div>
         </div>
-        <button class="btn-add" style="background:var(--info)" onclick="printReceipt()">Print Receipt Slip</button>
-    </section>
 
-    <section class="card">
-        <h2>Financial Reports</h2>
+        <section class="card">
+            <h3>Booking Money Receipt Generator</h3>
+            <div class="grid-2">
+                <div>
+                    <input type="text" id="gs_name" placeholder="Guest Name">
+                    <input type="text" id="gs_mobile" placeholder="Mobile No">
+                    <input type="text" id="gs_addr" placeholder="Address">
+                    <input type="text" id="gs_pax" placeholder="Total Pax">
+                </div>
+                <div>
+                    <input type="text" id="gs_rooms" placeholder="Room No(s)">
+                    <input type="text" id="gs_type" placeholder="Room Type">
+                    <input type="number" id="gs_total" placeholder="Total Bill Amount" oninput="calcPending()">
+                    <input type="number" id="gs_adv" placeholder="Advance Payment" oninput="calcPending()">
+                    <div style="padding: 10px; font-weight: bold; color: var(--danger);">
+                        Pending Balance: <span id="gs_pending">0</span>
+                    </div>
+                </div>
+            </div>
+            <button class="btn-print" onclick="generateReceipt()">Print Receipt Slip</button>
+        </section>
+
         <div class="grid-2">
-            <div>
-                <h4>Daily Sales (Room & Food)</h4>
-                <table id="dailyTable">
-                    <thead><tr><th>Source</th><th>Amount</th><th>Action</th></tr></thead>
-                    <tbody></tbody>
-                </table>
+            <div class="card">
+                <h4>Daily Room Sale Report</h4>
+                <table id="dailyRoomTable"><thead><tr><th>Room</th><th>Amt</th><th>Action</th></tr></thead><tbody></tbody></table>
+                <button class="btn-add" onclick="postSale('dailyRoom')">+ Add Room Sale</button>
             </div>
-            <div>
-                <h4>Monthly Summary</h4>
-                <table id="monthlyTable">
-                    <thead><tr><th>Category</th><th>Total</th></tr></thead>
-                    <tbody></tbody>
-                </table>
+            <div class="card">
+                <h4>Daily Food Sale Report</h4>
+                <table id="dailyFoodTable"><thead><tr><th>Item/Table</th><th>Amt</th><th>Action</th></tr></thead><tbody></tbody></table>
+                <button class="btn-add" onclick="postSale('dailyFood')">+ Add Food Sale</button>
             </div>
         </div>
-        <button class="btn-add" onclick="window.print()" style="margin-top:15px; background:var(--primary)">Print Full Monthly Report</button>
-    </section>
 
-    <div class="footer-credit no-print" style="text-align:center; padding:20px;">
-        Designed by: <strong>MATINDRA TRIPURA</strong>
+        <div class="grid-2">
+            <div class="card">
+                <h4>Monthly Room Sale Report</h4>
+                <table id="monthlyRoomTable"><thead><tr><th>Month</th><th>Total</th></tr></thead><tbody></tbody></table>
+            </div>
+            <div class="card">
+                <h4>Monthly Food Sale Report</h4>
+                <table id="monthlyFoodTable"><thead><tr><th>Month</th><th>Total</th></tr></thead><tbody></tbody></table>
+            </div>
+        </div>
+
+        <button class="btn-print" style="background:#2ecc71" onclick="window.print()">Print Full Monthly Report</button>
     </div>
 </div>
 
-<div id="receiptArea">
-    <center>
-        <h2>HOTEL ROYAL INN</h2>
-        <p>Money Receipt</p>
-        <hr>
-    </center>
-    <p><strong>Guest Name:</strong> <span id="pr_name"></span></p>
-    <p><strong>Mobile:</strong> <span id="pr_mobile"></span></p>
-    <p><strong>Address:</strong> <span id="pr_addr"></span></p>
-    <hr>
-    <p><strong>Room No(s):</strong> <span id="pr_rooms"></span></p>
-    <p><strong>Room Type:</strong> <span id="pr_type"></span></p>
-    <p><strong>Pax:</strong> <span id="pr_pax"></span></p>
-    <p><strong>Total Amount:</strong> <span id="pr_amt"></span></p>
-    <br><br>
-    <div style="display:flex; justify-content: space-between;">
-        <span>Guest Signature</span>
-        <span>Manager Signature</span>
+<div id="receipt-slip">
+    <div class="receipt-header">
+        <h1>HOTEL ROYAL INN</h1>
+        <p>Main Road, City Center | Tel: +880 1XXX-XXXXXX</p>
+        <h3>MONEY RECEIPT</h3>
     </div>
+    <div class="receipt-row"><span>Date:</span> <span id="p_date"></span></div>
+    <div class="receipt-row"><span>Guest Name:</span> <strong id="p_name"></strong></div>
+    <div class="receipt-row"><span>Mobile:</span> <span id="p_mobile"></span></div>
+    <div class="receipt-row"><span>Address:</span> <span id="p_addr"></span></div>
+    <div class="receipt-row"><span>Room No(s):</span> <span id="p_rooms"></span></div>
+    <div class="receipt-row"><span>Room Type:</span> <span id="p_type"></span></div>
+    <div class="receipt-row"><span>Total Pax:</span> <span id="p_pax"></span></div>
+    <hr>
+    <div class="receipt-row"><span>Total Amount:</span> <span id="p_total"></span></div>
+    <div class="receipt-row"><span>Advance Paid:</span> <strong id="p_adv"></strong></div>
+    <div class="receipt-row" style="background: #eee; padding: 5px;">
+        <span>Pending Balance:</span> <strong id="p_pending" style="color:red"></strong>
+    </div>
+    <br><br><br>
+    <div style="display:flex; justify-content: space-between;">
+        <p style="border-top: 1px solid #000; width: 150px; text-align: center;">Guest Signature</p>
+        <p style="border-top: 1px solid #000; width: 150px; text-align: center;">Authorized Signature</p>
+    </div>
+    <p style="text-align: center; font-size: 10px; margin-top: 50px;">Designed by MATINDRA TRIPURA</p>
 </div>
 
 <script>
-    // INITIAL DATA
-    let categories = {
-        income: ["Room Sale", "Food Sale", "Event / Program"],
-        expense: ["Staff Salary", "Staff Advance", "LPG Gas", "Marketing", "Electric Bill"]
+    let inCats = ["Room Sale", "Food Sale", "Event / Program"];
+    let exCats = ["Staff Salary", "Staff Advance", "LPG Gas", "Marketing", "Electric Bill"];
+
+    const floorData = {
+        "1st Floor": [117, 118],
+        "2nd Floor": [101,102,103,104,105,106,107,108],
+        "3rd Floor": [109,110,111,112,114,115,116]
     };
 
-    const floors = {
-        "1st": [117, 118],
-        "2nd": [101,102,103,104,105,106,107,108],
-        "3rd": [109,110,111,112,114,115,116]
-    };
-
-    // SETUP
     function init() {
         renderRooms();
-        updateCategoryUI();
+        renderCats();
     }
 
-    // ROOM LOGIC
     function renderRooms() {
-        const target = document.getElementById('roomLayout');
-        target.innerHTML = '';
-        for (const [floor, rooms] of Object.entries(floors)) {
-            let html = `<h4>Floor ${floor}</h4><div class="room-grid">`;
-            rooms.forEach(num => {
-                html += `<div id="rm-${num}" class="room available" onclick="handleRoom(${num})">
-                            Room ${num}<br><small id="guest-${num}"></small>
-                         </div>`;
+        const cont = document.getElementById('roomContainer');
+        cont.innerHTML = '';
+        for (let floor in floorData) {
+            cont.innerHTML += `<h5>${floor}</h5>`;
+            let grid = document.createElement('div');
+            grid.className = 'room-grid';
+            floorData[floor].forEach(num => {
+                grid.innerHTML += `<div id="r-${num}" class="room available" onclick="toggleRoom(${num})">Room ${num}<br><small id="g-${num}"></small></div>`;
             });
-            html += `</div>`;
-            target.innerHTML += html;
+            cont.appendChild(grid);
         }
     }
 
-    function handleRoom(num) {
-        const el = document.getElementById(`rm-${num}`);
-        const guestEl = document.getElementById(`guest-${num}`);
-        if (el.classList.contains('available')) {
-            let name = prompt("Enter Booking Name:");
-            if (name) {
-                el.classList.replace('available', 'booked');
-                guestEl.innerText = name;
-            }
+    function toggleRoom(n) {
+        let r = document.getElementById(`r-${n}`);
+        let g = document.getElementById(`g-${n}`);
+        if(r.classList.contains('available')) {
+            let name = prompt("Enter Guest Name:");
+            if(name) { r.classList.replace('available', 'booked'); g.innerText = name; }
         } else {
-            if (confirm("Clear booking/Checkout?")) {
-                el.classList.replace('booked', 'available');
-                guestEl.innerText = "";
-            }
+            if(confirm("Checkout?")) { r.classList.replace('booked', 'available'); g.innerText = ''; }
         }
     }
 
-    // CATEGORY CRUD
-    function updateCategoryUI() {
-        ['income', 'expense'].forEach(type => {
-            const list = document.getElementById(`${type}CatList`);
-            const select = document.getElementById(`${type === 'income' ? 'inSelect' : 'exSelect'}`);
-            list.innerHTML = '';
-            select.innerHTML = '';
-            
-            categories[type].forEach((cat, index) => {
-                // List items
-                list.innerHTML += `
-                    <div class="cat-item">
-                        <span>${cat}</span>
-                        <div>
-                            <button class="btn-edit" onclick="editCat('${type}', ${index})">Edit</button>
-                            <button class="btn-del" onclick="deleteCat('${type}', ${index})">Del</button>
-                        </div>
-                    </div>`;
-                // Select options
-                let opt = document.createElement('option');
-                opt.value = cat; opt.text = cat;
-                select.add(opt);
+    function renderCats() {
+        const draw = (list, target, storage) => {
+            target.innerHTML = '';
+            storage.forEach((c, i) => {
+                target.innerHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                    <span>${c}</span>
+                    <div>
+                        <button class="btn-action" style="background:orange" onclick="editCat('${list}', ${i})">Edit</button>
+                        <button class="btn-action" style="background:red; color:white;" onclick="delCat('${list}', ${i})">Del</button>
+                    </div>
+                </div>`;
             });
-        });
+        };
+        draw('in', document.getElementById('inCatList'), inCats);
+        draw('ex', document.getElementById('exCatList'), exCats);
     }
 
-    function createCategory(type) {
-        const input = document.getElementById(type === 'income' ? 'newInName' : 'newExName');
-        if (input.value) {
-            categories[type].push(input.value);
+    function manageCat(type, action) {
+        let input = document.getElementById(type === 'in' ? 'newInName' : 'newExName');
+        if(action === 'add' && input.value) {
+            (type === 'in' ? inCats : exCats).push(input.value);
             input.value = '';
-            updateCategoryUI();
         }
+        renderCats();
     }
 
-    function editCat(type, index) {
-        let newVal = prompt("Edit Category Name:", categories[type][index]);
-        if (newVal) {
-            categories[type][index] = newVal;
-            updateCategoryUI();
-        }
+    function editCat(type, i) {
+        let arr = (type === 'in' ? inCats : exCats);
+        let n = prompt("New name:", arr[i]);
+        if(n) { arr[i] = n; renderCats(); }
     }
 
-    function deleteCat(type, index) {
-        if (confirm("Delete this category?")) {
-            categories[type].splice(index, 1);
-            updateCategoryUI();
-        }
+    function delCat(type, i) {
+        if(confirm("Delete?")) { (type === 'in' ? inCats : exCats).splice(i, 1); renderCats(); }
     }
 
-    // FINANCIAL RECORDS
-    function recordEntry(type) {
-        const cat = document.getElementById(type === 'income' ? 'inSelect' : 'exSelect').value;
-        const amt = document.getElementById(type === 'income' ? 'inAmt' : 'exAmt').value;
-        if (!amt) return;
-
-        const table = document.getElementById('dailyTable').getElementsByTagName('tbody')[0];
-        const row = table.insertRow();
-        row.innerHTML = `<td>${cat}</td><td>${amt}</td>
-            <td class="no-print"><button class="btn-del" onclick="this.parentElement.parentElement.remove()">Delete</button></td>`;
-        
-        // Basic Monthly Logic (Simplified for this UI)
-        updateMonthly(cat, amt);
+    function calcPending() {
+        let total = document.getElementById('gs_total').value || 0;
+        let adv = document.getElementById('gs_adv').value || 0;
+        document.getElementById('gs_pending').innerText = total - adv;
     }
 
-    function updateMonthly(cat, amt) {
-        const table = document.getElementById('monthlyTable').getElementsByTagName('tbody')[0];
-        let found = false;
-        for (let row of table.rows) {
-            if (row.cells[0].innerText === cat) {
-                row.cells[1].innerText = parseFloat(row.cells[1].innerText) + parseFloat(amt);
-                found = true;
-            }
-        }
-        if (!found) {
-            let row = table.insertRow();
-            row.innerHTML = `<td>${cat}</td><td>${amt}</td>`;
-        }
-    }
-
-    // RECEIPT PRINTING
-    function printReceipt() {
-        document.getElementById('pr_name').innerText = document.getElementById('r_name').value;
-        document.getElementById('pr_mobile').innerText = document.getElementById('r_mobile').value;
-        document.getElementById('pr_addr').innerText = document.getElementById('r_addr').value;
-        document.getElementById('pr_rooms').innerText = document.getElementById('r_rooms').value;
-        document.getElementById('pr_pax').innerText = document.getElementById('r_pax').value;
-        document.getElementById('pr_type').innerText = document.getElementById('r_type').value;
-        document.getElementById('pr_amt').innerText = document.getElementById('r_amt').value;
+    function generateReceipt() {
+        document.getElementById('p_date').innerText = new Date().toLocaleDateString();
+        document.getElementById('p_name').innerText = document.getElementById('gs_name').value;
+        document.getElementById('p_mobile').innerText = document.getElementById('gs_mobile').value;
+        document.getElementById('p_addr').innerText = document.getElementById('gs_addr').value;
+        document.getElementById('p_rooms').innerText = document.getElementById('gs_rooms').value;
+        document.getElementById('p_type').innerText = document.getElementById('gs_type').value;
+        document.getElementById('p_pax').innerText = document.getElementById('gs_pax').value;
+        document.getElementById('p_total').innerText = document.getElementById('gs_total').value;
+        document.getElementById('p_adv').innerText = document.getElementById('gs_adv').value;
+        document.getElementById('p_pending').innerText = document.getElementById('gs_pending').innerText;
         window.print();
+    }
+
+    function postSale(type) {
+        let amt = prompt("Enter Amount:");
+        if(!amt) return;
+        let table = document.getElementById(type + 'Table').getElementsByTagName('tbody')[0];
+        let row = table.insertRow();
+        row.innerHTML = `<td>${type.includes('Room') ? 'Room' : 'Food'} Item</td><td>${amt}</td><td><button class="btn-action" onclick="this.parentElement.parentElement.remove()">Del</button></td>`;
+        updateMonthly(type, amt);
+    }
+
+    function updateMonthly(type, amt) {
+        let mTable = document.getElementById(type.includes('Room') ? 'monthlyRoomTable' : 'monthlyFoodTable').getElementsByTagName('tbody')[0];
+        let month = new Date().toLocaleString('default', { month: 'long' });
+        let row = mTable.insertRow();
+        row.innerHTML = `<td>${month}</td><td>${amt}</td>`;
     }
 
     window.onload = init;
 </script>
-
 </body>
 </html>
