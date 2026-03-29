@@ -3,338 +3,197 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Royal Inn | Management Suite</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>Royal Inn | Professional Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-dark: #0f172a;
-            --card-dark: #1e293b;
-            --accent-blue: #38bdf8;
-            --accent-purple: #818cf8;
-            --success: #10b981;
-            --danger: #f43f5e;
-            --text-main: #f8fafc;
-            --text-dim: #94a3b8;
-            --sidebar-width: 280px;
+            --bg: #0f172a; --card: #1e293b; --accent: #38bdf8;
+            --success: #10b981; --danger: #f43f5e; --text: #f8fafc;
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: var(--bg-dark); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+        body { background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
 
-        /* --- SIDEBAR NAVIGATION --- */
-        .sidebar {
-            width: var(--sidebar-width);
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(10px);
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            flex-direction: column;
-            padding: 30px 20px;
-            transition: all 0.3s ease;
-        }
+        /* Sidebar */
+        .sidebar { width: 260px; background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(10px); border-right: 1px solid rgba(255, 255, 255, 0.1); padding: 30px 20px; }
+        .sidebar h1 { font-size: 1.2rem; margin-bottom: 40px; color: var(--accent); text-align: center; letter-spacing: 1px; }
+        .nav-link { padding: 14px; margin-bottom: 10px; border-radius: 10px; cursor: pointer; color: #94a3b8; transition: 0.3s; display: block; text-decoration: none; }
+        .nav-link:hover { background: rgba(255, 255, 255, 0.05); color: white; }
+        .nav-link.active { background: var(--accent); color: white; font-weight: 600; }
 
-        .sidebar h1 { 
-            font-size: 1.4rem; 
-            font-weight: 700; 
-            margin-bottom: 40px; 
-            background: linear-gradient(to right, var(--accent-blue), var(--accent-purple));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-align: center;
-        }
-
-        .nav-link {
-            padding: 14px 20px;
-            margin-bottom: 8px;
-            border-radius: 12px;
-            cursor: pointer;
-            color: var(--text-dim);
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .nav-link:hover { background: rgba(255, 255, 255, 0.05); color: var(--text-main); }
-        .nav-link.active { background: var(--accent-blue); color: white; box-shadow: 0 4px 20px rgba(56, 189, 248, 0.3); }
-
-        /* --- MAIN CONTENT AREA --- */
-        .content { flex: 1; overflow-y: auto; padding: 40px; position: relative; }
-        .module { display: none; animation: fadeIn 0.5s ease; }
+        /* Main Area */
+        .content { flex: 1; overflow-y: auto; padding: 40px; }
+        .module { display: none; animation: fadeIn 0.4s ease; }
         .module.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* --- DASHBOARD CARDS --- */
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 40px; }
-        .stat-card {
-            background: var(--card-dark);
-            padding: 24px;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: transform 0.3s ease;
-        }
-        .stat-card:hover { transform: translateY(-5px); border-color: var(--accent-blue); }
-        .stat-card h4 { font-size: 0.85rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
-        .stat-card .val { font-size: 1.8rem; font-weight: 700; margin-top: 10px; }
+        /* Forms & Cards */
+        .card { background: var(--card); border-radius: 20px; padding: 30px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 30px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        input, select { background: #0f172a; border: 1px solid rgba(255,255,255,0.1); color: white; padding: 12px; border-radius: 10px; width: 100%; margin-bottom: 15px; outline: none; }
+        label { display: block; font-size: 0.8rem; color: #94a3b8; margin-bottom: 5px; }
+        .btn { background: var(--accent); color: white; padding: 15px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; width: 100%; transition: 0.3s; }
+        .btn:hover { filter: brightness(1.1); transform: translateY(-2px); }
 
-        /* --- ROOM GRID --- */
-        .room-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 16px; }
-        .room {
-            aspect-ratio: 1/1;
-            border-radius: 18px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            border: none;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            font-weight: 700;
-            color: white;
-            position: relative;
-            overflow: hidden;
-        }
-        .available { background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.2); }
-        .booked { background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%); box-shadow: 0 10px 15px -3px rgba(244, 63, 94, 0.2); }
-        .room:hover { transform: scale(1.05); filter: brightness(1.1); }
-        .room small { font-weight: 400; font-size: 0.75rem; margin-top: 5px; opacity: 0.9; }
+        /* Receipt Results */
+        .due-box { background: rgba(0,0,0,0.2); padding: 20px; border-radius: 12px; text-align: center; margin: 20px 0; border: 1px solid rgba(244, 63, 94, 0.3); }
 
-        /* --- INPUTS & BUTTONS --- */
-        .card { background: var(--card-dark); border-radius: 24px; padding: 30px; border: 1px solid rgba(255, 255, 255, 0.05); margin-bottom: 30px; }
-        input, select { 
-            background: #0f172a; border: 1px solid rgba(255, 255, 255, 0.1); 
-            color: white; padding: 14px 18px; border-radius: 12px; 
-            width: 100%; margin-bottom: 15px; outline: none; transition: 0.2s;
-        }
-        input:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1); }
-        .btn-action { 
-            background: var(--accent-blue); color: white; padding: 15px; border-radius: 12px; 
-            border: none; font-weight: 700; cursor: pointer; transition: 0.3s; width: 100%;
-        }
-        .btn-action:hover { background: #0ea5e9; transform: scale(1.02); }
-
-        /* --- PROFESSIONAL TABLE --- */
-        table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
-        th { color: var(--text-dim); text-align: left; padding: 10px 20px; font-weight: 500; font-size: 0.9rem; }
-        td { background: rgba(255, 255, 255, 0.03); padding: 16px 20px; }
-        td:first-child { border-radius: 12px 0 0 12px; }
-        td:last-child { border-radius: 0 12px 12px 0; }
-
-        /* --- PRINTABLE RECEIPT --- */
-        #print-wrap { display: none; padding: 40px; background: white; color: black; font-family: sans-serif; }
+        /* Print Style - Critical Fix */
+        #print-area { display: none; padding: 40px; background: white; color: black; line-height: 1.6; }
         @media print {
-            .sidebar, .content, .no-print { display: none !important; }
-            #print-wrap { display: block !important; }
             body { background: white; }
+            .sidebar, .content { display: none !important; }
+            #print-area { display: block !important; width: 100%; height: 100%; }
         }
     </style>
 </head>
 <body>
 
-    <aside class="sidebar no-print">
+    <nav class="sidebar no-print">
         <h1>ROYAL INN</h1>
-        <div class="nav-link active" onclick="nav('dash')">📊 Overview</div>
-        <div class="nav-link" onclick="nav('rooms')">🔑 Room Status</div>
-        <div class="nav-link" onclick="nav('entry')">💳 Transactions</div>
-        <div class="nav-link" onclick="nav('receipt')">📄 Create Slip</div>
-        <div class="nav-link" onclick="nav('ledger')">📓 Daily Ledger</div>
-        
-        <div style="margin-top: auto; padding: 20px; border-radius: 15px; background: rgba(255,255,255,0.03); text-align: center;">
-            <p style="font-size: 0.75rem; color: var(--text-dim);">SYSTEM DESIGN BY</p>
-            <p style="font-weight: 700; color: var(--accent-blue);">MATINDRA TRIPURA</p>
+        <div class="nav-link" onclick="showMod('rooms')">🔑 Room Status</div>
+        <div class="nav-link active" onclick="showMod('receipt')">📄 Create Booking Slip</div>
+        <div class="nav-link" onclick="showMod('finance')">💰 Daily Transactions</div>
+        <div style="margin-top: auto; font-size: 0.7rem; text-align: center; color: #64748b;">
+            System by <strong>MATINDRA TRIPURA</strong>
         </div>
-    </aside>
+    </nav>
 
     <main class="content">
         
-        <div id="dash" class="module active">
-            <div class="stats-grid">
-                <div class="stat-card"><h4>Opening Balance</h4><div class="val" id="d-open">0</div></div>
-                <div class="stat-card"><h4>Today Sales</h4><div class="val" id="d-sales" style="color:var(--success)">0</div></div>
-                <div class="stat-card"><h4>Today Expenses</h4><div class="val" id="d-exp" style="color:var(--danger)">0</div></div>
-                <div class="stat-card"><h4>Cash Balance</h4><div class="val" id="d-net" style="color:var(--accent-blue)">0</div></div>
-            </div>
-            <div class="card">
-                <h3>Live Activity Feed</h3>
-                <table id="feed">
-                    <thead><tr><th>Category</th><th>Details</th><th>Amount</th><th>Time</th></tr></thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-
         <div id="rooms" class="module">
-            <h2 style="margin-bottom: 25px;">Real-time Inventory</h2>
-            <div id="roomCont"></div>
+            <h2 style="margin-bottom:20px">Room Inventory</h2>
+            <div id="roomCont" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px;"></div>
         </div>
 
-        <div id="entry" class="module">
-            <div class="grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
-                <div class="card">
-                    <h3>Post Payment</h3>
-                    <input type="number" id="in-open" placeholder="Opening Balance (Current day)" style="margin-bottom: 25px; border-color: var(--accent-purple);">
-                    <select id="in-cat"><option>Room Sale</option><option>Food Sale</option><option>Rice Ceremony</option><option>Birthday</option></select>
-                    <input type="text" id="in-ref" placeholder="Reference (Name/Phone)">
-                    <input type="number" id="in-val" placeholder="Amount">
-                    <button class="btn-action" onclick="postEntry('in')">Confirm Entry</button>
+        <div id="receipt" class="module active">
+            <div class="card" style="max-width: 800px; margin: auto;">
+                <h2 style="margin-bottom: 25px; color: var(--accent);">Generate Money Receipt</h2>
+                <div class="grid">
+                    <div>
+                        <label>Guest Full Name</label>
+                        <input type="text" id="b_name" placeholder="Enter Guest Name">
+                        
+                        <label>Mobile Number</label>
+                        <input type="text" id="b_mob" placeholder="01XXX-XXXXXX">
+                        
+                        <label>Check-In Date</label>
+                        <input type="date" id="b_in">
+                        
+                        <label>Check-Out Date</label>
+                        <input type="date" id="b_out">
+                    </div>
+                    <div>
+                        <label>Room Number(s)</label>
+                        <input type="text" id="b_rms" placeholder="e.g. 101, 102">
+                        
+                        <label>Total Bill Amount</label>
+                        <input type="number" id="b_tot" placeholder="0.00" oninput="calculateBalance()">
+                        
+                        <label>Advance Payment</label>
+                        <input type="number" id="b_adv" placeholder="0.00" oninput="calculateBalance()">
+                        
+                        <div class="due-box">
+                            <span style="font-size: 0.8rem; color: #94a3b8;">DUE BALANCE</span>
+                            <h2 id="b_due" style="color: var(--danger);">0</h2>
+                        </div>
+                    </div>
                 </div>
-                <div class="card">
-                    <h3>Post Expense</h3>
-                    <select id="ex-cat"><option>Staff Salary</option><option>Market Expense</option><option>Maintenance</option><option>Utility Bill</option></select>
-                    <input type="text" id="ex-ref" placeholder="Expense Description">
-                    <input type="number" id="ex-val" placeholder="Amount">
-                    <button class="btn-action" style="background: var(--danger);" onclick="postEntry('ex')">Record Expense</button>
-                </div>
+                <button class="btn" onclick="printBookingSlip()">Print Money Receipt</button>
             </div>
         </div>
 
-        <div id="receipt" class="module">
-            <div class="card" style="max-width: 700px; margin: auto;">
-                <h3>Professional Booking Receipt</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div>
-                        <input type="text" id="b-name" placeholder="Guest Full Name">
-                        <input type="text" id="b-mob" placeholder="Mobile Number">
-                        <label style="font-size: 0.8rem; color: var(--text-dim);">Check-In Date</label>
-                        <input type="date" id="b-in">
-                    </div>
-                    <div>
-                        <input type="text" id="b-rms" placeholder="Room Number(s)">
-                        <input type="number" id="b-tot" placeholder="Total Bill" oninput="calcB()">
-                        <input type="number" id="b-adv" placeholder="Advance Paid" oninput="calcB()">
-                        <label style="font-size: 0.8rem; color: var(--text-dim);">Check-Out Date</label>
-                        <input type="date" id="b-out">
-                    </div>
-                </div>
-                <div style="background: rgba(0,0,0,0.2); padding: 20px; border-radius: 12px; margin: 20px 0; text-align: center;">
-                    <p style="color: var(--text-dim);">PENDING BALANCE</p>
-                    <h2 id="b-due" style="color: var(--danger);">0</h2>
-                </div>
-                <button class="btn-action" onclick="doPrint()">Print Professional Slip</button>
-            </div>
-        </div>
-
-        <div id="ledger" class="module">
-            <div class="card" style="background: #fff; color: #1e293b; font-family: monospace;">
-                <div style="border-bottom: 2px solid #000; display: flex; justify-content: space-between; padding-bottom: 10px; margin-bottom: 20px;">
-                    <strong style="font-size: 1.2rem;">DAILY ACCOUNT LEDGER</strong>
-                    <span id="l-date"></span>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
-                    <div id="l-pay"><strong>[ PAYMENTS ]</strong><br><br></div>
-                    <div id="l-exp"><strong>[ EXPENSES ]</strong><br><br></div>
-                </div>
-                <hr style="margin: 30px 0; border: 1px dashed #ccc;">
-                <div style="text-align: right;">
-                    <p>Subtotal: <span id="l-sub">0</span></p>
-                    <p>Total Expenses: <span id="l-tot-ex">0</span></p>
-                    <h2 style="margin-top: 10px;">FINAL CASH: <span id="l-final">0</span></h2>
-                </div>
+        <div id="finance" class="module">
+            <div class="card">
+                <h2>Daily Ledger</h2>
+                <p>Post your income and expenses here.</p>
+                <input type="number" id="open_bal" placeholder="Opening Balance">
+                <button class="btn" style="background:var(--success)">Save Daily Ledger</button>
             </div>
         </div>
 
     </main>
 
-    <div id="print-wrap">
-        <center>
-            <h1 style="letter-spacing: 5px;">HOTEL ROYAL INN</h1>
-            <p>Certified Money Receipt</p>
-        </center>
-        <hr style="margin: 20px 0;">
-        <table style="width: 100%; color: black;">
-            <tr><td><strong>Guest Name:</strong></td><td id="p-name"></td><td><strong>Mobile:</strong></td><td id="p-mob"></td></tr>
-            <tr><td><strong>Check-In:</strong></td><td id="p-in"></td><td><strong>Check-Out:</strong></td><td id="p-out"></td></tr>
-            <tr><td><strong>Room(s):</strong></td><td id="p-rms" colspan="3"></td></tr>
+    <div id="print-area">
+        <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 20px;">
+            <h1 style="font-size: 24px; text-transform: uppercase;">Hotel Royal Inn</h1>
+            <p style="font-size: 14px;">Official Money Receipt</p>
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <tr>
+                <td style="padding: 10px; border: 1px solid #ddd;"><strong>Guest Name:</strong></td>
+                <td id="p_name" style="padding: 10px; border: 1px solid #ddd;"></td>
+                <td style="padding: 10px; border: 1px solid #ddd;"><strong>Mobile:</strong></td>
+                <td id="p_mob" style="padding: 10px; border: 1px solid #ddd;"></td>
+            </tr>
+            <tr>
+                <td style="padding: 10px; border: 1px solid #ddd;"><strong>Check-In:</strong></td>
+                <td id="p_in" style="padding: 10px; border: 1px solid #ddd;"></td>
+                <td style="padding: 10px; border: 1px solid #ddd;"><strong>Check-Out:</strong></td>
+                <td id="p_out" style="padding: 10px; border: 1px solid #ddd;"></td>
+            </tr>
+            <tr>
+                <td style="padding: 10px; border: 1px solid #ddd;"><strong>Room No:</strong></td>
+                <td id="p_rms" colspan="3" style="padding: 10px; border: 1px solid #ddd;"></td>
+            </tr>
         </table>
-        <div style="margin: 30px 0; padding: 20px; background: #f0f0f0;">
-            <p>Total Stay Amount: <span id="p-tot"></span></p>
-            <p>Advance Payment: <span id="p-adv"></span></p>
-            <h2 style="color: red;">DUE BALANCE: <span id="p-due"></span></h2>
+
+        <div style="margin: 20px 0; padding: 20px; background: #f8f9fa; border: 1px solid #000;">
+            <p><strong>Total Bill:</strong> <span id="p_tot"></span></p>
+            <p><strong>Advance Paid:</strong> <span id="p_adv"></span></p>
+            <hr style="margin: 10px 0;">
+            <h2 style="color: red;">Net Due: <span id="p_due"></span></h2>
         </div>
-        <div style="display: flex; justify-content: space-between; margin-top: 60px;">
-            <p style="border-top: 1px solid #000; width: 200px; text-align: center;">Guest Sign</p>
-            <p style="border-top: 1px solid #000; width: 200px; text-align: center;">Authorized Official</p>
+
+        <div style="margin-top: 80px; display: flex; justify-content: space-between;">
+            <div style="border-top: 1px solid #000; width: 200px; text-align: center; padding-top: 5px;">Guest Signature</div>
+            <div style="border-top: 1px solid #000; width: 200px; text-align: center; padding-top: 5px;">Authorized By</div>
         </div>
+
+        <p style="text-align: center; font-size: 10px; margin-top: 100px; color: #666;">
+            System Generated Receipt | Managed by Matindra Tripura
+        </p>
     </div>
 
 <script>
-    let d_open = 0, d_sales = 0, d_exp = 0;
-    const roomPlan = { "Executive": [117, 118], "Premium": [101,102,103,104,105,106], "Standard": [109,110,111,112,114,115,116] };
-
-    function nav(id) {
-        document.querySelectorAll('.module, .nav-link').forEach(e => e.classList.remove('active'));
+    // Navigation
+    function showMod(id) {
+        document.querySelectorAll('.module').forEach(m => m.classList.remove('active'));
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         event.currentTarget.classList.add('active');
     }
 
-    function init() {
-        const c = document.getElementById('roomCont');
-        for(let cat in roomPlan) {
-            c.innerHTML += `<h3 style="margin: 20px 0 10px; color: var(--text-dim);">${cat} Floor</h3>`;
-            let g = document.createElement('div'); g.className = 'room-grid';
-            roomPlan[cat].forEach(n => {
-                g.innerHTML += `<div id="rm-${n}" class="room available" onclick="toggle(${n})">RM ${n}<small id="gs-${n}"></small></div>`;
-            });
-            c.appendChild(g);
-        }
-        document.getElementById('l-date').innerText = new Date().toDateString();
+    // Logic for Due Calculation
+    function calculateBalance() {
+        const total = parseFloat(document.getElementById('b_tot').value) || 0;
+        const advance = parseFloat(document.getElementById('b_adv').value) || 0;
+        const due = total - advance;
+        document.getElementById('b_due').innerText = due.toFixed(2);
     }
 
-    function toggle(n) {
-        let r = document.getElementById('rm-'+n), g = document.getElementById('gs-'+n);
-        if(r.classList.contains('available')) {
-            let name = prompt("Guest Name:"); if(name) { r.classList.replace('available', 'booked'); g.innerText = name; }
-        } else { if(confirm("Checkout Room "+n+"?")) { r.classList.replace('booked', 'available'); g.innerText = ''; } }
-    }
+    // Fixed Print Function
+    function printBookingSlip() {
+        // Transfer values from Form to Printable Slip
+        document.getElementById('p_name').innerText = document.getElementById('b_name').value || "N/A";
+        document.getElementById('p_mob').innerText = document.getElementById('b_mob').value || "N/A";
+        document.getElementById('p_in').innerText = document.getElementById('b_in').value || "N/A";
+        document.getElementById('p_out').innerText = document.getElementById('b_out').value || "N/A";
+        document.getElementById('p_rms').innerText = document.getElementById('b_rms').value || "N/A";
+        document.getElementById('p_tot').innerText = document.getElementById('b_tot').value || "0.00";
+        document.getElementById('p_adv').innerText = document.getElementById('b_adv').value || "0.00";
+        document.getElementById('p_due').innerText = document.getElementById('b_due').innerText || "0.00";
 
-    function postEntry(type) {
-        let cat = document.getElementById(type+'-cat').value;
-        let ref = document.getElementById(type+'-ref').value;
-        let val = Number(document.getElementById(type+'-val').value);
-        if(!val) return;
-
-        if(type === 'in') d_sales += val; else d_exp += val;
-        
-        const row = document.getElementById('feed').querySelector('tbody').insertRow(0);
-        row.innerHTML = `<td>${cat}</td><td>${ref}</td><td style="color:${type==='in'?'#10b981':'#f43f5e'}">${val}</td><td>${new Date().toLocaleTimeString()}</td>`;
-        
-        document.getElementById(type === 'in' ? 'l-pay' : 'l-exp').innerHTML += `<div style="display:flex; justify-content:space-between"><span>${ref}</span><span>${val}</span></div>`;
-        
-        updateStats();
-        alert("Entry Recorded Successfully");
-    }
-
-    function updateStats() {
-        d_open = Number(document.getElementById('in-open').value || 0);
-        document.getElementById('d-open').innerText = d_open;
-        document.getElementById('d-sales').innerText = d_sales;
-        document.getElementById('d-exp').innerText = d_exp;
-        document.getElementById('d-net').innerText = (d_open + d_sales) - d_exp;
-        
-        document.getElementById('l-sub').innerText = (d_open + d_sales);
-        document.getElementById('l-tot-ex').innerText = d_exp;
-        document.getElementById('l-final').innerText = (d_open + d_sales) - d_exp;
-    }
-
-    function calcB() {
-        document.getElementById('b-due').innerText = document.getElementById('b-tot').value - document.getElementById('b-adv').value;
-    }
-
-    function doPrint() {
-        document.getElementById('p-name').innerText = document.getElementById('b-name').value;
-        document.getElementById('p-mob').innerText = document.getElementById('b-mob').value;
-        document.getElementById('p-in').innerText = document.getElementById('b-in').value;
-        document.getElementById('p_out').innerText = document.getElementById('b-out').value;
-        document.getElementById('p-rms').innerText = document.getElementById('b-rms').value;
-        document.getElementById('p-tot').innerText = document.getElementById('b-tot').value;
-        document.getElementById('p-adv').innerText = document.getElementById('b-adv').value;
-        document.getElementById('p-due').innerText = document.getElementById('b-due').innerText;
+        // Trigger Printer
         window.print();
     }
 
-    init();
+    // Setup Room Grid
+    const roomNums = [101,102,103,104,105,106,107,108,109,110,111,112,114,115,116,117,118];
+    const rCont = document.getElementById('roomCont');
+    roomNums.forEach(n => {
+        rCont.innerHTML += `<div style="background:#10b981; padding:15px; border-radius:10px; text-align:center; font-weight:700">RM ${n}</div>`;
+    });
 </script>
 </body>
 </html>
