@@ -19,23 +19,22 @@
         .available { background: var(--success); }
         .booked { background: var(--danger); }
 
-        /* Tables */
+        /* Tables & Calendar */
+        .report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .cal-input { width: auto !important; display: inline-block; padding: 5px !important; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
         th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
         th { background: #f8f9fa; }
 
-        /* Inputs */
+        /* Buttons */
         input, select { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         button { padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
         .btn-add { background: var(--primary); color: white; width: 100%; margin-top: 5px; }
         .btn-print { background: var(--info); color: white; margin-top: 10px; width: 100%; font-size: 16px; }
         .btn-action { padding: 3px 8px; font-size: 12px; margin-right: 2px; }
 
-        /* Receipt Slip - One Page Design */
-        #receipt-slip { 
-            display: none; width: 100%; max-width: 600px; margin: auto; 
-            padding: 40px; border: 2px solid #333; background: white; 
-        }
+        /* Receipt Slip */
+        #receipt-slip { display: none; width: 100%; max-width: 600px; margin: auto; padding: 40px; border: 2px solid #333; background: white; }
         .receipt-header { text-align: center; border-bottom: 2px solid #333; margin-bottom: 20px; }
         .receipt-row { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px dotted #ccc; }
 
@@ -62,13 +61,13 @@
 
         <div class="grid-2">
             <div class="card">
-                <h4>Income Categories (Edit/Delete)</h4>
+                <h4>Income Categories Management</h4>
                 <div id="inCatList"></div>
                 <input type="text" id="newInName" placeholder="New Income Category">
                 <button class="btn-add" onclick="manageCat('in', 'add')">Add Category</button>
             </div>
             <div class="card">
-                <h4>Expense Categories (Edit/Delete)</h4>
+                <h4>Expense Categories Management</h4>
                 <div id="exCatList"></div>
                 <input type="text" id="newExName" placeholder="New Expense Category">
                 <button class="btn-add" onclick="manageCat('ex', 'add')">Add Category</button>
@@ -99,72 +98,76 @@
 
         <div class="grid-2">
             <div class="card">
-                <h4>Daily Room Sale Report</h4>
-                <table id="dailyRoomTable"><thead><tr><th>Room</th><th>Amt</th><th>Action</th></tr></thead><tbody></tbody></table>
-                <button class="btn-add" onclick="postSale('dailyRoom')">+ Add Room Sale</button>
+                <div class="report-header">
+                    <h4>Daily Room Sale</h4>
+                    <input type="date" class="cal-input" id="roomDate">
+                </div>
+                <table id="dailyRoomTable"><thead><tr><th>Room/Ref</th><th>Amt</th><th>Action</th></tr></thead><tbody></tbody></table>
+                <button class="btn-add" onclick="postSale('dailyRoom')">+ Post Room Sale</button>
             </div>
             <div class="card">
-                <h4>Daily Food Sale Report</h4>
+                <div class="report-header">
+                    <h4>Daily Food Sale</h4>
+                    <input type="date" class="cal-input" id="foodDate">
+                </div>
                 <table id="dailyFoodTable"><thead><tr><th>Item/Table</th><th>Amt</th><th>Action</th></tr></thead><tbody></tbody></table>
-                <button class="btn-add" onclick="postSale('dailyFood')">+ Add Food Sale</button>
+                <button class="btn-add" onclick="postSale('dailyFood')">+ Post Food Sale</button>
             </div>
         </div>
 
         <div class="grid-2">
             <div class="card">
-                <h4>Monthly Room Sale Report</h4>
-                <table id="monthlyRoomTable"><thead><tr><th>Month</th><th>Total</th></tr></thead><tbody></tbody></table>
+                <div class="report-header">
+                    <h4>Monthly Room Sale</h4>
+                    <input type="month" class="cal-input" id="roomMonth">
+                </div>
+                <table id="monthlyRoomTable"><thead><tr><th>Month Selected</th><th>Total</th></tr></thead><tbody></tbody></table>
             </div>
             <div class="card">
-                <h4>Monthly Food Sale Report</h4>
-                <table id="monthlyFoodTable"><thead><tr><th>Month</th><th>Total</th></tr></thead><tbody></tbody></table>
+                <div class="report-header">
+                    <h4>Monthly Food Sale</h4>
+                    <input type="month" class="cal-input" id="foodMonth">
+                </div>
+                <table id="monthlyFoodTable"><thead><tr><th>Month Selected</th><th>Total</th></tr></thead><tbody></tbody></table>
             </div>
         </div>
 
-        <button class="btn-print" style="background:#2ecc71" onclick="window.print()">Print Full Monthly Report</button>
+        <button class="btn-print" style="background:#2ecc71" onclick="window.print()">Print Full Monthly Summary</button>
     </div>
 </div>
 
 <div id="receipt-slip">
     <div class="receipt-header">
         <h1>HOTEL ROYAL INN</h1>
-        <p>Main Road, City Center | Tel: +880 1XXX-XXXXXX</p>
         <h3>MONEY RECEIPT</h3>
     </div>
     <div class="receipt-row"><span>Date:</span> <span id="p_date"></span></div>
     <div class="receipt-row"><span>Guest Name:</span> <strong id="p_name"></strong></div>
     <div class="receipt-row"><span>Mobile:</span> <span id="p_mobile"></span></div>
-    <div class="receipt-row"><span>Address:</span> <span id="p_addr"></span></div>
     <div class="receipt-row"><span>Room No(s):</span> <span id="p_rooms"></span></div>
-    <div class="receipt-row"><span>Room Type:</span> <span id="p_type"></span></div>
-    <div class="receipt-row"><span>Total Pax:</span> <span id="p_pax"></span></div>
     <hr>
     <div class="receipt-row"><span>Total Amount:</span> <span id="p_total"></span></div>
     <div class="receipt-row"><span>Advance Paid:</span> <strong id="p_adv"></strong></div>
     <div class="receipt-row" style="background: #eee; padding: 5px;">
         <span>Pending Balance:</span> <strong id="p_pending" style="color:red"></strong>
     </div>
-    <br><br><br>
-    <div style="display:flex; justify-content: space-between;">
+    <br><br>
+    <div style="display:flex; justify-content: space-between; margin-top: 40px;">
         <p style="border-top: 1px solid #000; width: 150px; text-align: center;">Guest Signature</p>
-        <p style="border-top: 1px solid #000; width: 150px; text-align: center;">Authorized Signature</p>
+        <p style="border-top: 1px solid #000; width: 150px; text-align: center;">Authorized By</p>
     </div>
-    <p style="text-align: center; font-size: 10px; margin-top: 50px;">Designed by MATINDRA TRIPURA</p>
+    <p style="text-align: center; font-size: 10px; margin-top: 30px;">Designed by MATINDRA TRIPURA</p>
 </div>
 
 <script>
     let inCats = ["Room Sale", "Food Sale", "Event / Program"];
     let exCats = ["Staff Salary", "Staff Advance", "LPG Gas", "Marketing", "Electric Bill"];
-
-    const floorData = {
-        "1st Floor": [117, 118],
-        "2nd Floor": [101,102,103,104,105,106,107,108],
-        "3rd Floor": [109,110,111,112,114,115,116]
-    };
+    const floorData = { "1st Floor": [117, 118], "2nd Floor": [101,102,103,104,105,106,107,108], "3rd Floor": [109,110,111,112,114,115,116] };
 
     function init() {
         renderRooms();
         renderCats();
+        document.querySelectorAll('.cal-input').forEach(el => el.valueAsDate = new Date());
     }
 
     function renderRooms() {
@@ -238,10 +241,7 @@
         document.getElementById('p_date').innerText = new Date().toLocaleDateString();
         document.getElementById('p_name').innerText = document.getElementById('gs_name').value;
         document.getElementById('p_mobile').innerText = document.getElementById('gs_mobile').value;
-        document.getElementById('p_addr').innerText = document.getElementById('gs_addr').value;
         document.getElementById('p_rooms').innerText = document.getElementById('gs_rooms').value;
-        document.getElementById('p_type').innerText = document.getElementById('gs_type').value;
-        document.getElementById('p_pax').innerText = document.getElementById('gs_pax').value;
         document.getElementById('p_total').innerText = document.getElementById('gs_total').value;
         document.getElementById('p_adv').innerText = document.getElementById('gs_adv').value;
         document.getElementById('p_pending').innerText = document.getElementById('gs_pending').innerText;
@@ -249,19 +249,19 @@
     }
 
     function postSale(type) {
+        let label = prompt("Enter Room No / Item Name:");
         let amt = prompt("Enter Amount:");
-        if(!amt) return;
+        if(!amt || !label) return;
+        
         let table = document.getElementById(type + 'Table').getElementsByTagName('tbody')[0];
         let row = table.insertRow();
-        row.innerHTML = `<td>${type.includes('Room') ? 'Room' : 'Food'} Item</td><td>${amt}</td><td><button class="btn-action" onclick="this.parentElement.parentElement.remove()">Del</button></td>`;
-        updateMonthly(type, amt);
-    }
-
-    function updateMonthly(type, amt) {
+        row.innerHTML = `<td>${label}</td><td>${amt}</td><td><button class="btn-action" onclick="this.parentElement.parentElement.remove()">Del</button></td>`;
+        
+        // Update Monthly Table automatically
         let mTable = document.getElementById(type.includes('Room') ? 'monthlyRoomTable' : 'monthlyFoodTable').getElementsByTagName('tbody')[0];
-        let month = new Date().toLocaleString('default', { month: 'long' });
-        let row = mTable.insertRow();
-        row.innerHTML = `<td>${month}</td><td>${amt}</td>`;
+        let mVal = document.getElementById(type.includes('Room') ? 'roomMonth' : 'foodMonth').value;
+        let mRow = mTable.insertRow();
+        mRow.innerHTML = `<td>${mVal}</td><td>${amt}</td>`;
     }
 
     window.onload = init;
