@@ -3,282 +3,334 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hotel Royal Inn | Professional Inventory</title>
+    <title>Royal Inn | Management Suite</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --danger: #e74c3c; --bg: #f8f9fa; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); display: flex; height: 100vh; overflow: hidden; }
-        
-        /* Sidebar */
-        .sidebar { width: 260px; background: var(--primary); color: white; display: flex; flex-direction: column; padding: 20px 0; box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
-        .sidebar h2 { text-align: center; font-size: 1.1rem; border-bottom: 1px solid #455a64; padding-bottom: 15px; }
-        .nav-item { padding: 15px 25px; cursor: pointer; transition: 0.3s; border-left: 4px solid transparent; }
-        .nav-item:hover { background: #34495e; }
-        .nav-item.active { background: #1a252f; border-left: 4px solid var(--accent); }
+        :root {
+            --bg-dark: #0f172a;
+            --card-dark: #1e293b;
+            --accent-blue: #38bdf8;
+            --accent-purple: #818cf8;
+            --success: #10b981;
+            --danger: #f43f5e;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --sidebar-width: 280px;
+        }
 
-        /* Content Area */
-        .main-content { flex: 1; overflow-y: auto; padding: 30px; }
-        .module { display: none; animation: fadeIn 0.3s ease; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: var(--bg-dark); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+
+        /* --- SIDEBAR NAVIGATION --- */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            padding: 30px 20px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar h1 { 
+            font-size: 1.4rem; 
+            font-weight: 700; 
+            margin-bottom: 40px; 
+            background: linear-gradient(to right, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+        }
+
+        .nav-link {
+            padding: 14px 20px;
+            margin-bottom: 8px;
+            border-radius: 12px;
+            cursor: pointer;
+            color: var(--text-dim);
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .nav-link:hover { background: rgba(255, 255, 255, 0.05); color: var(--text-main); }
+        .nav-link.active { background: var(--accent-blue); color: white; box-shadow: 0 4px 20px rgba(56, 189, 248, 0.3); }
+
+        /* --- MAIN CONTENT AREA --- */
+        .content { flex: 1; overflow-y: auto; padding: 40px; position: relative; }
+        .module { display: none; animation: fadeIn 0.5s ease; }
         .module.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .card { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #eee; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        /* --- DASHBOARD CARDS --- */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 40px; }
+        .stat-card {
+            background: var(--card-dark);
+            padding: 24px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s ease;
+        }
+        .stat-card:hover { transform: translateY(-5px); border-color: var(--accent-blue); }
+        .stat-card h4 { font-size: 0.85rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+        .stat-card .val { font-size: 1.8rem; font-weight: 700; margin-top: 10px; }
 
-        /* Form Elements */
-        input, select { padding: 10px; border: 1px solid #ddd; border-radius: 5px; width: 100%; margin-bottom: 10px; box-sizing: border-box; }
-        button { padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .btn-primary { background: var(--accent); color: white; width: 100%; }
-        .btn-edit { background: #f39c12; color: white; font-size: 11px; padding: 4px 8px; }
-        .btn-del { background: var(--danger); color: white; font-size: 11px; padding: 4px 8px; }
+        /* --- ROOM GRID --- */
+        .room-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 16px; }
+        .room {
+            aspect-ratio: 1/1;
+            border-radius: 18px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 700;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .available { background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.2); }
+        .booked { background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%); box-shadow: 0 10px 15px -3px rgba(244, 63, 94, 0.2); }
+        .room:hover { transform: scale(1.05); filter: brightness(1.1); }
+        .room small { font-weight: 400; font-size: 0.75rem; margin-top: 5px; opacity: 0.9; }
 
-        /* Room Grid */
-        .room-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
-        .room { padding: 15px 5px; border-radius: 5px; text-align: center; color: white; font-weight: bold; cursor: pointer; border: none; }
-        .available { background: var(--success); }
-        .booked { background: var(--danger); }
+        /* --- INPUTS & BUTTONS --- */
+        .card { background: var(--card-dark); border-radius: 24px; padding: 30px; border: 1px solid rgba(255, 255, 255, 0.05); margin-bottom: 30px; }
+        input, select { 
+            background: #0f172a; border: 1px solid rgba(255, 255, 255, 0.1); 
+            color: white; padding: 14px 18px; border-radius: 12px; 
+            width: 100%; margin-bottom: 15px; outline: none; transition: 0.2s;
+        }
+        input:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1); }
+        .btn-action { 
+            background: var(--accent-blue); color: white; padding: 15px; border-radius: 12px; 
+            border: none; font-weight: 700; cursor: pointer; transition: 0.3s; width: 100%;
+        }
+        .btn-action:hover { background: #0ea5e9; transform: scale(1.02); }
 
-        /* Reports & Profit */
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
-        th, td { border: 1px solid #eee; padding: 12px; text-align: left; }
-        .profit-box { background: #2c3e50; color: white; padding: 20px; border-radius: 10px; text-align: center; margin-top: 20px; }
-        .profit-box h2 { margin: 0; font-size: 2rem; color: #2ecc71; }
+        /* --- PROFESSIONAL TABLE --- */
+        table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+        th { color: var(--text-dim); text-align: left; padding: 10px 20px; font-weight: 500; font-size: 0.9rem; }
+        td { background: rgba(255, 255, 255, 0.03); padding: 16px 20px; }
+        td:first-child { border-radius: 12px 0 0 12px; }
+        td:last-child { border-radius: 0 12px 12px 0; }
 
-        /* Printing */
-        #print-slip { display: none; width: 500px; margin: auto; padding: 40px; border: 1px solid #000; background: white; }
+        /* --- PRINTABLE RECEIPT --- */
+        #print-wrap { display: none; padding: 40px; background: white; color: black; font-family: sans-serif; }
         @media print {
-            .no-print { display: none !important; }
-            #print-slip { display: block !important; }
+            .sidebar, .content, .no-print { display: none !important; }
+            #print-wrap { display: block !important; }
+            body { background: white; }
         }
     </style>
 </head>
 <body>
 
-    <div class="sidebar no-print">
-        <h2>HOTEL ROYAL INN</h2>
-        <div class="nav-item active" onclick="showMod('rooms')">Room Inventory</div>
-        <div class="nav-item" onclick="showMod('finance')">Income/Expense Entry</div>
-        <div class="nav-item" onclick="showMod('receipt')">Receipt Generator</div>
-        <div class="nav-item" onclick="showMod('reports')">Daily Reports & Profit</div>
-        <div style="margin-top:auto; padding:20px; font-size:11px; opacity:0.6; text-align: center;">
-            SYSTEM DESIGNED BY:<br><strong>MATINDRA TRIPURA</strong>
-        </div>
-    </div>
-
-    <div class="main-content">
+    <aside class="sidebar no-print">
+        <h1>ROYAL INN</h1>
+        <div class="nav-link active" onclick="nav('dash')">📊 Overview</div>
+        <div class="nav-link" onclick="nav('rooms')">🔑 Room Status</div>
+        <div class="nav-link" onclick="nav('entry')">💳 Transactions</div>
+        <div class="nav-link" onclick="nav('receipt')">📄 Create Slip</div>
+        <div class="nav-link" onclick="nav('ledger')">📓 Daily Ledger</div>
         
-        <div id="rooms" class="module active">
+        <div style="margin-top: auto; padding: 20px; border-radius: 15px; background: rgba(255,255,255,0.03); text-align: center;">
+            <p style="font-size: 0.75rem; color: var(--text-dim);">SYSTEM DESIGN BY</p>
+            <p style="font-weight: 700; color: var(--accent-blue);">MATINDRA TRIPURA</p>
+        </div>
+    </aside>
+
+    <main class="content">
+        
+        <div id="dash" class="module active">
+            <div class="stats-grid">
+                <div class="stat-card"><h4>Opening Balance</h4><div class="val" id="d-open">0</div></div>
+                <div class="stat-card"><h4>Today Sales</h4><div class="val" id="d-sales" style="color:var(--success)">0</div></div>
+                <div class="stat-card"><h4>Today Expenses</h4><div class="val" id="d-exp" style="color:var(--danger)">0</div></div>
+                <div class="stat-card"><h4>Cash Balance</h4><div class="val" id="d-net" style="color:var(--accent-blue)">0</div></div>
+            </div>
             <div class="card">
-                <h3>Current Room Occupancy</h3>
-                <div id="roomCont"></div>
+                <h3>Live Activity Feed</h3>
+                <table id="feed">
+                    <thead><tr><th>Category</th><th>Details</th><th>Amount</th><th>Time</th></tr></thead>
+                    <tbody></tbody>
+                </table>
             </div>
         </div>
 
-        <div id="finance" class="module">
-            <div class="grid-2">
-                <div class="card">
-                    <h3>Payment (Income)</h3>
-                    <input type="number" id="openingBal" placeholder="Opening Balance (e.g. 5445)" oninput="updateCalculations()">
-                    <hr>
-                    <select id="inCatSelect"></select>
-                    <input type="text" id="inDesc" placeholder="Description (e.g. Manish Chakraborty)">
-                    <input type="number" id="inAmt" placeholder="Amount">
-                    <button class="btn-primary" onclick="addEntry('in')">Post Payment</button>
-                    
-                    <div style="margin-top:20px;">
-                        <strong>Categories:</strong>
-                        <div id="inCatList" style="margin-top:10px;"></div>
-                    </div>
-                </div>
+        <div id="rooms" class="module">
+            <h2 style="margin-bottom: 25px;">Real-time Inventory</h2>
+            <div id="roomCont"></div>
+        </div>
 
+        <div id="entry" class="module">
+            <div class="grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
                 <div class="card">
-                    <h3>Expenses</h3>
-                    <select id="exCatSelect"></select>
-                    <input type="text" id="exDesc" placeholder="Description (e.g. Bread 2nos)">
-                    <input type="number" id="exAmt" placeholder="Amount">
-                    <button class="btn-primary" style="background:var(--danger)" onclick="addEntry('ex')">Post Expense</button>
-                    
-                    <div style="margin-top:20px;">
-                        <strong>Categories:</strong>
-                        <div id="exCatList" style="margin-top:10px;"></div>
-                    </div>
+                    <h3>Post Payment</h3>
+                    <input type="number" id="in-open" placeholder="Opening Balance (Current day)" style="margin-bottom: 25px; border-color: var(--accent-purple);">
+                    <select id="in-cat"><option>Room Sale</option><option>Food Sale</option><option>Rice Ceremony</option><option>Birthday</option></select>
+                    <input type="text" id="in-ref" placeholder="Reference (Name/Phone)">
+                    <input type="number" id="in-val" placeholder="Amount">
+                    <button class="btn-action" onclick="postEntry('in')">Confirm Entry</button>
+                </div>
+                <div class="card">
+                    <h3>Post Expense</h3>
+                    <select id="ex-cat"><option>Staff Salary</option><option>Market Expense</option><option>Maintenance</option><option>Utility Bill</option></select>
+                    <input type="text" id="ex-ref" placeholder="Expense Description">
+                    <input type="number" id="ex-val" placeholder="Amount">
+                    <button class="btn-action" style="background: var(--danger);" onclick="postEntry('ex')">Record Expense</button>
                 </div>
             </div>
         </div>
 
         <div id="receipt" class="module">
-            <div class="card">
-                <h3>Booking Money Receipt</h3>
-                <div class="grid-2">
+            <div class="card" style="max-width: 700px; margin: auto;">
+                <h3>Professional Booking Receipt</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                     <div>
-                        <input type="text" id="rc_name" placeholder="Guest Name">
-                        <input type="text" id="rc_mob" placeholder="Mobile Number">
-                        <label>Check-In Date</label><input type="date" id="rc_in">
-                        <label>Check-Out Date</label><input type="date" id="rc_out">
+                        <input type="text" id="b-name" placeholder="Guest Full Name">
+                        <input type="text" id="b-mob" placeholder="Mobile Number">
+                        <label style="font-size: 0.8rem; color: var(--text-dim);">Check-In Date</label>
+                        <input type="date" id="b-in">
                     </div>
                     <div>
-                        <input type="text" id="rc_rooms" placeholder="Room No(s)">
-                        <input type="number" id="rc_total" placeholder="Total Bill" oninput="calcR()">
-                        <input type="number" id="rc_adv" placeholder="Advance Paid" oninput="calcR()">
-                        <div style="padding:15px; background:#f9f9f9; border-radius:5px; color:var(--danger); font-weight:bold; margin-top:10px;">
-                            Pending Balance: <span id="rc_pen">0</span>
-                        </div>
+                        <input type="text" id="b-rms" placeholder="Room Number(s)">
+                        <input type="number" id="b-tot" placeholder="Total Bill" oninput="calcB()">
+                        <input type="number" id="b-adv" placeholder="Advance Paid" oninput="calcB()">
+                        <label style="font-size: 0.8rem; color: var(--text-dim);">Check-Out Date</label>
+                        <input type="date" id="b-out">
                     </div>
                 </div>
-                <button class="btn-primary" style="margin-top:20px;" onclick="printSlip()">Generate & Print Slip</button>
+                <div style="background: rgba(0,0,0,0.2); padding: 20px; border-radius: 12px; margin: 20px 0; text-align: center;">
+                    <p style="color: var(--text-dim);">PENDING BALANCE</p>
+                    <h2 id="b-due" style="color: var(--danger);">0</h2>
+                </div>
+                <button class="btn-action" onclick="doPrint()">Print Professional Slip</button>
             </div>
         </div>
 
-        <div id="reports" class="module">
-            <div class="grid-2">
-                <div class="card">
-                    <h4>Daily Sales Summary</h4>
-                    <table id="dailyRep">
-                        <thead><tr><th>Type</th><th>Details</th><th>Amount</th><th>Action</th></tr></thead>
-                        <tbody></tbody>
-                    </table>
+        <div id="ledger" class="module">
+            <div class="card" style="background: #fff; color: #1e293b; font-family: monospace;">
+                <div style="border-bottom: 2px solid #000; display: flex; justify-content: space-between; padding-bottom: 10px; margin-bottom: 20px;">
+                    <strong style="font-size: 1.2rem;">DAILY ACCOUNT LEDGER</strong>
+                    <span id="l-date"></span>
                 </div>
-                <div class="card">
-                    <h4>Profit & Cash Position</h4>
-                    <div style="line-height: 2;">
-                        <p>Total Payments: <strong id="total_pay_disp">0</strong></p>
-                        <p>Total Expenses: <strong id="total_exp_disp">0</strong></p>
-                    </div>
-                    <div class="profit-box">
-                        <p>NET CASH IN HAND</p>
-                        <h2 id="net_profit_disp">0</h2>
-                    </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
+                    <div id="l-pay"><strong>[ PAYMENTS ]</strong><br><br></div>
+                    <div id="l-exp"><strong>[ EXPENSES ]</strong><br><br></div>
+                </div>
+                <hr style="margin: 30px 0; border: 1px dashed #ccc;">
+                <div style="text-align: right;">
+                    <p>Subtotal: <span id="l-sub">0</span></p>
+                    <p>Total Expenses: <span id="l-tot-ex">0</span></p>
+                    <h2 style="margin-top: 10px;">FINAL CASH: <span id="l-final">0</span></h2>
                 </div>
             </div>
-            
-            <div class="card" style="background:#e8fdf0;">
-                <h4>Month To Date (MTD) Totals</h4>
-                <div class="grid-2">
-                    <p>MTD Room Sales: <strong>3,89,350</strong></p>
-                    <p>MTD Food Sales: <strong>1,87,224</strong></p>
-                </div>
-            </div>
-            <button class="btn-primary" onclick="window.print()">Print Monthly Inventory Report</button>
         </div>
-    </div>
 
-    <div id="print-slip">
-        <center><h2>HOTEL ROYAL INN</h2><p>Official Receipt</p></center>
-        <hr>
-        <p><strong>Guest:</strong> <span id="p_name"></span></p>
-        <p><strong>Mobile:</strong> <span id="p_mob"></span></p>
-        <p><strong>Check-In:</strong> <span id="p_in"></span> | <strong>Check-Out:</strong> <span id="p_out"></span></p>
-        <hr>
-        <p>Total Bill: <span id="p_tot"></span></p>
-        <p>Advance: <span id="p_adv"></span></p>
-        <h3 style="color:red">Pending: <span id="p_pen"></span></h3>
-        <br><br><br>
-        <div style="display:flex; justify-content:space-between">
-            <span>Guest Signature</span>
-            <span>Manager Signature</span>
+    </main>
+
+    <div id="print-wrap">
+        <center>
+            <h1 style="letter-spacing: 5px;">HOTEL ROYAL INN</h1>
+            <p>Certified Money Receipt</p>
+        </center>
+        <hr style="margin: 20px 0;">
+        <table style="width: 100%; color: black;">
+            <tr><td><strong>Guest Name:</strong></td><td id="p-name"></td><td><strong>Mobile:</strong></td><td id="p-mob"></td></tr>
+            <tr><td><strong>Check-In:</strong></td><td id="p-in"></td><td><strong>Check-Out:</strong></td><td id="p-out"></td></tr>
+            <tr><td><strong>Room(s):</strong></td><td id="p-rms" colspan="3"></td></tr>
+        </table>
+        <div style="margin: 30px 0; padding: 20px; background: #f0f0f0;">
+            <p>Total Stay Amount: <span id="p-tot"></span></p>
+            <p>Advance Payment: <span id="p-adv"></span></p>
+            <h2 style="color: red;">DUE BALANCE: <span id="p-due"></span></h2>
         </div>
-        <p style="text-align:center; font-size:10px; margin-top:50px;">Designed by Matindra Tripura</p>
+        <div style="display: flex; justify-content: space-between; margin-top: 60px;">
+            <p style="border-top: 1px solid #000; width: 200px; text-align: center;">Guest Sign</p>
+            <p style="border-top: 1px solid #000; width: 200px; text-align: center;">Authorized Official</p>
+        </div>
     </div>
 
 <script>
-    let inCats = ["Room Sale", "Food Sale", "Rest Food", "Birthday", "Rice Ceremony"];
-    let exCats = ["Bread", "Manjir", "Dustbin", "Ice Cream", "Pipe Line", "Cement", "Labor", "Auto Fair"];
-    const rooms = {"1st Floor": [117,118], "2nd Floor": [101,102,103,104,105,106,107,108], "3rd Floor": [109,110,111,112,114,115,116]};
-    let totalIncome = 0; let totalExpense = 0;
+    let d_open = 0, d_sales = 0, d_exp = 0;
+    const roomPlan = { "Executive": [117, 118], "Premium": [101,102,103,104,105,106], "Standard": [109,110,111,112,114,115,116] };
 
-    function showMod(id) {
-        document.querySelectorAll('.module').forEach(m => m.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    function nav(id) {
+        document.querySelectorAll('.module, .nav-link').forEach(e => e.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         event.currentTarget.classList.add('active');
     }
 
     function init() {
-        const rc = document.getElementById('roomCont');
-        for(let f in rooms) {
-            rc.innerHTML += `<h4>${f}</h4>`;
+        const c = document.getElementById('roomCont');
+        for(let cat in roomPlan) {
+            c.innerHTML += `<h3 style="margin: 20px 0 10px; color: var(--text-dim);">${cat} Floor</h3>`;
             let g = document.createElement('div'); g.className = 'room-grid';
-            rooms[f].forEach(n => {
-                g.innerHTML += `<button id="rm-${n}" class="room available" onclick="book(${n})">RM ${n}<br><small id="g-${n}"></small></button>`;
+            roomPlan[cat].forEach(n => {
+                g.innerHTML += `<div id="rm-${n}" class="room available" onclick="toggle(${n})">RM ${n}<small id="gs-${n}"></small></div>`;
             });
-            rc.appendChild(g);
+            c.appendChild(g);
         }
-        updateCatLists();
+        document.getElementById('l-date').innerText = new Date().toDateString();
     }
 
-    function book(n) {
-        let b = document.getElementById('rm-'+n), s = document.getElementById('g-'+n);
-        if(b.classList.contains('available')) {
-            let name = prompt("Guest Name:"); if(name) { b.classList.replace('available', 'booked'); s.innerText = name; }
-        } else { if(confirm("Process Checkout?")) { b.classList.replace('booked', 'available'); s.innerText = ''; } }
+    function toggle(n) {
+        let r = document.getElementById('rm-'+n), g = document.getElementById('gs-'+n);
+        if(r.classList.contains('available')) {
+            let name = prompt("Guest Name:"); if(name) { r.classList.replace('available', 'booked'); g.innerText = name; }
+        } else { if(confirm("Checkout Room "+n+"?")) { r.classList.replace('booked', 'available'); g.innerText = ''; } }
     }
 
-    function updateCatLists() {
-        ['inCatSelect', 'exCatSelect'].forEach((id, i) => {
-            let s = document.getElementById(id), list = (i==0?inCats:exCats), div = document.getElementById(i==0?'inCatList':'exCatList');
-            s.innerHTML = ''; div.innerHTML = '';
-            list.forEach((c, idx) => {
-                s.innerHTML += `<option value="${c}">${c}</option>`;
-                div.innerHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                    <span>${c}</span>
-                    <div>
-                        <button class="btn-edit" onclick="editC(${i}, ${idx})">Edit</button>
-                        <button class="btn-del" onclick="delC(${i}, ${idx})">Del</button>
-                    </div>
-                </div>`;
-            });
-        });
-    }
+    function postEntry(type) {
+        let cat = document.getElementById(type+'-cat').value;
+        let ref = document.getElementById(type+'-ref').value;
+        let val = Number(document.getElementById(type+'-val').value);
+        if(!val) return;
 
-    function editC(type, i) {
-        let list = (type==0?inCats:exCats);
-        let n = prompt("New Name:", list[i]);
-        if(n) { list[i] = n; updateCatLists(); }
-    }
-
-    function delC(type, i) {
-        if(confirm("Delete Category?")) { (type==0?inCats:exCats).splice(i, 1); updateCatLists(); }
-    }
-
-    function addEntry(type) {
-        let cat = document.getElementById(type+'CatSelect').value;
-        let desc = document.getElementById(type+'Desc').value;
-        let amt = Number(document.getElementById(type+'Amt').value);
-        if(!amt) return;
-
-        let table = document.getElementById('dailyRep').getElementsByTagName('tbody')[0];
-        let row = table.insertRow();
-        row.innerHTML = `<td>${type.toUpperCase()}</td><td>${cat} (${desc})</td><td>${amt}</td><td><button class="btn-del" onclick="removeEntry(this, '${type}', ${amt})">Delete</button></td>`;
+        if(type === 'in') d_sales += val; else d_exp += val;
         
-        if(type === 'in') totalIncome += amt; else totalExpense += amt;
-        updateCalculations();
+        const row = document.getElementById('feed').querySelector('tbody').insertRow(0);
+        row.innerHTML = `<td>${cat}</td><td>${ref}</td><td style="color:${type==='in'?'#10b981':'#f43f5e'}">${val}</td><td>${new Date().toLocaleTimeString()}</td>`;
+        
+        document.getElementById(type === 'in' ? 'l-pay' : 'l-exp').innerHTML += `<div style="display:flex; justify-content:space-between"><span>${ref}</span><span>${val}</span></div>`;
+        
+        updateStats();
+        alert("Entry Recorded Successfully");
     }
 
-    function removeEntry(btn, type, amt) {
-        btn.parentElement.parentElement.remove();
-        if(type === 'in') totalIncome -= amt; else totalExpense -= amt;
-        updateCalculations();
+    function updateStats() {
+        d_open = Number(document.getElementById('in-open').value || 0);
+        document.getElementById('d-open').innerText = d_open;
+        document.getElementById('d-sales').innerText = d_sales;
+        document.getElementById('d-exp').innerText = d_exp;
+        document.getElementById('d-net').innerText = (d_open + d_sales) - d_exp;
+        
+        document.getElementById('l-sub').innerText = (d_open + d_sales);
+        document.getElementById('l-tot-ex').innerText = d_exp;
+        document.getElementById('l-final').innerText = (d_open + d_sales) - d_exp;
     }
 
-    function updateCalculations() {
-        let open = Number(document.getElementById('openingBal').value || 0);
-        let finalPay = open + totalIncome;
-        document.getElementById('total_pay_disp').innerText = finalPay;
-        document.getElementById('total_exp_disp').innerText = totalExpense;
-        document.getElementById('net_profit_disp').innerText = finalPay - totalExpense;
+    function calcB() {
+        document.getElementById('b-due').innerText = document.getElementById('b-tot').value - document.getElementById('b-adv').value;
     }
 
-    function calcR() {
-        document.getElementById('rc_pen').innerText = (document.getElementById('rc_total').value || 0) - (document.getElementById('rc_adv').value || 0);
-    }
-
-    function printSlip() {
-        document.getElementById('p_name').innerText = document.getElementById('rc_name').value;
-        document.getElementById('p_mob').innerText = document.getElementById('rc_mob').value;
-        document.getElementById('p_in').innerText = document.getElementById('rc_in').value;
-        document.getElementById('p_out').innerText = document.getElementById('rc_out').value;
-        document.getElementById('p_tot').innerText = document.getElementById('rc_total').value;
-        document.getElementById('p_adv').innerText = document.getElementById('rc_adv').value;
-        document.getElementById('p_pen').innerText = document.getElementById('rc_pen').innerText;
+    function doPrint() {
+        document.getElementById('p-name').innerText = document.getElementById('b-name').value;
+        document.getElementById('p-mob').innerText = document.getElementById('b-mob').value;
+        document.getElementById('p-in').innerText = document.getElementById('b-in').value;
+        document.getElementById('p_out').innerText = document.getElementById('b-out').value;
+        document.getElementById('p-rms').innerText = document.getElementById('b-rms').value;
+        document.getElementById('p-tot').innerText = document.getElementById('b-tot').value;
+        document.getElementById('p-adv').innerText = document.getElementById('b-adv').value;
+        document.getElementById('p-due').innerText = document.getElementById('b-due').innerText;
         window.print();
     }
 
