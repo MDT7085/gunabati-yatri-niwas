@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Royal Inn | Professional Management</title>
+    <title>Royal Inn | Professional Inventory</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -15,34 +15,39 @@
 
         /* Sidebar */
         .sidebar { width: 260px; background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(10px); border-right: 1px solid rgba(255, 255, 255, 0.1); padding: 30px 20px; }
-        .sidebar h1 { font-size: 1.2rem; margin-bottom: 40px; color: var(--accent); text-align: center; letter-spacing: 1px; }
+        .sidebar h1 { font-size: 1.2rem; margin-bottom: 40px; color: var(--accent); text-align: center; }
         .nav-link { padding: 14px; margin-bottom: 10px; border-radius: 10px; cursor: pointer; color: #94a3b8; transition: 0.3s; display: block; text-decoration: none; }
         .nav-link:hover { background: rgba(255, 255, 255, 0.05); color: white; }
         .nav-link.active { background: var(--accent); color: white; font-weight: 600; }
 
-        /* Main Area */
+        /* Content */
         .content { flex: 1; overflow-y: auto; padding: 40px; }
-        .module { display: none; animation: fadeIn 0.4s ease; }
+        .module { display: none; }
         .module.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* Forms & Cards */
-        .card { background: var(--card); border-radius: 20px; padding: 30px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 30px; }
+        
+        .card { background: var(--card); border-radius: 20px; padding: 25px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 25px; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        input, select { background: #0f172a; border: 1px solid rgba(255,255,255,0.1); color: white; padding: 12px; border-radius: 10px; width: 100%; margin-bottom: 15px; outline: none; }
+        
+        input, select { background: #0f172a; border: 1px solid rgba(255,255,255,0.1); color: white; padding: 12px; border-radius: 10px; width: 100%; margin-bottom: 12px; outline: none; }
         label { display: block; font-size: 0.8rem; color: #94a3b8; margin-bottom: 5px; }
-        .btn { background: var(--accent); color: white; padding: 15px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; width: 100%; transition: 0.3s; }
-        .btn:hover { filter: brightness(1.1); transform: translateY(-2px); }
+        .btn { padding: 12px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; width: 100%; transition: 0.2s; color: white; }
+        .btn-pay { background: var(--success); }
+        .btn-exp { background: var(--danger); }
+        .btn-print { background: var(--accent); margin-top: 15px; }
 
-        /* Receipt Results */
-        .due-box { background: rgba(0,0,0,0.2); padding: 20px; border-radius: 12px; text-align: center; margin: 20px 0; border: 1px solid rgba(244, 63, 94, 0.3); }
+        /* Table Design */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: rgba(0,0,0,0.1); border-radius: 10px; overflow: hidden; }
+        th { background: #334155; color: #94a3b8; padding: 12px; text-align: left; font-size: 0.85rem; }
+        td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; }
+        
+        .summary-box { display: flex; justify-content: space-between; margin-top: 20px; padding: 15px; background: #0f172a; border-radius: 10px; border: 1px solid var(--accent); }
 
-        /* Print Style - Critical Fix */
-        #print-area { display: none; padding: 40px; background: white; color: black; line-height: 1.6; }
+        /* Print Layout */
+        #print-slip { display: none; padding: 50px; background: white; color: black; }
         @media print {
             body { background: white; }
             .sidebar, .content { display: none !important; }
-            #print-area { display: block !important; width: 100%; height: 100%; }
+            #print-slip { display: block !important; }
         }
     </style>
 </head>
@@ -50,9 +55,9 @@
 
     <nav class="sidebar no-print">
         <h1>ROYAL INN</h1>
-        <div class="nav-link" onclick="showMod('rooms')">🔑 Room Status</div>
-        <div class="nav-link active" onclick="showMod('receipt')">📄 Create Booking Slip</div>
-        <div class="nav-link" onclick="showMod('finance')">💰 Daily Transactions</div>
+        <div class="nav-link active" onclick="showM('finance')">💰 Daily Ledger</div>
+        <div class="nav-link" onclick="showM('receipt')">📄 Booking Slip</div>
+        <div class="nav-link" onclick="showM('rooms')">🔑 Room Status</div>
         <div style="margin-top: auto; font-size: 0.7rem; text-align: center; color: #64748b;">
             System by <strong>MATINDRA TRIPURA</strong>
         </div>
@@ -60,139 +65,153 @@
 
     <main class="content">
         
-        <div id="rooms" class="module">
-            <h2 style="margin-bottom:20px">Room Inventory</h2>
-            <div id="roomCont" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px;"></div>
+        <div id="finance" class="module active">
+            <div class="card">
+                <label>Opening Balance (Payment from Yesterday)</label>
+                <input type="number" id="opening_bal" placeholder="e.g. 5445" oninput="updateTotal()">
+            </div>
+            
+            <div class="grid">
+                <div class="card">
+                    <h3 style="color:var(--success); margin-bottom:15px;">+ Add Payment</h3>
+                    <select id="in_cat"><option>Room Sale</option><option>Food Sale</option><option>Others</option></select>
+                    <input type="text" id="in_desc" placeholder="Details (e.g. Guest Name)">
+                    <input type="number" id="in_amt" placeholder="Amount">
+                    <button class="btn btn-pay" onclick="addEntry('in')">Post Payment</button>
+                </div>
+                <div class="card">
+                    <h3 style="color:var(--danger); margin-bottom:15px;">- Add Expense</h3>
+                    <select id="ex_cat"><option>Staff Salary</option><option>Market (Bread/Gas)</option><option>Auto/Travel</option><option>Maintenance</option></select>
+                    <input type="text" id="ex_desc" placeholder="Details (e.g. Bread 2nos)">
+                    <input type="number" id="ex_amt" placeholder="Amount">
+                    <button class="btn btn-exp" onclick="addEntry('ex')">Post Expense</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Daily Activity Log</h3>
+                <table id="logTable">
+                    <thead><tr><th>Type</th><th>Category</th><th>Description</th><th>Amount</th><th>Action</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+                <div class="summary-box">
+                    <div>Total Payments: <strong id="sum_in" style="color:var(--success)">0</strong></div>
+                    <div>Total Expenses: <strong id="sum_ex" style="color:var(--danger)">0</strong></div>
+                    <div>Net Cash: <strong id="sum_net" style="color:var(--accent)">0</strong></div>
+                </div>
+            </div>
         </div>
 
-        <div id="receipt" class="module active">
-            <div class="card" style="max-width: 800px; margin: auto;">
-                <h2 style="margin-bottom: 25px; color: var(--accent);">Generate Money Receipt</h2>
+        <div id="receipt" class="module">
+            <div class="card" style="max-width: 700px; margin: auto;">
+                <h2 style="color:var(--accent); margin-bottom:20px;">Booking Money Receipt</h2>
                 <div class="grid">
                     <div>
-                        <label>Guest Full Name</label>
-                        <input type="text" id="b_name" placeholder="Enter Guest Name">
-                        
-                        <label>Mobile Number</label>
-                        <input type="text" id="b_mob" placeholder="01XXX-XXXXXX">
-                        
-                        <label>Check-In Date</label>
-                        <input type="date" id="b_in">
-                        
-                        <label>Check-Out Date</label>
-                        <input type="date" id="b_out">
+                        <label>Guest Name</label><input type="text" id="b_name">
+                        <label>Mobile</label><input type="text" id="b_mob">
+                        <label>Check-In</label><input type="date" id="b_in">
                     </div>
                     <div>
-                        <label>Room Number(s)</label>
-                        <input type="text" id="b_rms" placeholder="e.g. 101, 102">
-                        
-                        <label>Total Bill Amount</label>
-                        <input type="number" id="b_tot" placeholder="0.00" oninput="calculateBalance()">
-                        
-                        <label>Advance Payment</label>
-                        <input type="number" id="b_adv" placeholder="0.00" oninput="calculateBalance()">
-                        
-                        <div class="due-box">
-                            <span style="font-size: 0.8rem; color: #94a3b8;">DUE BALANCE</span>
-                            <h2 id="b_due" style="color: var(--danger);">0</h2>
-                        </div>
+                        <label>Rooms</label><input type="text" id="b_rms">
+                        <label>Total Bill</label><input type="number" id="b_tot" oninput="calcB()">
+                        <label>Advance</label><input type="number" id="b_adv" oninput="calcB()">
+                        <label>Check-Out</label><input type="date" id="b_out">
                     </div>
                 </div>
-                <button class="btn" onclick="printBookingSlip()">Print Money Receipt</button>
+                <div style="text-align:center; padding:15px; background:rgba(0,0,0,0.2); border-radius:10px;">
+                    DUE: <strong id="b_due" style="color:var(--danger)">0</strong>
+                </div>
+                <button class="btn btn-print" onclick="printSlip()">Generate & Print Receipt</button>
             </div>
         </div>
 
-        <div id="finance" class="module">
+        <div id="rooms" class="module">
             <div class="card">
-                <h2>Daily Ledger</h2>
-                <p>Post your income and expenses here.</p>
-                <input type="number" id="open_bal" placeholder="Opening Balance">
-                <button class="btn" style="background:var(--success)">Save Daily Ledger</button>
+                <h2>Room Occupancy</h2>
+                <div id="rc" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-top:20px;"></div>
             </div>
         </div>
-
     </main>
 
-    <div id="print-area">
-        <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 20px;">
-            <h1 style="font-size: 24px; text-transform: uppercase;">Hotel Royal Inn</h1>
-            <p style="font-size: 14px;">Official Money Receipt</p>
+    <div id="print-slip">
+        <center><h1>HOTEL ROYAL INN</h1><p>Money Receipt</p></center>
+        <hr style="margin:20px 0;">
+        <p><strong>Guest:</strong> <span id="p_name"></span> | <strong>Mob:</strong> <span id="p_mob"></span></p>
+        <p><strong>Stay:</strong> <span id="p_in"></span> to <span id="p_out"></span></p>
+        <p><strong>Room(s):</strong> <span id="p_rms"></span></p>
+        <div style="margin:20px 0; padding:20px; border:2px solid #000;">
+            <p>Total Amount: <span id="p_tot"></span></p>
+            <p>Advance Paid: <span id="p_adv"></span></p>
+            <h2 style="color:red">Net Balance Due: <span id="p_due"></span></h2>
         </div>
-
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-            <tr>
-                <td style="padding: 10px; border: 1px solid #ddd;"><strong>Guest Name:</strong></td>
-                <td id="p_name" style="padding: 10px; border: 1px solid #ddd;"></td>
-                <td style="padding: 10px; border: 1px solid #ddd;"><strong>Mobile:</strong></td>
-                <td id="p_mob" style="padding: 10px; border: 1px solid #ddd;"></td>
-            </tr>
-            <tr>
-                <td style="padding: 10px; border: 1px solid #ddd;"><strong>Check-In:</strong></td>
-                <td id="p_in" style="padding: 10px; border: 1px solid #ddd;"></td>
-                <td style="padding: 10px; border: 1px solid #ddd;"><strong>Check-Out:</strong></td>
-                <td id="p_out" style="padding: 10px; border: 1px solid #ddd;"></td>
-            </tr>
-            <tr>
-                <td style="padding: 10px; border: 1px solid #ddd;"><strong>Room No:</strong></td>
-                <td id="p_rms" colspan="3" style="padding: 10px; border: 1px solid #ddd;"></td>
-            </tr>
-        </table>
-
-        <div style="margin: 20px 0; padding: 20px; background: #f8f9fa; border: 1px solid #000;">
-            <p><strong>Total Bill:</strong> <span id="p_tot"></span></p>
-            <p><strong>Advance Paid:</strong> <span id="p_adv"></span></p>
-            <hr style="margin: 10px 0;">
-            <h2 style="color: red;">Net Due: <span id="p_due"></span></h2>
+        <div style="display:flex; justify-content:space-between; margin-top:50px;">
+            <span>________________<br>Guest Signature</span>
+            <span>________________<br>Manager Signature</span>
         </div>
-
-        <div style="margin-top: 80px; display: flex; justify-content: space-between;">
-            <div style="border-top: 1px solid #000; width: 200px; text-align: center; padding-top: 5px;">Guest Signature</div>
-            <div style="border-top: 1px solid #000; width: 200px; text-align: center; padding-top: 5px;">Authorized By</div>
-        </div>
-
-        <p style="text-align: center; font-size: 10px; margin-top: 100px; color: #666;">
-            System Generated Receipt | Managed by Matindra Tripura
-        </p>
     </div>
 
 <script>
-    // Navigation
-    function showMod(id) {
+    let totalIn = 0; let totalEx = 0;
+
+    function showM(id) {
         document.querySelectorAll('.module').forEach(m => m.classList.remove('active'));
         document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         event.currentTarget.classList.add('active');
     }
 
-    // Logic for Due Calculation
-    function calculateBalance() {
-        const total = parseFloat(document.getElementById('b_tot').value) || 0;
-        const advance = parseFloat(document.getElementById('b_adv').value) || 0;
-        const due = total - advance;
-        document.getElementById('b_due').innerText = due.toFixed(2);
+    function addEntry(type) {
+        const cat = document.getElementById(type+'_cat').value;
+        const desc = document.getElementById(type+'_desc').value;
+        const amt = parseFloat(document.getElementById(type+'_amt').value) || 0;
+        if(amt <= 0) return;
+
+        const table = document.getElementById('logTable').querySelector('tbody');
+        const row = table.insertRow();
+        row.innerHTML = `
+            <td style="color:${type==='in'?'#10b981':'#f43f5e'}">${type.toUpperCase()}</td>
+            <td>${cat}</td><td>${desc}</td><td>${amt}</td>
+            <td><button onclick="removeRow(this, '${type}', ${amt})" style="background:none; border:none; color:#666; cursor:pointer;">✖</button></td>
+        `;
+
+        if(type === 'in') totalIn += amt; else totalEx += amt;
+        updateTotal();
+        document.getElementById(type+'_amt').value = ''; document.getElementById(type+'_desc').value = '';
     }
 
-    // Fixed Print Function
-    function printBookingSlip() {
-        // Transfer values from Form to Printable Slip
-        document.getElementById('p_name').innerText = document.getElementById('b_name').value || "N/A";
-        document.getElementById('p_mob').innerText = document.getElementById('b_mob').value || "N/A";
-        document.getElementById('p_in').innerText = document.getElementById('b_in').value || "N/A";
-        document.getElementById('p_out').innerText = document.getElementById('b_out').value || "N/A";
-        document.getElementById('p_rms').innerText = document.getElementById('b_rms').value || "N/A";
-        document.getElementById('p_tot').innerText = document.getElementById('b_tot').value || "0.00";
-        document.getElementById('p_adv').innerText = document.getElementById('b_adv').value || "0.00";
-        document.getElementById('p_due').innerText = document.getElementById('b_due').innerText || "0.00";
+    function removeRow(btn, type, amt) {
+        btn.parentElement.parentElement.remove();
+        if(type === 'in') totalIn -= amt; else totalEx -= amt;
+        updateTotal();
+    }
 
-        // Trigger Printer
+    function updateTotal() {
+        const open = parseFloat(document.getElementById('opening_bal').value) || 0;
+        document.getElementById('sum_in').innerText = (open + totalIn).toFixed(2);
+        document.getElementById('sum_ex').innerText = totalEx.toFixed(2);
+        document.getElementById('sum_net').innerText = ((open + totalIn) - totalEx).toFixed(2);
+    }
+
+    function calcB() {
+        document.getElementById('b_due').innerText = (document.getElementById('b_tot').value - document.getElementById('b_adv').value).toFixed(2);
+    }
+
+    function printSlip() {
+        document.getElementById('p_name').innerText = document.getElementById('b_name').value;
+        document.getElementById('p_mob').innerText = document.getElementById('b_mob').value;
+        document.getElementById('p_in').innerText = document.getElementById('b_in').value;
+        document.getElementById('p_out').innerText = document.getElementById('b_out').value;
+        document.getElementById('p_rms').innerText = document.getElementById('b_rms').value;
+        document.getElementById('p_tot').innerText = document.getElementById('b_tot').value;
+        document.getElementById('p_adv').innerText = document.getElementById('b_adv').value;
+        document.getElementById('p_due').innerText = document.getElementById('b_due').innerText;
         window.print();
     }
 
-    // Setup Room Grid
-    const roomNums = [101,102,103,104,105,106,107,108,109,110,111,112,114,115,116,117,118];
-    const rCont = document.getElementById('roomCont');
-    roomNums.forEach(n => {
-        rCont.innerHTML += `<div style="background:#10b981; padding:15px; border-radius:10px; text-align:center; font-weight:700">RM ${n}</div>`;
+    // Initialize Rooms
+    const rms = [101,102,103,104,105,106,107,108,109,110,111,112,114,115,116,117,118];
+    rms.forEach(n => {
+        document.getElementById('rc').innerHTML += `<div style="background:var(--success); padding:15px; border-radius:10px; text-align:center;">RM ${n}</div>`;
     });
 </script>
 </body>
