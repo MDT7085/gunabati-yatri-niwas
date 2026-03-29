@@ -24,7 +24,7 @@
   <p>Hotel Management Software</p>
 </header>
 
-<nav>
+<nav id="mainNav" style="display:none;">
   <button onclick="showSection('dashboard')">Dashboard</button>
   <button onclick="showSection('inventory')">Inventory</button>
   <button onclick="showSection('income')">Income</button>
@@ -38,6 +38,7 @@
     <input type="text" id="username" placeholder="Username">
     <input type="password" id="password" placeholder="Password">
     <button class="submit" onclick="login()">Login</button>
+    <p id="error" style="color:red;"></p>
   </div>
 </section>
 
@@ -96,11 +97,9 @@
   <div class="card">
     <h2>Reports</h2>
     <h3>Daily Report</h3>
-    <p>Room Sale & Food Sale</p>
     <ul id="dailyReport"></ul>
 
     <h3>Monthly Report</h3>
-    <p>Room Sale & Food Sale</p>
     <ul id="monthlyReport"></ul>
   </div>
 </section>
@@ -110,13 +109,25 @@
 </footer>
 
 <script>
-let inventory = [];
-let income = [];
-let expense = [];
+let inventory = JSON.parse(localStorage.getItem('inventory')) || [];
+let income = JSON.parse(localStorage.getItem('income')) || [];
+let expense = JSON.parse(localStorage.getItem('expense')) || [];
+
+// FIXED LOGIN
+const ADMIN_USER = "admin";
+const ADMIN_PASS = "1234";
 
 function login() {
-  document.getElementById('login').style.display = 'none';
-  document.getElementById('dashboard').classList.add('active');
+  let user = document.getElementById('username').value;
+  let pass = document.getElementById('password').value;
+
+  if (user === ADMIN_USER && pass === ADMIN_PASS) {
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('mainNav').style.display = 'flex';
+    showSection('dashboard');
+  } else {
+    document.getElementById('error').innerText = "Invalid Username or Password";
+  }
 }
 
 function showSection(id) {
@@ -124,42 +135,84 @@ function showSection(id) {
   document.getElementById(id).classList.add('active');
 }
 
+function saveData() {
+  localStorage.setItem('inventory', JSON.stringify(inventory));
+  localStorage.setItem('income', JSON.stringify(income));
+  localStorage.setItem('expense', JSON.stringify(expense));
+}
+
 function addInventory() {
   let name = document.getElementById('itemName').value;
   let qty = document.getElementById('itemQty').value;
+  if (!name || !qty) return;
   inventory.push({name, qty});
-  document.getElementById('inventoryList').innerHTML += `<li>${name} - ${qty}</li>`;
+  saveData();
+  renderInventory();
+}
+
+function renderInventory() {
+  let list = document.getElementById('inventoryList');
+  list.innerHTML = '';
+  inventory.forEach(i => {
+    let li = document.createElement('li');
+    li.textContent = `${i.name} - ${i.qty}`;
+    list.appendChild(li);
+  });
 }
 
 function addIncomeCategory() {
   let cat = document.getElementById('newIncomeCategory').value;
-  let select = document.getElementById('incomeType');
+  if (!cat) return;
   let option = document.createElement('option');
   option.text = cat;
-  select.add(option);
+  document.getElementById('incomeType').add(option);
 }
 
 function addExpenseCategory() {
   let cat = document.getElementById('newExpenseCategory').value;
-  let select = document.getElementById('expenseType');
+  if (!cat) return;
   let option = document.createElement('option');
   option.text = cat;
-  select.add(option);
+  document.getElementById('expenseType').add(option);
 }
 
 function addIncome() {
   let type = document.getElementById('incomeType').value;
   let amount = document.getElementById('incomeAmount').value;
-  income.push({type, amount, date: new Date()});
-  document.getElementById('incomeList').innerHTML += `<li>${type} - ₹${amount}</li>`;
+  if (!amount) return;
+  income.push({type, amount: Number(amount), date: new Date()});
+  saveData();
+  renderIncome();
   updateReports();
+}
+
+function renderIncome() {
+  let list = document.getElementById('incomeList');
+  list.innerHTML = '';
+  income.forEach(i => {
+    let li = document.createElement('li');
+    li.textContent = `${i.type} - ₹${i.amount}`;
+    list.appendChild(li);
+  });
 }
 
 function addExpense() {
   let type = document.getElementById('expenseType').value;
   let amount = document.getElementById('expenseAmount').value;
-  expense.push({type, amount});
-  document.getElementById('expenseList').innerHTML += `<li>${type} - ₹${amount}</li>`;
+  if (!amount) return;
+  expense.push({type, amount: Number(amount)});
+  saveData();
+  renderExpense();
+}
+
+function renderExpense() {
+  let list = document.getElementById('expenseList');
+  list.innerHTML = '';
+  expense.forEach(e => {
+    let li = document.createElement('li');
+    li.textContent = `${e.type} - ₹${e.amount}`;
+    list.appendChild(li);
+  });
 }
 
 function updateReports() {
@@ -171,41 +224,32 @@ function updateReports() {
   let today = new Date().toDateString();
   let currentMonth = new Date().getMonth();
 
-  let dailyRoom = 0;
-  let dailyFood = 0;
-  let monthlyRoom = 0;
-  let monthlyFood = 0;
+  let dailyRoom = 0, dailyFood = 0;
+  let monthlyRoom = 0, monthlyFood = 0;
 
   income.forEach(i => {
     let d = new Date(i.date);
 
-    // DAILY
     if (d.toDateString() === today) {
-      if (i.type === 'Room Sale') dailyRoom += Number(i.amount);
-      if (i.type === 'Food Sale') dailyFood += Number(i.amount);
+      if (i.type === 'Room Sale') dailyRoom += i.amount;
+      if (i.type === 'Food Sale') dailyFood += i.amount;
     }
 
-    // MONTHLY
     if (d.getMonth() === currentMonth) {
-      if (i.type === 'Room Sale') monthlyRoom += Number(i.amount);
-      if (i.type === 'Food Sale') monthlyFood += Number(i.amount);
+      if (i.type === 'Room Sale') monthlyRoom += i.amount;
+      if (i.type === 'Food Sale') monthlyFood += i.amount;
     }
   });
 
-  daily.innerHTML = `
-    <li><strong>Room Sale:</strong> ₹${dailyRoom}</li>
-    <li><strong>Food Sale:</strong> ₹${dailyFood}</li>
-  `;
-
-  monthly.innerHTML = `
-    <li><strong>Room Sale:</strong> ₹${monthlyRoom}</li>
-    <li><strong>Food Sale:</strong> ₹${monthlyFood}</li>
-  `;
-} - ₹${i.amount}</li>`;
-      monthly.innerHTML += `<li>${i.type} - ₹${i.amount}</li>`;
-    }
-  });
+  daily.innerHTML = `<li>Room Sale: ₹${dailyRoom}</li><li>Food Sale: ₹${dailyFood}</li>`;
+  monthly.innerHTML = `<li>Room Sale: ₹${monthlyRoom}</li><li>Food Sale: ₹${monthlyFood}</li>`;
 }
+
+// INITIAL LOAD
+renderInventory();
+renderIncome();
+renderExpense();
+updateReports();
 </script>
 
 </body>
