@@ -254,3 +254,335 @@ updateReports();
 
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HOTEL ROYAL INN - Management System</title>
+  <style>
+    body { font-family: Arial; margin: 0; background: #f4f6f9; }
+    header { background: #1e3a8a; color: white; padding: 15px; text-align: center; }
+    nav { background: #111827; padding: 10px; display: flex; gap: 10px; }
+    nav button { background: #2563eb; color: white; border: none; padding: 10px; cursor: pointer; }
+    section { padding: 20px; display: none; }
+    .active { display: block; }
+    .card { background: white; padding: 15px; margin-bottom: 15px; border-radius: 8px; }
+    input, select { padding: 8px; margin: 5px 0; width: 100%; }
+    button.submit { background: green; color: white; padding: 10px; border: none; }
+    .action-btn { margin-left: 10px; cursor: pointer; color: blue; }
+    footer { text-align: center; padding: 10px; background: #1e3a8a; color: white; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>HOTEL ROYAL INN</h1>
+  <p>Hotel Management Software</p>
+</header>
+
+<nav id="mainNav" style="display:none;">
+  <button onclick="showSection('dashboard')">Dashboard</button>
+  <button onclick="showSection('inventory')">Inventory</button>
+  <button onclick="showSection('income')">Income</button>
+  <button onclick="showSection('expense')">Expenses</button>
+  <button onclick="showSection('reports')">Reports</button>
+</nav>
+
+<section id="login" class="active">
+  <div class="card">
+    <h2>Admin Login</h2>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button class="submit" onclick="login()">Login</button>
+    <p id="error" style="color:red;"></p>
+  </div>
+</section>
+
+<section id="dashboard">
+  <div class="card">
+    <h2>Welcome Admin</h2>
+    <p>Manage your hotel operations easily.</p>
+  </div>
+</section>
+
+<section id="inventory">
+  <div class="card">
+    <h2>Inventory</h2>
+    <input type="text" id="itemName" placeholder="Item Name">
+    <input type="number" id="itemQty" placeholder="Quantity">
+    <button class="submit" onclick="addInventory()">Add Item</button>
+    <ul id="inventoryList"></ul>
+  </div>
+</section>
+
+<section id="income">
+  <div class="card">
+    <h2>Income Sources</h2>
+    <select id="incomeType">
+      <option>Room Sale</option>
+      <option>Food Sale</option>
+      <option>Event / Program</option>
+    </select>
+    <input type="text" id="newIncomeCategory" placeholder="Add New Category">
+    <button onclick="addIncomeCategory()">Add Category</button>
+    <input type="number" id="incomeAmount" placeholder="Amount">
+    <button class="submit" onclick="addIncome()">Add Income</button>
+    <ul id="incomeList"></ul>
+  </div>
+</section>
+
+<section id="expense">
+  <div class="card">
+    <h2>Expense Sources</h2>
+    <select id="expenseType">
+      <option>Staff Salary</option>
+      <option>Staff Advance</option>
+      <option>LPG Gas</option>
+      <option>Marketing</option>
+      <option>Electric Bill</option>
+    </select>
+    <input type="text" id="newExpenseCategory" placeholder="Add New Category">
+    <button onclick="addExpenseCategory()">Add Category</button>
+    <input type="number" id="expenseAmount" placeholder="Amount">
+    <button class="submit" onclick="addExpense()">Add Expense</button>
+    <ul id="expenseList"></ul>
+  </div>
+</section>
+
+<section id="reports">
+  <div class="card">
+    <h2>Reports</h2>
+    <h3>Daily Report</h3>
+    <ul id="dailyReport"></ul>
+
+    <h3>Monthly Report</h3>
+    <ul id="monthlyReport"></ul>
+  </div>
+</section>
+
+<footer>
+  <p>Website Design by MATINDRA TRIPURA</p>
+</footer>
+
+<script>
+let inventory = JSON.parse(localStorage.getItem('inventory')) || [];
+let income = JSON.parse(localStorage.getItem('income')) || [];
+let expense = JSON.parse(localStorage.getItem('expense')) || [];
+
+const ADMIN_USER = "admin";
+const ADMIN_PASS = "1234";
+
+function login() {
+  let user = document.getElementById('username').value;
+  let pass = document.getElementById('password').value;
+
+  if (user === ADMIN_USER && pass === ADMIN_PASS) {
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('mainNav').style.display = 'flex';
+    showSection('dashboard');
+  } else {
+    document.getElementById('error').innerText = "Invalid Username or Password";
+  }
+}
+
+function showSection(id) {
+  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function saveData() {
+  localStorage.setItem('inventory', JSON.stringify(inventory));
+  localStorage.setItem('income', JSON.stringify(income));
+  localStorage.setItem('expense', JSON.stringify(expense));
+}
+
+function addInventory() {
+  let name = document.getElementById('itemName').value;
+  let qty = document.getElementById('itemQty').value;
+  if (!name || !qty) return;
+  inventory.push({name, qty});
+  saveData();
+  renderInventory();
+}
+
+function renderInventory() {
+  let list = document.getElementById('inventoryList');
+  list.innerHTML = '';
+  inventory.forEach(i => {
+    let li = document.createElement('li');
+    li.textContent = `${i.name} - ${i.qty}`;
+    list.appendChild(li);
+  });
+}
+
+function addIncomeCategory() {
+  let cat = document.getElementById('newIncomeCategory').value;
+  if (!cat) return;
+  let option = document.createElement('option');
+  option.text = cat;
+  document.getElementById('incomeType').add(option);
+}
+
+function addExpenseCategory() {
+  let cat = document.getElementById('newExpenseCategory').value;
+  if (!cat) return;
+  let option = document.createElement('option');
+  option.text = cat;
+  document.getElementById('expenseType').add(option);
+}
+
+function addIncome() {
+  let type = document.getElementById('incomeType').value;
+  let amount = document.getElementById('incomeAmount').value;
+  if (!amount) return;
+  income.push({type, amount: Number(amount), date: new Date()});
+  saveData();
+  renderIncome();
+  updateReports();
+}
+
+function renderIncome() {
+  let list = document.getElementById('incomeList');
+  list.innerHTML = '';
+  income.forEach((i, index) => {
+    let li = document.createElement('li');
+
+    let text = document.createElement('span');
+    text.textContent = `${i.type} - ₹${i.amount}`;
+
+    let editBtn = document.createElement('button');
+    editBtn.textContent = 'Edit';
+    editBtn.onclick = () => editIncome(index);
+
+    let deleteBtn = document.createElement('button');
+    deleteBtn.textContent = 'Delete';
+    deleteBtn.onclick = () => deleteIncome(index);
+
+    li.appendChild(text);
+    li.appendChild(editBtn);
+    li.appendChild(deleteBtn);
+
+    list.appendChild(li);
+  });
+} - ₹${i.amount}
+      <span class='action-btn' onclick='editIncome(${index})'>Edit</span>
+      <span class='action-btn' onclick='deleteIncome(${index})'>Delete</span>`;
+    list.appendChild(li);
+  });
+}
+
+function editIncome(index) {
+  let newAmount = prompt("Enter new amount", income[index].amount);
+  if (newAmount !== null) {
+    income[index].amount = Number(newAmount);
+    saveData();
+    renderIncome();
+    updateReports();
+  }
+}
+
+function deleteIncome(index) {
+  if (confirm("Delete this income?")) {
+    income.splice(index, 1);
+    saveData();
+    renderIncome();
+    updateReports();
+  }
+}
+
+function addExpense() {
+  let type = document.getElementById('expenseType').value;
+  let amount = document.getElementById('expenseAmount').value;
+  if (!amount) return;
+  expense.push({type, amount: Number(amount)});
+  saveData();
+  renderExpense();
+}
+
+function renderExpense() {
+  let list = document.getElementById('expenseList');
+  list.innerHTML = '';
+  expense.forEach((e, index) => {
+    let li = document.createElement('li');
+
+    let text = document.createElement('span');
+    text.textContent = `${e.type} - ₹${e.amount}`;
+
+    let editBtn = document.createElement('button');
+    editBtn.textContent = 'Edit';
+    editBtn.onclick = () => editExpense(index);
+
+    let deleteBtn = document.createElement('button');
+    deleteBtn.textContent = 'Delete';
+    deleteBtn.onclick = () => deleteExpense(index);
+
+    li.appendChild(text);
+    li.appendChild(editBtn);
+    li.appendChild(deleteBtn);
+
+    list.appendChild(li);
+  });
+} - ₹${e.amount}
+      <span class='action-btn' onclick='editExpense(${index})'>Edit</span>
+      <span class='action-btn' onclick='deleteExpense(${index})'>Delete</span>`;
+    list.appendChild(li);
+  });
+}
+
+function editExpense(index) {
+  let newAmount = prompt("Enter new amount", expense[index].amount);
+  if (newAmount !== null) {
+    expense[index].amount = Number(newAmount);
+    saveData();
+    renderExpense();
+  }
+}
+
+function deleteExpense(index) {
+  if (confirm("Delete this expense?")) {
+    expense.splice(index, 1);
+    saveData();
+    renderExpense();
+  }
+}
+
+function updateReports() {
+  let daily = document.getElementById('dailyReport');
+  let monthly = document.getElementById('monthlyReport');
+  daily.innerHTML = '';
+  monthly.innerHTML = '';
+
+  let today = new Date().toDateString();
+  let currentMonth = new Date().getMonth();
+
+  let dailyRoom = 0, dailyFood = 0;
+  let monthlyRoom = 0, monthlyFood = 0;
+
+  income.forEach(i => {
+    let d = new Date(i.date);
+
+    if (d.toDateString() === today) {
+      if (i.type === 'Room Sale') dailyRoom += i.amount;
+      if (i.type === 'Food Sale') dailyFood += i.amount;
+    }
+
+    if (d.getMonth() === currentMonth) {
+      if (i.type === 'Room Sale') monthlyRoom += i.amount;
+      if (i.type === 'Food Sale') monthlyFood += i.amount;
+    }
+  });
+
+  daily.innerHTML = `<li>Room Sale: ₹${dailyRoom}</li><li>Food Sale: ₹${dailyFood}</li>`;
+  monthly.innerHTML = `<li>Room Sale: ₹${monthlyRoom}</li><li>Food Sale: ₹${monthlyFood}</li>`;
+}
+
+renderInventory();
+renderIncome();
+renderExpense();
+updateReports();
+</script>
+
+</body>
+</html>
+
