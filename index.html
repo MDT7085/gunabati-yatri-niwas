@@ -1,42 +1,212 @@
-Create a complete GitHub project for a Registration Form website using HTML, CSS, and JavaScript.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HOTEL ROYAL INN - Management System</title>
+  <style>
+    body { font-family: Arial; margin: 0; background: #f4f6f9; }
+    header { background: #1e3a8a; color: white; padding: 15px; text-align: center; }
+    nav { background: #111827; padding: 10px; display: flex; gap: 10px; }
+    nav button { background: #2563eb; color: white; border: none; padding: 10px; cursor: pointer; }
+    section { padding: 20px; display: none; }
+    .active { display: block; }
+    .card { background: white; padding: 15px; margin-bottom: 15px; border-radius: 8px; }
+    input, select { padding: 8px; margin: 5px 0; width: 100%; }
+    button.submit { background: green; color: white; padding: 10px; border: none; }
+    footer { text-align: center; padding: 10px; background: #1e3a8a; color: white; }
+  </style>
+</head>
+<body>
 
-Project Requirements:
-- The project should work on GitHub Pages.
-- The main file should be named index.html.
-- The design should be clean, simple, and professional.
-- The layout should be responsive for desktop and mobile.
+<header>
+  <h1>HOTEL ROYAL INN</h1>
+  <p>Hotel Management Software</p>
+</header>
 
-The registration form should include the following fields:
-1. Full Name
-2. Gender (dropdown: Male, Female, Other)
-3. Date of Birth
-4. Phone Number
-5. Email Address
-6. Address
-7. Qualification
-8. Computer Skills
-9. Work Experience
-10. Submit Button
+<nav>
+  <button onclick="showSection('dashboard')">Dashboard</button>
+  <button onclick="showSection('inventory')">Inventory</button>
+  <button onclick="showSection('income')">Income</button>
+  <button onclick="showSection('expense')">Expenses</button>
+  <button onclick="showSection('reports')">Reports</button>
+</nav>
 
-Functionality Requirements:
-- Validate required fields.
-- When the user submits the form, prevent page refresh.
-- Display a success message like: "Registration Successful".
-- Clear the form after submission.
+<section id="login" class="active">
+  <div class="card">
+    <h2>Admin Login</h2>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button class="submit" onclick="login()">Login</button>
+  </div>
+</section>
 
-Project Structure:
-registration-form/
- ├── index.html
- ├── style.css
- └── script.js
+<section id="dashboard">
+  <div class="card">
+    <h2>Welcome Admin</h2>
+    <p>Manage your hotel operations easily.</p>
+  </div>
+</section>
 
-File Responsibilities:
-- index.html should contain the form structure.
-- style.css should contain modern and clean styling.
-- script.js should handle form submission and success message.
+<section id="inventory">
+  <div class="card">
+    <h2>Inventory</h2>
+    <input type="text" id="itemName" placeholder="Item Name">
+    <input type="number" id="itemQty" placeholder="Quantity">
+    <button class="submit" onclick="addInventory()">Add Item</button>
+    <ul id="inventoryList"></ul>
+  </div>
+</section>
 
-Additional Requirements:
-- Use simple modern CSS.
-- Center the form on the page.
-- Add a card-style layout with shadow.
-- Use clear labels and spacing for each field.
+<section id="income">
+  <div class="card">
+    <h2>Income Sources</h2>
+    <select id="incomeType">
+      <option>Room Sale</option>
+      <option>Food Sale</option>
+      <option>Event / Program</option>
+    </select>
+    <input type="text" id="newIncomeCategory" placeholder="Add New Category">
+    <button onclick="addIncomeCategory()">Add Category</button>
+    <input type="number" id="incomeAmount" placeholder="Amount">
+    <button class="submit" onclick="addIncome()">Add Income</button>
+    <ul id="incomeList"></ul>
+  </div>
+</section>
+
+<section id="expense">
+  <div class="card">
+    <h2>Expense Sources</h2>
+    <select id="expenseType">
+      <option>Staff Salary</option>
+      <option>Staff Advance</option>
+      <option>LPG Gas</option>
+      <option>Marketing</option>
+      <option>Electric Bill</option>
+    </select>
+    <input type="text" id="newExpenseCategory" placeholder="Add New Category">
+    <button onclick="addExpenseCategory()">Add Category</button>
+    <input type="number" id="expenseAmount" placeholder="Amount">
+    <button class="submit" onclick="addExpense()">Add Expense</button>
+    <ul id="expenseList"></ul>
+  </div>
+</section>
+
+<section id="reports">
+  <div class="card">
+    <h2>Reports</h2>
+    <h3>Daily Report</h3>
+    <p>Room Sale & Food Sale</p>
+    <ul id="dailyReport"></ul>
+
+    <h3>Monthly Report</h3>
+    <p>Room Sale & Food Sale</p>
+    <ul id="monthlyReport"></ul>
+  </div>
+</section>
+
+<footer>
+  <p>Website Design by MATINDRA TRIPURA</p>
+</footer>
+
+<script>
+let inventory = [];
+let income = [];
+let expense = [];
+
+function login() {
+  document.getElementById('login').style.display = 'none';
+  document.getElementById('dashboard').classList.add('active');
+}
+
+function showSection(id) {
+  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function addInventory() {
+  let name = document.getElementById('itemName').value;
+  let qty = document.getElementById('itemQty').value;
+  inventory.push({name, qty});
+  document.getElementById('inventoryList').innerHTML += `<li>${name} - ${qty}</li>`;
+}
+
+function addIncomeCategory() {
+  let cat = document.getElementById('newIncomeCategory').value;
+  let select = document.getElementById('incomeType');
+  let option = document.createElement('option');
+  option.text = cat;
+  select.add(option);
+}
+
+function addExpenseCategory() {
+  let cat = document.getElementById('newExpenseCategory').value;
+  let select = document.getElementById('expenseType');
+  let option = document.createElement('option');
+  option.text = cat;
+  select.add(option);
+}
+
+function addIncome() {
+  let type = document.getElementById('incomeType').value;
+  let amount = document.getElementById('incomeAmount').value;
+  income.push({type, amount, date: new Date()});
+  document.getElementById('incomeList').innerHTML += `<li>${type} - ₹${amount}</li>`;
+  updateReports();
+}
+
+function addExpense() {
+  let type = document.getElementById('expenseType').value;
+  let amount = document.getElementById('expenseAmount').value;
+  expense.push({type, amount});
+  document.getElementById('expenseList').innerHTML += `<li>${type} - ₹${amount}</li>`;
+}
+
+function updateReports() {
+  let daily = document.getElementById('dailyReport');
+  let monthly = document.getElementById('monthlyReport');
+  daily.innerHTML = '';
+  monthly.innerHTML = '';
+
+  let today = new Date().toDateString();
+  let currentMonth = new Date().getMonth();
+
+  let dailyRoom = 0;
+  let dailyFood = 0;
+  let monthlyRoom = 0;
+  let monthlyFood = 0;
+
+  income.forEach(i => {
+    let d = new Date(i.date);
+
+    // DAILY
+    if (d.toDateString() === today) {
+      if (i.type === 'Room Sale') dailyRoom += Number(i.amount);
+      if (i.type === 'Food Sale') dailyFood += Number(i.amount);
+    }
+
+    // MONTHLY
+    if (d.getMonth() === currentMonth) {
+      if (i.type === 'Room Sale') monthlyRoom += Number(i.amount);
+      if (i.type === 'Food Sale') monthlyFood += Number(i.amount);
+    }
+  });
+
+  daily.innerHTML = `
+    <li><strong>Room Sale:</strong> ₹${dailyRoom}</li>
+    <li><strong>Food Sale:</strong> ₹${dailyFood}</li>
+  `;
+
+  monthly.innerHTML = `
+    <li><strong>Room Sale:</strong> ₹${monthlyRoom}</li>
+    <li><strong>Food Sale:</strong> ₹${monthlyFood}</li>
+  `;
+} - ₹${i.amount}</li>`;
+      monthly.innerHTML += `<li>${i.type} - ₹${i.amount}</li>`;
+    }
+  });
+}
+</script>
+
+</body>
+</html>
