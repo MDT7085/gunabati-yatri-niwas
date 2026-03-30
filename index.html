@@ -3,209 +3,254 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hotel Royal Inn | Admin Software</title>
+    <title>Hotel Royal Inn | Management Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --sidebar-bg: #1a2a6c;
-            --main-bg: #f4f7f6;
+            --primary: #1a2a6c;
             --accent: #f39c12;
-            --text-dark: #2c3e50;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --success: #10b981;
+            --danger: #ef4444;
         }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; background: var(--main-bg); display: flex; height: 100vh; overflow: hidden; }
+
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { margin: 0; background-color: var(--bg); color: var(--text); }
+
+        /* Navigation */
+        nav {
+            background: var(--primary);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .logo { font-weight: 700; font-size: 1.2rem; letter-spacing: 1px; }
+        .nav-links button {
+            background: transparent; border: 1px solid rgba(255,255,255,0.3);
+            color: white; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; margin-left: 10px;
+        }
+        .nav-links button:hover { background: var(--accent); border-color: var(--accent); }
+
+        /* Container */
+        .container { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
+
+        /* Cards & UI */
+        .card { background: var(--card); border-radius: 12px; padding: 2rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 2rem; }
+        h1 { font-size: 1.5rem; margin-bottom: 1.5rem; color: var(--primary); border-left: 4px solid var(--accent); padding-left: 15px; }
+
+        .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem; }
+        label { display: block; font-size: 0.85rem; font-weight: 600; color: #64748b; margin-bottom: 0.5rem; }
+        input, select {
+            width: 100%; padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 1rem; transition: border 0.2s;
+        }
+        input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26, 42, 108, 0.1); }
+
+        .btn-main {
+            background: var(--primary); color: white; border: none; padding: 1rem 2rem;
+            border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%; transition: transform 0.1s;
+        }
+        .btn-main:active { transform: scale(0.98); }
+
+        /* Table Design */
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th { text-align: left; background: #f1f5f9; padding: 1rem; font-size: 0.8rem; text-transform: uppercase; color: #475569; }
+        td { padding: 1rem; border-bottom: 1px solid #f1f5f9; font-size: 0.95rem; }
+        .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; background: #fee2e2; color: #ef4444; }
+
+        /* Print Modal */
+        #modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:1000; padding: 20px; overflow-y: auto; }
+        .receipt { background: white; max-width: 500px; margin: 2rem auto; padding: 40px; border-radius: 4px; position: relative; }
         
-        /* Sidebar */
-        .sidebar { width: 260px; background: var(--sidebar-bg); color: white; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; }
-        .sidebar h2 { font-size: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 20px; }
-        .nav-btn { background: transparent; border: none; color: white; text-align: left; padding: 12px; cursor: pointer; border-radius: 5px; margin-bottom: 5px; transition: 0.3s; }
-        .nav-btn:hover, .nav-btn.active { background: rgba(255,255,255,0.1); color: var(--accent); }
+        .footer-credit { text-align: center; padding: 2rem; color: #94a3b8; font-size: 0.8rem; font-weight: 600; }
 
-        /* Main Content */
-        .main-content { flex: 1; overflow-y: auto; padding: 30px; box-sizing: border-box; }
-        .view-section { display: none; }
-        .view-section.active { display: block; }
-
-        /* Form Styling */
-        .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
-        label { font-size: 12px; font-weight: bold; color: #7f8c8d; display: block; margin-bottom: 5px; }
-        .btn-save { background: #27ae60; color: white; border: none; padding: 12px 25px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 15px; }
-
-        /* Table Styling */
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; }
-        th { background: #eee; text-align: left; padding: 12px; color: var(--text-dark); }
-        td { padding: 12px; border-bottom: 1px solid #eee; }
-        .action-btn { padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer; margin-right: 5px; }
-        .btn-print { background: var(--sidebar-bg); color: white; }
-        .btn-del { background: #e74c3c; color: white; }
-
-        /* Slip Modal */
-        #slip-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center; z-index:1000; }
-        .slip-paper { background:white; width:500px; padding:40px; border-top: 10px solid var(--sidebar-bg); position:relative; }
-        
         @media print {
-            body * { visibility: hidden; }
-            #slip-modal, #slip-modal * { visibility: visible; }
-            #slip-modal { position: absolute; left: 0; top: 0; background: white; }
-            .no-print { display: none; }
+            nav, .container, .btn-main, .no-print { display: none !important; }
+            body { background: white; }
+            #modal { display: block !important; position: static; background: white; }
+            .receipt { box-shadow: none; width: 100%; margin: 0; padding: 0; }
         }
     </style>
 </head>
 <body>
 
-<div class="sidebar">
-    <h2>ROYAL INN ADMIN</h2>
-    <button class="nav-btn active" onclick="showView('new-booking')">Add New Booking</button>
-    <button class="nav-btn" onclick="showView('booking-list')">View All Bookings</button>
-    <div style="margin-top: auto; font-size: 10px; opacity: 0.5;">
-        MANAGE BY MATINDRA TRIPURA
+<nav>
+    <div class="logo">HOTEL ROYAL INN</div>
+    <div class="nav-links">
+        <button onclick="showPage('home')">New Entry</button>
+        <button onclick="showPage('records')">Database</button>
     </div>
-</div>
+</nav>
 
-<div class="main-content">
-    <div id="new-booking" class="view-section active">
-        <h1>Create Booking</h1>
+<div class="container">
+    <div id="page-home">
+        <h1>Create New Booking</h1>
         <div class="card">
-            <div class="form-grid">
-                <div><label>Guest Name</label><input type="text" id="guestName"></div>
-                <div><label>Phone Number</label><input type="text" id="phone"></div>
-                <div><label>Check-In</label><input type="date" id="checkin"></div>
-                <div><label>Check-Out</label><input type="date" id="checkout"></div>
+            <div class="form-row">
+                <div><label>Guest Full Name</label><input type="text" id="gName" placeholder="Ex: Rahul Sharma"></div>
+                <div><label>Mobile Number</label><input type="tel" id="gPhone" placeholder="10 Digit Number"></div>
+            </div>
+            <div class="form-row">
+                <div><label>Check-In Date</label><input type="date" id="gIn"></div>
+                <div><label>Check-Out Date</label><input type="date" id="gOut"></div>
+            </div>
+            <div class="form-row">
                 <div>
-                    <label>Room Type</label>
-                    <select id="roomType">
-                        <option>Deluxe AC</option>
-                        <option>Super Deluxe</option>
-                        <option>Suite</option>
+                    <label>Room Category</label>
+                    <select id="gType">
+                        <option>Deluxe AC Room</option>
+                        <option>Super Deluxe AC</option>
+                        <option>Executive Suite</option>
+                        <option>Standard Non-AC</option>
                     </select>
                 </div>
-                <div><label>Total Rooms</label><input type="number" id="totalRooms" value="1"></div>
-                <div><label>Total Amount (₹)</label><input type="number" id="totalAmt"></div>
-                <div><label>Advance Paid (₹)</label><input type="number" id="advance"></div>
+                <div><label>Total Rooms</label><input type="number" id="gQty" value="1"></div>
             </div>
-            <button class="btn-save" onclick="saveBooking()">GENERATE & SAVE BOOKING</button>
+            <div class="form-row">
+                <div><label>Total Deal Amount (₹)</label><input type="number" id="gTotal" placeholder="0.00"></div>
+                <div><label>Advance Received (₹)</label><input type="number" id="gAdv" placeholder="0.00"></div>
+            </div>
+            <button class="btn-main" onclick="handleSave()">Generate Receipt & Save to Cloud</button>
         </div>
     </div>
 
-    <div id="booking-list" class="view-section">
-        <h1>Recent History</h1>
-        <div class="card">
-            <table id="recordsTable">
+    <div id="page-records" style="display:none;">
+        <h1>Booking Records</h1>
+        <div class="card table-wrap">
+            <table id="bookingTable">
                 <thead>
                     <tr>
                         <th>Guest</th>
-                        <th>Dates</th>
+                        <th>Stay Dates</th>
                         <th>Room</th>
                         <th>Balance</th>
-                        <th>Actions</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
-                <tbody id="tableBody"></tbody>
+                <tbody id="tableData"></tbody>
             </table>
         </div>
     </div>
 </div>
 
-<div id="slip-modal">
-    <div class="slip-paper" id="printArea">
-        <center>
-            <h1 style="margin:0; color:#1a2a6c">HOTEL ROYAL INN</h1>
-            <p style="margin:5px 0">Booking Confirmation</p>
-        </center>
-        <hr>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:20px;">
-            <div><small>GUEST</small><br><b id="pName"></b></div>
-            <div><small>PHONE</small><br><b id="pPhone"></b></div>
-            <div><small>STAY</small><br><span id="pDates"></span></div>
-            <div><small>ROOM</small><br><span id="pType"></span> (<span id="pQty"></span>)</div>
+<div class="footer-credit">
+    MANAGE BY MATINDRA TRIPURA
+</div>
+
+<div id="modal">
+    <div class="receipt">
+        <div style="text-align: center; border-bottom: 2px solid #1a2a6c; padding-bottom: 1rem;">
+            <h2 style="margin:0; color: #1a2a6c;">HOTEL ROYAL INN</h2>
+            <small>Official Booking Confirmation</small>
         </div>
-        <div style="background:#f4f4f4; padding:15px; margin-top:20px; border-radius:5px;">
-            <div style="display:flex; justify-content:space-between"><span>Total</span><b id="pTotal"></b></div>
-            <div style="display:flex; justify-content:space-between"><span>Advance</span><b id="pAdv"></b></div>
-            <div style="display:flex; justify-content:space-between; color:red; border-top:1px solid #ccc; padding-top:5px; margin-top:5px">
-                <span>Pending Balance</span><b id="pBal"></b>
+        
+        <div style="margin-top: 1.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div><label>GUEST</label><b id="mName"></b></div>
+            <div><label>PHONE</label><b id="mPhone"></b></div>
+            <div><label>CHECK-IN</label><span id="mIn"></span></div>
+            <div><label>CHECK-OUT</label><span id="mOut"></span></div>
+            <div><label>ROOM TYPE</label><span id="mType"></span></div>
+            <div><label>QUANTITY</label><span id="mQty"></span></div>
+        </div>
+
+        <div style="background: #f8fafc; padding: 1.5rem; border-radius: 8px; margin-top: 1.5rem;">
+            <div style="display:flex; justify-content:space-between; margin-bottom: 5px;"><span>Total Amount:</span><b id="mTotal"></b></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom: 5px;"><span>Advance Paid:</span><b id="mAdv"></b></div>
+            <div style="display:flex; justify-content:space-between; color: var(--danger); font-size: 1.2rem; border-top: 1px solid #cbd5e1; padding-top: 10px; margin-top: 10px;">
+                <span>DUE BALANCE:</span><b id="mBal"></b>
             </div>
         </div>
-        <div style="margin-top:20px; font-size:11px; color:#666; text-align:center;">
-            MANAGE BY MATINDRA TRIPURA
+
+        <div style="margin-top: 2rem; font-size: 0.75rem; text-align: center; color: #64748b;">
+            <p>Thank you for choosing Hotel Royal Inn. Please keep a digital copy of this receipt.</p>
+            <hr style="border:0; border-top: 1px solid #e2e8f0; margin: 1rem 0;">
+            <strong>MANAGE BY MATINDRA TRIPURA</strong>
         </div>
-        <br>
-        <button class="no-print" onclick="closeModal()" style="width:100%; padding:10px;">Close Preview</button>
-        <button class="no-print" onclick="window.print()" style="width:100%; padding:10px; background:#1a2a6c; color:white; border:none; margin-top:5px; cursor:pointer;">PRINT NOW</button>
+
+        <div style="margin-top: 2rem;" class="no-print">
+            <button class="btn-main" onclick="window.print()">Print Document</button>
+            <button onclick="closeModal()" style="width:100%; margin-top: 10px; background:none; border:none; color:#64748b; cursor:pointer;">Close Preview</button>
+        </div>
     </div>
 </div>
 
 <script>
-    let bookings = JSON.parse(localStorage.getItem('hotelBookings')) || [];
+    let db = JSON.parse(localStorage.getItem('royalInnDB')) || [];
 
-    function showView(viewId) {
-        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(viewId).classList.add('active');
-        event.target.classList.add('active');
-        if(viewId === 'booking-list') renderTable();
+    function showPage(page) {
+        document.getElementById('page-home').style.display = page === 'home' ? 'block' : 'none';
+        document.getElementById('page-records').style.display = page === 'records' ? 'block' : 'none';
+        if(page === 'records') updateTable();
     }
 
-    function saveBooking() {
-        const booking = {
+    function handleSave() {
+        const entry = {
             id: Date.now(),
-            name: document.getElementById('guestName').value,
-            phone: document.getElementById('phone').value,
-            cin: document.getElementById('checkin').value,
-            cout: document.getElementById('checkout').value,
-            type: document.getElementById('roomType').value,
-            qty: document.getElementById('totalRooms').value,
-            total: document.getElementById('totalAmt').value,
-            adv: document.getElementById('advance').value
+            name: document.getElementById('gName').value,
+            phone: document.getElementById('gPhone').value,
+            in: document.getElementById('gIn').value,
+            out: document.getElementById('gOut').value,
+            type: document.getElementById('gType').value,
+            qty: document.getElementById('gQty').value,
+            total: document.getElementById('gTotal').value,
+            adv: document.getElementById('gAdv').value
         };
 
-        if(!booking.name) return alert("Please enter guest name");
-        
-        bookings.push(booking);
-        localStorage.setItem('hotelBookings', JSON.stringify(bookings));
-        alert("Booking Saved Successfully!");
-        showView('booking-list');
+        if(!entry.name || !entry.total) return alert("Please fill Name and Total Amount!");
+
+        db.push(entry);
+        localStorage.setItem('royalInnDB', JSON.stringify(db));
+        alert("Booking Secured Successfully!");
+        openReceipt(entry.id);
     }
 
-    function renderTable() {
-        const body = document.getElementById('tableBody');
-        body.innerHTML = bookings.map(b => `
+    function updateTable() {
+        const tbody = document.getElementById('tableData');
+        tbody.innerHTML = db.map(item => `
             <tr>
-                <td>${b.name}</td>
-                <td>${b.cin} / ${b.cout}</td>
-                <td>${b.type}</td>
-                <td style="color:red">₹${b.total - b.adv}</td>
+                <td><b>${item.name}</b><br><small>${item.phone}</small></td>
+                <td>${item.in}<br>to ${item.out}</td>
+                <td>${item.type}</td>
+                <td><span class="status-badge">₹${item.total - item.adv}</span></td>
                 <td>
-                    <button class="action-btn btn-print" onclick="printSlip(${b.id})">Print</button>
-                    <button class="action-btn btn-del" onclick="deleteBooking(${b.id})">Del</button>
+                    <button onclick="openReceipt(${item.id})" style="border:none; background:#1a2a6c; color:white; border-radius:4px; padding:5px 10px; cursor:pointer;">Slip</button>
+                    <button onclick="deleteRecord(${item.id})" style="border:none; background:#fee2e2; color:#ef4444; border-radius:4px; padding:5px 10px; cursor:pointer; margin-left:5px;">×</button>
                 </td>
             </tr>
         `).join('');
     }
 
-    function printSlip(id) {
-        const b = bookings.find(x => x.id === id);
-        document.getElementById('pName').innerText = b.name;
-        document.getElementById('pPhone').innerText = b.phone;
-        document.getElementById('pDates').innerText = b.cin + " to " + b.cout;
-        document.getElementById('pType').innerText = b.type;
-        document.getElementById('pQty').innerText = b.qty;
-        document.getElementById('pTotal').innerText = "₹" + b.total;
-        document.getElementById('pAdv').innerText = "₹" + b.adv;
-        document.getElementById('pBal').innerText = "₹" + (b.total - b.adv);
-        
-        document.getElementById('slip-modal').style.display = 'flex';
+    function openReceipt(id) {
+        const item = db.find(x => x.id === id);
+        document.getElementById('mName').innerText = item.name;
+        document.getElementById('mPhone').innerText = item.phone;
+        document.getElementById('mIn').innerText = item.in;
+        document.getElementById('mOut').innerText = item.out;
+        document.getElementById('mType').innerText = item.type;
+        document.getElementById('mQty').innerText = item.qty;
+        document.getElementById('mTotal').innerText = "₹" + item.total;
+        document.getElementById('mAdv').innerText = "₹" + item.adv;
+        document.getElementById('mBal').innerText = "₹" + (item.total - item.adv);
+        document.getElementById('modal').style.display = 'block';
     }
 
-    function deleteBooking(id) {
-        if(confirm("Delete this record?")) {
-            bookings = bookings.filter(x => x.id !== id);
-            localStorage.setItem('hotelBookings', JSON.stringify(bookings));
-            renderTable();
+    function deleteRecord(id) {
+        if(confirm("Permanently delete this record?")) {
+            db = db.filter(x => x.id !== id);
+            localStorage.setItem('royalInnDB', JSON.stringify(db));
+            updateTable();
         }
     }
 
-    function closeModal() { document.getElementById('slip-modal').style.display = 'none'; }
+    function closeModal() { document.getElementById('modal').style.display = 'none'; }
 </script>
 
 </body>
