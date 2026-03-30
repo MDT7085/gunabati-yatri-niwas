@@ -274,3 +274,263 @@
 
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Royal Inn | Advanced PMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #0f172a; --accent: #d97706; --bg: #f8fafc; --card: #ffffff; }
+        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { margin: 0; background-color: var(--bg); color: #334155; padding-bottom: 50px; }
+
+        /* Navigation */
+        nav { background: var(--primary); color: white; padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; }
+        .logo-area b { font-size: 1.4rem; color: #fbbf24; }
+        .nav-btn { background: rgba(255,255,255,0.1); border: none; color: white; padding: 0.6rem 1.2rem; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .nav-btn:hover { background: var(--accent); }
+
+        /* Layout */
+        .container { max-width: 1100px; margin: 2rem auto; padding: 0 20px; }
+        .card { background: var(--card); border-radius: 16px; padding: 2rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); margin-bottom: 2rem; }
+        h2 { font-size: 1.2rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px; color: var(--primary); }
+        h2::before { content: ""; width: 4px; height: 20px; background: var(--accent); border-radius: 10px; }
+
+        /* Form Grid */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .input-group { display: flex; flex-direction: column; gap: 5px; }
+        label { font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; }
+        input, select { padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem; outline: none; }
+        input:focus { border-color: var(--accent); }
+
+        .btn-action { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 10px; font-weight: 700; cursor: pointer; width: 100%; font-size: 1rem; }
+        
+        /* PAX & SMS */
+        .pax-box { background: #f1f5f9; padding: 10px; border-radius: 8px; display: flex; gap: 10px; }
+        .sms-preview { background: #fffbeb; border: 1px solid #fde68a; padding: 15px; border-radius: 10px; margin-top: 20px; }
+        #smsBody { font-family: monospace; font-size: 0.85rem; color: #451a03; line-height: 1.4; }
+
+        /* Table */
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 900px; }
+        th { text-align: left; padding: 15px; background: #f8fafc; font-size: 0.7rem; color: #64748b; }
+        td { padding: 15px; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; }
+        .status-tag { padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; }
+        .tag-pending { background: #fee2e2; color: #dc2626; }
+        .tag-checked { background: #dcfce7; color: #166534; }
+
+        /* Print Modal */
+        #printModal { display:none; position:fixed; inset:0; background:rgba(15, 23, 42, 0.9); z-index:9999; padding: 20px; overflow-y: auto; justify-content: center; }
+        .slip-content { background: white; width: 100%; max-width: 450px; padding: 40px; border-radius: 4px; }
+        
+        .footer { text-align: center; margin-top: 40px; font-size: 0.8rem; color: #94a3b8; font-weight: bold; }
+
+        @media print {
+            nav, .container, .no-print, .sms-preview { display: none !important; }
+            #printModal { display: block !important; position: absolute; background: white; padding: 0; }
+            .slip-content { box-shadow: none; border: 1px solid #ddd; max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="logo-area">HOTEL <b>ROYAL INN</b></div>
+    <div class="nav-links">
+        <button class="nav-btn" onclick="switchTab('entry')">New Booking</button>
+        <button class="nav-btn" onclick="switchTab('history')">Records</button>
+    </div>
+</nav>
+
+<div class="container">
+    <div id="tab-entry">
+        <h2>Guest Registration</h2>
+        <div class="card">
+            <div class="grid">
+                <div class="input-group"><label>Guest Name</label><input type="text" id="fName" onkeyup="genSMS()"></div>
+                <div class="input-group"><label>Mobile</label><input type="tel" id="fPhone"></div>
+                <div class="input-group">
+                    <label>PAX Details</label>
+                    <div class="pax-box">
+                        <input type="number" id="fAdult" placeholder="Adults" value="2" title="Adults">
+                        <input type="number" id="fChild" placeholder="Child" value="0" title="Children">
+                    </div>
+                </div>
+            </div>
+            <div class="grid">
+                <div class="input-group"><label>Check-In (Date)</label><input type="date" id="fIn" onchange="genSMS()"></div>
+                <div class="input-group"><label>Check-Out (Date)</label><input type="date" id="fOut"></div>
+                <div class="input-group">
+                    <label>Room Category</label>
+                    <select id="fType">
+                        <option>Super Deluxe AC</option>
+                        <option>Deluxe Non-AC</option>
+                        <option>Suite Room</option>
+                    </select>
+                </div>
+                <div class="input-group"><label>Total Rooms</label><input type="number" id="fQty" value="1"></div>
+            </div>
+            <div class="grid">
+                <div class="input-group"><label>Total Bill (₹)</label><input type="number" id="fTotal"></div>
+                <div class="input-group"><label>Advance (₹)</label><input type="number" id="fAdv"></div>
+                <div class="input-group">
+                    <label>Current Status</label>
+                    <select id="fStatus">
+                        <option value="Confirmed">Confirmed (Pending)</option>
+                        <option value="Checked-In">Checked-In</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="sms-preview">
+                <div id="smsBody">Welcome to Hotel Royal Inn! Your receipt will appear here...</div>
+            </div>
+
+            <button class="btn-action" style="margin-top:20px;" onclick="saveBooking()">SAVE & GENERATE SLIP</button>
+        </div>
+    </div>
+
+    <div id="tab-history" style="display:none;">
+        <h2>Booking Records</h2>
+        <div class="card table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Guest Name</th>
+                        <th>PAX (A/C)</th>
+                        <th>Dates (DD/MM/YY)</th>
+                        <th>Status</th>
+                        <th>Due Bal</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="masterData"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="footer">MANAGE BY MATINDRA TRIPURA</div>
+
+<div id="printModal">
+    <div class="slip-content">
+        <center>
+            <h1 style="margin:0; color:#0f172a">HOTEL ROYAL INN</h1>
+            <p style="margin:5px 0; color:#d97706; font-weight:bold; font-size:0.8rem">BOOKING CONFIRMATION</p>
+        </center>
+        <hr style="border:0; border-top:1px dashed #ccc; margin:20px 0;">
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; font-size:0.85rem">
+            <div><label>GUEST</label><br><b id="pName"></b></div>
+            <div><label>PAX (ADULT/KID)</label><br><b id="pPax"></b></div>
+            <div><label>MOBILE</label><br><span id="pPhone"></span></div>
+            <div><label>CHECK-IN</label><br><b id="pIn"></b></div>
+            <div><label>CHECK-OUT</label><br><b id="pOut"></b></div>
+            <div><label>ROOM</label><br><span id="pType"></span></div>
+        </div>
+
+        <div style="background:#f8fafc; padding:20px; margin-top:25px; border-radius:8px;">
+            <div style="display:flex; justify-content:space-between"><span>Total Bill</span><b id="pTotal"></b></div>
+            <div style="display:flex; justify-content:space-between; border-top:1px solid #ddd; padding-top:10px; margin-top:10px; color:#dc2626;">
+                <span>PENDING BALANCE</span><b id="pBal"></b>
+            </div>
+        </div>
+
+        <div style="margin-top:30px; text-align:center; font-size:0.7rem; color:#94a3b8">
+            <b>MANAGE BY MATINDRA TRIPURA</b><br>
+            <p>Receipt Generated on: <span id="pDateNow"></span></p>
+        </div>
+
+        <div class="no-print" style="margin-top:20px;">
+            <button class="btn-action" onclick="window.print()">PRINT SLIP</button>
+            <button onclick="document.getElementById('printModal').style.display='none'" style="width:100%; background:none; border:none; margin-top:10px; cursor:pointer;">Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let storage = JSON.parse(localStorage.getItem('RoyalInn_V3')) || [];
+
+    function formatDate(dateStr) {
+        if(!dateStr) return "N/A";
+        const d = new Date(dateStr);
+        return d.getDate().toString().padStart(2, '0') + '/' + (d.getMonth() + 1).toString().padStart(2, '0') + '/' + d.getFullYear();
+    }
+
+    function switchTab(tab) {
+        document.getElementById('tab-entry').style.display = tab === 'entry' ? 'block' : 'none';
+        document.getElementById('tab-history').style.display = tab === 'history' ? 'block' : 'none';
+        if(tab === 'history') loadHistory();
+    }
+
+    function genSMS() {
+        const name = document.getElementById('fName').value || "Guest";
+        const date = formatDate(document.getElementById('fIn').value);
+        document.getElementById('smsBody').innerText = `Welcome to Hotel Royal Inn! Dear ${name}, your booking for ${date} is confirmed. Safe travels! - Matindra Tripura`;
+    }
+
+    function saveBooking() {
+        const data = {
+            id: Date.now(),
+            name: document.getElementById('fName').value,
+            phone: document.getElementById('fPhone').value,
+            adult: document.getElementById('fAdult').value,
+            child: document.getElementById('fChild').value,
+            in: document.getElementById('fIn').value,
+            out: document.getElementById('fOut').value,
+            type: document.getElementById('fType').value,
+            total: document.getElementById('fTotal').value,
+            adv: document.getElementById('fAdv').value,
+            status: document.getElementById('fStatus').value
+        };
+
+        if(!data.name || !data.total) return alert("Please enter Guest Name and Total Amount.");
+        storage.push(data);
+        localStorage.setItem('RoyalInn_V3', JSON.stringify(storage));
+        showSlip(data.id);
+    }
+
+    function loadHistory() {
+        const body = document.getElementById('masterData');
+        body.innerHTML = storage.map(b => `
+            <tr>
+                <td><b>${b.name}</b></td>
+                <td>A: ${b.adult} / C: ${b.child}</td>
+                <td>${formatDate(b.in)} - ${formatDate(b.out)}</td>
+                <td><span class="status-tag ${b.status === 'Checked-In' ? 'tag-checked' : 'tag-pending'}">${b.status}</span></td>
+                <td style="color:red; font-weight:bold">₹${b.total - b.adv}</td>
+                <td>
+                    <button onclick="showSlip(${b.id})" style="background:var(--primary); color:white; border:none; padding:5px 8px; border-radius:4px; cursor:pointer;">Slip</button>
+                    <button onclick="deleteBooking(${b.id})" style="background:#fee2e2; border:none; padding:5px 8px; color:red; margin-left:4px; cursor:pointer;">×</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function showSlip(id) {
+        const b = storage.find(x => x.id === id);
+        document.getElementById('pName').innerText = b.name;
+        document.getElementById('pPax').innerText = b.adult + " Adults, " + b.child + " Kids";
+        document.getElementById('pPhone').innerText = b.phone;
+        document.getElementById('pType').innerText = b.type;
+        document.getElementById('pIn').innerText = formatDate(b.in);
+        document.getElementById('pOut').innerText = formatDate(b.out);
+        document.getElementById('pTotal').innerText = "₹" + b.total;
+        document.getElementById('pBal').innerText = "₹" + (b.total - b.adv);
+        document.getElementById('pDateNow').innerText = formatDate(new Date());
+        document.getElementById('printModal').style.display = 'flex';
+    }
+
+    function deleteBooking(id) {
+        if(confirm("Delete record?")) {
+            storage = storage.filter(x => x.id !== id);
+            localStorage.setItem('RoyalInn_V3', JSON.stringify(storage));
+            loadHistory();
+        }
+    }
+</script>
+
+</body>
+</html>
