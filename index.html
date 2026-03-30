@@ -3,171 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Booking Confirmation - Hotel Royal Inn</title>
+    <title>Admin Panel - Hotel Royal Inn</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background-color: #f0f2f5;
-            margin: 0;
-            padding: 40px 20px;
-            color: #333;
+        :root { --primary: #1a2a6c; --gold: #b8860b; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
+        
+        /* Login Styles */
+        #login-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--primary); display: flex; justify-content: center; align-items: center; z-index: 1000;
         }
-        .main-container {
-            max-width: 650px;
-            margin: auto;
-        }
-        .confirmation-card {
-            background: #fff;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            border-top: 10px solid #1a2a6c;
-            position: relative;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .hotel-name {
-            font-size: 28px;
-            font-weight: 800;
-            color: #1a2a6c;
-            margin: 0;
-            letter-spacing: 2px;
-        }
-        .tagline {
-            font-size: 14px;
-            color: #7f8c8d;
-            margin-top: 5px;
-        }
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            padding: 20px 0;
-            border-top: 1px solid #eee;
-        }
-        .info-item .label {
-            font-size: 11px;
-            text-transform: uppercase;
-            color: #95a5a6;
-            font-weight: 700;
-            display: block;
-        }
-        .info-item .value {
-            font-size: 16px;
-            font-weight: 600;
-            color: #2c3e50;
-        }
-        /* SMS Section */
-        .sms-box {
-            background: #eef2f7;
-            border-left: 4px solid #1a2a6c;
-            padding: 15px;
-            margin: 25px 0;
-            border-radius: 4px;
-        }
-        .sms-label {
-            font-size: 12px;
-            font-weight: bold;
-            color: #1a2a6c;
-            margin-bottom: 5px;
-            display: block;
-        }
-        .sms-text {
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 13px;
-            color: #444;
-            line-height: 1.4;
-        }
-        .payment-table {
-            width: 100%;
-            margin-top: 20px;
-            border-collapse: collapse;
-        }
-        .payment-table td {
-            padding: 10px 0;
-            border-bottom: 1px dashed #ddd;
-        }
-        .total-row {
-            font-size: 18px;
-            font-weight: 700;
-            color: #c0392b;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 11px;
-            color: #bdc3c7;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .print-btn {
-            display: block;
-            width: 100%;
-            background: #1a2a6c;
-            color: white;
-            text-align: center;
-            padding: 12px;
-            border-radius: 6px;
-            text-decoration: none;
-            margin-top: 20px;
-            font-weight: bold;
-        }
+        .login-box { background: white; padding: 30px; border-radius: 8px; text-align: center; width: 300px; }
+        .login-box input { width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; }
+        .login-box button { background: var(--primary); color: white; border: none; padding: 10px 20px; cursor: pointer; }
+
+        /* Admin Control Styles */
+        .admin-container { max-width: 900px; margin: auto; display: grid; grid-template-columns: 350px 1fr; gap: 20px; }
+        .admin-form { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .admin-form h3 { color: var(--primary); margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 12px; font-weight: bold; color: #666; }
+        .form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+
+        /* Slip Preview Styles */
+        .slip-preview { background: white; padding: 40px; border-radius: 12px; border-top: 10px solid var(--primary); box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        .hotel-header { text-align: center; margin-bottom: 20px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; border-top: 1px solid #eee; padding-top: 15px; }
+        .label { font-size: 11px; color: #95a5a6; font-weight: 700; text-transform: uppercase; }
+        .value { font-size: 15px; font-weight: 600; display: block; }
+        .payment-zone { margin-top: 20px; background: #f9f9f9; padding: 15px; border-radius: 5px; }
+        .pay-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dashed #ddd; }
+        .total-due { color: #c0392b; font-weight: bold; font-size: 18px; border: none !important; }
+        
+        .footer-credit { text-align: center; margin-top: 20px; font-size: 12px; color: #999; }
+        
         @media print {
-            .print-btn, .sms-box { display: none; }
-            body { padding: 0; }
-            .confirmation-card { box-shadow: none; border: 1px solid #eee; }
+            .admin-form, #login-overlay, .print-trigger { display: none !important; }
+            body { padding: 0; background: white; }
+            .admin-container { display: block; }
+            .slip-preview { box-shadow: none; border: 1px solid #ddd; }
         }
     </style>
 </head>
 <body>
 
-<div class="main-container">
-    <div class="confirmation-card">
-        <div class="header">
-            <h1 class="hotel-name">HOTEL ROYAL INN</h1>
-            <p class="tagline">Experience Luxury & Comfort</p>
-        </div>
-
-        <div class="info-grid">
-            <div class="info-item"><span class="label">Guest Name</span><span class="value">John Doe</span></div>
-            <div class="info-item"><span class="label">Phone Number</span><span class="value">+91 98765 43210</span></div>
-            <div class="info-item"><span class="label">Check-In</span><span class="value">15 April 2026</span></div>
-            <div class="info-item"><span class="label">Check-Out</span><span class="value">18 April 2026</span></div>
-            <div class="info-item"><span class="label">Room Type</span><span class="value">Super Deluxe AC</span></div>
-            <div class="info-item"><span class="label">Total Rooms</span><span class="value">01</span></div>
-        </div>
-
-        <div class="sms-box">
-            <span class="sms-label">WELCOME SMS PREVIEW:</span>
-            <div class="sms-text">
-                "Welcome to Hotel Royal Inn! Dear John Doe, your booking is confirmed for 15 April. We look forward to serving you. For assistance, call +91-XXXXX-XXXXX. Have a safe journey!"
-            </div>
-        </div>
-
-        <table class="payment-table">
-            <tr>
-                <td>Total Amount</td>
-                <td align="right">₹ 4,500.00</td>
-            </tr>
-            <tr>
-                <td>Advance Paid</td>
-                <td align="right">₹ 1,500.00</td>
-            </tr>
-            <tr class="total-row">
-                <td>Pending Balance</td>
-                <td align="right">₹ 3,000.00</td>
-            </tr>
-        </table>
-
-        <a href="#" class="print-btn" onclick="window.print()">Print Confirmation Slip</a>
-    </div>
-
-    <div class="footer">
-        MANAGE BY MATINDRA TRIPURA
+<div id="login-overlay">
+    <div class="login-box">
+        <h2 style="color: var(--primary)">Royal Inn Admin</h2>
+        <input type="password" id="passInput" placeholder="Enter Admin Password">
+        <button onclick="checkLogin()">Login</button>
+        <p id="error" style="color:red; font-size:12px; display:none;">Incorrect Password</p>
     </div>
 </div>
+
+<div class="admin-container" id="main-content" style="display:none;">
+    <div class="admin-form">
+        <h3>Booking Control</h3>
+        <div class="form-group">
+            <label>Guest Name</label>
+            <input type="text" id="inName" onkeyup="updateSlip()" placeholder="Full Name">
+        </div>
+        <div class="form-group">
+            <label>Phone Number</label>
+            <input type="text" id="inPhone" onkeyup="updateSlip()" placeholder="Phone">
+        </div>
+        <div class="form-group">
+            <label>Check-In Date</label>
+            <input type="date" id="inCID" onchange="updateSlip()">
+        </div>
+        <div class="form-group">
+            <label>Check-Out Date</label>
+            <input type="date" id="inCOD" onchange="updateSlip()">
+        </div>
+        <div class="form-group">
+            <label>Room Type</label>
+            <select id="inType" onchange="updateSlip()">
+                <option>Standard AC</option>
+                <option>Deluxe Non-AC</option>
+                <option>Super Deluxe AC</option>
+                <option>Royal Suite</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Total Rooms</label>
+            <input type="number" id="inQty" onkeyup="updateSlip()" value="1">
+        </div>
+        <hr>
+        <div class="form-group">
+            <label>Total Amount (₹)</label>
+            <input type="number" id="inTotal" onkeyup="updateSlip()" value="0">
+        </div>
+        <div class="form-group">
+            <label>Advance Paid (₹)</label>
+            <input type="number" id="inAdv" onkeyup="updateSlip()" value="0">
+        </div>
+        <button class="print-trigger" onclick="window.print()" style="width:100%; padding:10px; background: #27ae60; color:white; border:none; border-radius:4px; font-weight:bold; cursor:pointer;">PRINT CONFIRMATION</button>
+    </div>
+
+    <div class="slip-wrap">
+        <div class="slip-preview" id="printableSlip">
+            <div class="hotel-header">
+                <h1 style="margin:0; color:var(--primary);">HOTEL ROYAL INN</h1>
+                <small>Booking Confirmation Receipt</small>
+            </div>
+
+            <div class="grid">
+                <div class="item"><span class="label">Guest Name</span><span class="value" id="outName">---</span></div>
+                <div class="item"><span class="label">Phone</span><span class="value" id="outPhone">---</span></div>
+                <div class="item"><span class="label">Check-In</span><span class="value" id="outCID">---</span></div>
+                <div class="item"><span class="label">Check-Out</span><span class="value" id="outCOD">---</span></div>
+                <div class="item"><span class="label">Room Category</span><span class="value" id="outType">Standard AC</span></div>
+                <div class="item"><span class="label">No. of Rooms</span><span class="value" id="outQty">1</span></div>
+            </div>
+
+            <div class="payment-zone">
+                <div class="pay-row"><span>Total Amount</span><span id="outTotal">₹ 0</span></div>
+                <div class="pay-row"><span>Advance Payment</span><span id="outAdv">₹ 0</span></div>
+                <div class="pay-row total-due"><span>Pending Balance</span><span id="outBal">₹ 0</span></div>
+            </div>
+
+            <p style="font-size: 11px; background: #eef2f7; padding:10px; border-radius:4px; margin-top:20px;">
+                <strong>Welcome SMS Preview:</strong><br>
+                Welcome to Hotel Royal Inn! Your booking is confirmed. Balance due at check-in.
+            </p>
+        </div>
+        <div class="footer-credit">MANAGE BY MATINDRA TRIPURA</div>
+    </div>
+</div>
+
+<script>
+    // Simple Login Check
+    function checkLogin() {
+        const pass = document.getElementById('passInput').value;
+        if(pass === "royal123") { // Set your password here
+            document.getElementById('login-overlay').style.display = 'none';
+            document.getElementById('main-content').style.display = 'grid';
+        } else {
+            document.getElementById('error').style.display = 'block';
+        }
+    }
+
+    // Dynamic Live Update
+    function updateSlip() {
+        document.getElementById('outName').innerText = document.getElementById('inName').value || "---";
+        document.getElementById('outPhone').innerText = document.getElementById('inPhone').value || "---";
+        document.getElementById('outCID').innerText = document.getElementById('inCID').value || "---";
+        document.getElementById('outCOD').innerText = document.getElementById('inCOD').value || "---";
+        document.getElementById('outType').innerText = document.getElementById('inType').value;
+        document.getElementById('outQty').innerText = document.getElementById('inQty').value;
+        
+        const total = parseFloat(document.getElementById('inTotal').value) || 0;
+        const adv = parseFloat(document.getElementById('inAdv').value) || 0;
+        const bal = total - adv;
+
+        document.getElementById('outTotal').innerText = "₹ " + total.toLocaleString();
+        document.getElementById('outAdv').innerText = "₹ " + adv.toLocaleString();
+        document.getElementById('outBal').innerText = "₹ " + bal.toLocaleString();
+    }
+</script>
 
 </body>
 </html>
