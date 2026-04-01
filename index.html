@@ -11,18 +11,19 @@
             --available: #2ecc71;
             --booked: #e74c3c;
             --accent: #f39c12;
-            --light: #ecf0f1;
         }
 
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f7f6; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f7f6; color: #333; }
         .hidden { display: none !important; }
         
         header { background: var(--primary); color: white; padding: 1rem; text-align: center; }
         .dev-header { font-size: 14px; color: var(--accent); font-weight: bold; margin-bottom: 5px; text-transform: uppercase; }
 
+        /* Login */
         #login-page { height: 100vh; display: flex; justify-content: center; align-items: center; background: linear-gradient(135deg, var(--primary), var(--secondary)); }
         .login-card { background: white; padding: 2.5rem; border-radius: 12px; width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
 
+        /* Navigation */
         nav { display: flex; flex-wrap: wrap; background: var(--secondary); justify-content: center; gap: 10px; padding: 10px; }
         nav button, .back-btn { padding: 10px 15px; cursor: pointer; border: none; background: #455a64; color: white; border-radius: 5px; font-weight: bold; }
         nav button:hover, .back-btn:hover { background: var(--accent); }
@@ -31,29 +32,49 @@
         .container { padding: 20px; max-width: 1200px; margin: auto; }
         .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; border-top: 4px solid var(--primary); }
 
-        /* Room Status Grid */
+        /* Room Grid */
         .room-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 12px; margin: 15px 0 30px 0; }
-        .room { padding: 20px; text-align: center; color: white; font-weight: bold; border-radius: 6px; cursor: pointer; border: 2px solid rgba(0,0,0,0.1); }
+        .room { padding: 20px; text-align: center; color: white; font-weight: bold; border-radius: 6px; cursor: pointer; }
         .available { background-color: var(--available); }
         .booked { background-color: var(--booked); }
 
-        /* Modal */
-        #room-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 30px rgba(0,0,0,0.6); z-index: 100; width: 350px; }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 99; }
-
-        /* Form Logic */
+        /* Forms */
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .form-group { margin-bottom: 15px; }
         .full-row { grid-column: span 2; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; color: var(--primary); font-size: 13px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 13px; }
         input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         
         .btn-submit { background: var(--available); color: white; padding: 12px 25px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; }
-        .btn-delete { background: #c0392b; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; width: 100%; margin-top: 10px; }
         
-        footer { text-align: center; padding: 20px; border-top: 1px solid #ddd; margin-top: 40px; color: var(--secondary); font-weight: bold; }
+        /* Report Table */
+        .report-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .report-table th, .report-table td { border: 1px solid #ddd; padding: 12px; text-align: center; }
+        .report-table th { background: var(--primary); color: white; }
 
-        @media print { .no-print, nav, .back-btn, .btn-submit { display: none !important; } .card { border: none; box-shadow: none; } }
+        /* Modal */
+        #room-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 10px; z-index: 100; width: 320px; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 99; }
+
+        footer { text-align: center; padding: 20px; margin-top: 40px; font-weight: bold; }
+
+        /* PRINT CORRECTIONS */
+        @media print {
+            body { background: white; }
+            .no-print, nav, .back-btn, header, footer { display: none !important; }
+            .container { padding: 0; margin: 0; width: 100%; }
+            .card { 
+                box-shadow: none; 
+                border: 2px solid #000; 
+                width: 95%; 
+                margin: 0 auto; 
+                padding: 15px;
+                page-break-inside: avoid; /* Forces single page */
+            }
+            .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+            input { border: none; border-bottom: 1px solid #000; }
+            h2 { font-size: 18px; margin-top: 0; }
+        }
     </style>
 </head>
 <body>
@@ -61,7 +82,7 @@
 <div id="login-page">
     <div class="login-card">
         <div class="dev-header">WEBSITE DESAIN BY MATINDRA TRIPURA</div>
-        <h2 style="margin-top:5px;">HOTEL ROYAL INN</h2>
+        <h2>HOTEL ROYAL INN</h2>
         <input type="text" id="username" placeholder="Username" style="margin-bottom:10px;">
         <input type="password" id="password" placeholder="Password" style="margin-bottom:20px;">
         <button class="btn-submit" onclick="handleLogin()">LOGIN</button>
@@ -88,25 +109,22 @@
 
         <div id="room-status" class="section">
             <h2>Room Status Inventory</h2>
-            <h3>1st Floor</h3>
-            <div class="room-grid" id="floor1"></div>
-            <h3>2nd Floor</h3>
-            <div class="room-grid" id="floor2"></div>
-            <h3>3rd Floor</h3>
-            <div class="room-grid" id="floor3"></div>
+            <h3>1st Floor</h3><div class="room-grid" id="floor1"></div>
+            <h3>2nd Floor</h3><div class="room-grid" id="floor2"></div>
+            <h3>3rd Floor</h3><div class="room-grid" id="floor3"></div>
         </div>
 
         <div id="guest-reg" class="section hidden">
             <div class="card">
                 <h2>Guest Registration Form</h2>
                 <div class="form-grid">
-                    <div class="form-group"><label>Guest Name</label><input type="text" id="reg-name"></div>
+                    <div class="form-group"><label>Guest Name</label><input type="text"></div>
                     <div class="form-group"><label>Father Name</label><input type="text"></div>
                     <div class="form-group"><label>Guest Pax</label><input type="number"></div>
-                    <div class="form-group"><label>Room Number</label><input type="text" id="reg-room"></div>
+                    <div class="form-group"><label>Room Number</label><input type="text"></div>
                     <div class="form-group"><label>Total Staying</label><input type="text"></div>
                     <div class="form-group"><label>Room Quantity</label><input type="number"></div>
-                    <div class="form-group"><label>Room Type</label><select><option>Non-AC</option><option>AC Deluxe</option><option>Suite</option></select></div>
+                    <div class="form-group"><label>Room Type</label><select><option>Non-AC</option><option>AC Deluxe</option></select></div>
                     <div class="form-group"><label>Check-in Date</label><input type="date"></div>
                     <div class="form-group"><label>Check-out Date</label><input type="date"></div>
                     <div class="form-group full-row"><label>Residential Address</label><textarea rows="2"></textarea></div>
@@ -115,10 +133,10 @@
                     <div class="form-group"><label>Coming Purpose</label><input type="text"></div>
                     <div class="form-group"><label>Company Name</label><input type="text"></div>
                     <div class="form-group"><label>Total Amount</label><input type="number"></div>
-                    <div class="form-group"><label>Advance if Any</label><input type="number"></div>
+                    <div class="form-group"><label>Advance Payment</label><input type="number"></div>
                     <div class="form-group"><label>Pending Amount</label><input type="number"></div>
                 </div>
-                <button class="btn-submit" onclick="alert('Registration Saved!')">SAVE GUEST RECORD</button>
+                <button class="btn-submit">SAVE RECORD</button>
             </div>
         </div>
 
@@ -126,7 +144,6 @@
             <div class="card">
                 <h2>Sale Report Inventory</h2>
                 <div style="background:#eee; padding:15px; border-radius:5px; margin-bottom:20px;">
-                    <h4>Entry Amount Section</h4>
                     <div class="form-grid">
                         <div class="form-group"><label>Select Date</label><input type="date" id="sale-date"></div>
                         <div class="form-group"><label>Report Type</label>
@@ -135,26 +152,38 @@
                                 <option value="food">Daily Food Sale</option>
                             </select>
                         </div>
-                        <div class="form-group"><label>Amount</label><input type="number" id="sale-amt"></div>
+                        <div class="form-group"><label>Enter Amount</label><input type="number" id="sale-amt"></div>
                         <div class="form-group"><label>&nbsp;</label><button class="btn-submit" onclick="addSale()">SUBMIT ENTRY</button></div>
                     </div>
                 </div>
-                <table style="width:100%; text-align:left; border-collapse: collapse;">
-                    <tr style="background:var(--primary); color:white;">
-                        <th style="padding:10px;">Description</th>
-                        <th style="padding:10px;">Total Amount</th>
+
+                <table class="report-table">
+                    <tr>
+                        <th>Daily Room Sale</th>
+                        <th>Daily Food Sale</th>
+                        <th>Monthly Room Sale</th>
+                        <th>Monthly Food Sale</th>
+                        <th style="background:var(--accent)">Grand Total</th>
                     </tr>
-                    <tr><td style="padding:10px; border-bottom:1px solid #ddd;">Daily Room Sale</td><td id="d-room">₹ 0</td></tr>
-                    <tr><td style="padding:10px; border-bottom:1px solid #ddd;">Daily Food Sale</td><td id="d-food">₹ 0</td></tr>
-                    <tr style="background:#f9f9f9; font-weight:bold;"><td style="padding:10px;">Monthly Grand Total</td><td id="m-total">₹ 0</td></tr>
+                    <tr>
+                        <td id="d-room">₹ 0</td>
+                        <td id="d-food">₹ 0</td>
+                        <td id="m-room" style="font-weight:bold; color:var(--primary)">₹ 0</td>
+                        <td id="m-food" style="font-weight:bold; color:var(--primary)">₹ 0</td>
+                        <td id="g-total" style="font-weight:bold; font-size:1.2em;">₹ 0</td>
+                    </tr>
                 </table>
             </div>
         </div>
 
         <div id="payment-slip" class="section hidden">
-            <div class="card" id="slip-print">
-                <center><h2>HOTEL ROYAL INN</h2><p>Payment Received Slip</p></center>
-                <hr>
+            <div class="card">
+                <center>
+                    <h2 style="margin:0;">HOTEL ROYAL INN</h2>
+                    <p style="margin:5px;">Udaipur, Gomati, Tripura</p>
+                    <strong>PAYMENT RECEIVED SLIP</strong>
+                </center>
+                <hr style="border:1px solid #000;">
                 <div class="form-grid">
                     <div class="form-group"><label>Guest Name</label><input type="text"></div>
                     <div class="form-group"><label>Phone Number</label><input type="text"></div>
@@ -165,11 +194,13 @@
                     <div class="form-group"><label>Check-out</label><input type="date"></div>
                     <div class="form-group"><label>Total Staying</label><input type="text"></div>
                     <div class="form-group"><label>Total Amount</label><input type="number"></div>
-                    <div class="form-group"><label>Advance Payment</label><input type="number"></div>
+                    <div class="form-group"><label>Advance Paid</label><input type="number"></div>
                     <div class="form-group"><label>Due Payment</label><input type="number"></div>
                 </div>
-                <p><i>Welcome SMS sent to guest registered mobile number.</i></p>
-                <button class="btn-submit no-print" onclick="window.print()">PRINT SLIP</button>
+                <div style="margin-top:15px; text-align:right;">
+                    <p>Signature: __________________</p>
+                </div>
+                <button class="btn-submit no-print" onclick="window.print()">PRINT SLIP (SINGLE PAGE)</button>
             </div>
         </div>
 
@@ -178,90 +209,73 @@
                 <h2>Event Booking Form</h2>
                 <div class="form-grid">
                     <div class="form-group"><label>Event Name</label><input type="text"></div>
-                    <div class="form-group"><label>Guest / Booking Name</label><input type="text"></div>
+                    <div class="form-group"><label>Guest Name</label><input type="text"></div>
                     <div class="form-group"><label>Pax</label><input type="number"></div>
                     <div class="form-group"><label>Date</label><input type="date"></div>
                     <div class="form-group"><label>Total Amount</label><input type="number"></div>
                     <div class="form-group"><label>Advance</label><input type="number"></div>
                     <div class="form-group"><label>Due</label><input type="number"></div>
-                    <div class="form-group"><label>Complete Payment</label><input type="text"></div>
+                    <div class="form-group"><label>Status</label><input type="text" placeholder="Complete?"></div>
                 </div>
-                <button class="btn-submit no-print" onclick="window.print()">PRINT EVENT RECEIPT</button>
+                <button class="btn-submit" onclick="window.print()">PRINT EVENT RECEIPT</button>
             </div>
         </div>
     </div>
 
     <div id="modal-overlay" class="overlay hidden" onclick="closeModal()"></div>
     <div id="room-modal" class="hidden">
-        <h3 id="modal-title">Room Details</h3>
-        <hr>
-        <p><strong>Guest Name:</strong> <span id="m-guest">Available</span></p>
-        <p><strong>Check-in:</strong> <span id="m-in">-</span></p>
-        <p><strong>Check-out:</strong> <span id="m-out">-</span></p>
-        <button class="btn-delete" id="delete-btn" onclick="deleteGuest()">DELETE GUEST (CHECKOUT)</button>
-        <button class="btn-submit" style="background:#7f8c8d; margin-top:10px;" onclick="closeModal()">CLOSE</button>
+        <h3 id="modal-title">Room</h3><hr>
+        <p>Guest: <span id="m-guest">Available</span></p>
+        <button class="btn-submit" style="background:#e74c3c; margin-bottom:10px;" onclick="deleteGuest()">CHECKOUT/DELETE</button>
+        <button class="btn-submit" style="background:#7f8c8d;" onclick="closeModal()">CLOSE</button>
     </div>
 
-    <footer>
-        website desain & develop by <b>MATINDRA TRIPURA</b>
-    </footer>
+    <footer>website desain & develop by MATINDRA TRIPURA</footer>
 </div>
 
 <script>
-    const rooms = {
-        floor1: [118, 117],
-        floor2: [101, 102, 103, 104, 105, 106, 107, 108],
-        floor3: [109, 110, 111, 112, 114, 115, 116, 117]
-    };
-
-    let guestData = { 101: { name: "Rahul Tripura", in: "2026-04-01", out: "2026-04-05" } };
-    let roomTotal = 0, foodTotal = 0, currentRoom = null;
+    let mRoomTotal = 0, mFoodTotal = 0;
+    let currentRoom = null;
+    let bookedRooms = { 101: "Rahul Tripura" };
 
     function handleLogin() {
         if(document.getElementById('username').value === "ROYAL INN" && document.getElementById('password').value === "MANAGER ROYAL") {
             document.getElementById('login-page').classList.add('hidden');
             document.getElementById('dashboard').classList.remove('hidden');
             renderRooms();
-        } else { alert("Invalid Login"); }
+        } else { alert("Error"); }
     }
 
     function renderRooms() {
-        ['floor1', 'floor2', 'floor3'].forEach(f => {
-            const container = document.getElementById(f);
-            container.innerHTML = "";
-            rooms[f].forEach(r => {
-                const div = document.createElement('div');
-                div.className = `room ${guestData[r] ? 'booked' : 'available'}`;
-                div.innerText = r;
-                div.onclick = () => showRoomDetails(r);
-                container.appendChild(div);
+        const f1 = [118, 117], f2 = [101,102,103,104,105,106,107,108], f3 = [109,110,111,112,114,115,116,117];
+        const draw = (arr, id) => {
+            const el = document.getElementById(id); el.innerHTML = "";
+            arr.forEach(r => {
+                const d = document.createElement('div');
+                d.className = `room ${bookedRooms[r] ? 'booked' : 'available'}`;
+                d.innerText = r;
+                d.onclick = () => { currentRoom = r; document.getElementById('modal-title').innerText = "Room "+r; document.getElementById('m-guest').innerText = bookedRooms[r] || "Available"; document.getElementById('room-modal').classList.remove('hidden'); document.getElementById('modal-overlay').classList.remove('hidden'); };
+                el.appendChild(d);
             });
-        });
+        };
+        draw(f1, 'floor1'); draw(f2, 'floor2'); draw(f3, 'floor3');
     }
 
-    function showRoomDetails(r) {
-        currentRoom = r;
-        const g = guestData[r];
-        document.getElementById('modal-title').innerText = "Room " + r;
-        document.getElementById('m-guest').innerText = g ? g.name : "Available";
-        document.getElementById('m-in').innerText = g ? g.in : "-";
-        document.getElementById('m-out').innerText = g ? g.out : "-";
-        document.getElementById('delete-btn').className = g ? "btn-delete" : "hidden";
-        document.getElementById('room-modal').classList.remove('hidden');
-        document.getElementById('modal-overlay').classList.remove('hidden');
-    }
-
-    function deleteGuest() {
-        if(confirm("Confirm Checkout and Delete Guest Data?")) {
-            delete guestData[currentRoom];
-            closeModal();
-            renderRooms();
+    function addSale() {
+        const type = document.getElementById('sale-type').value;
+        const amt = parseFloat(document.getElementById('sale-amt').value) || 0;
+        
+        if(type === 'room') {
+            mRoomTotal += amt;
+            document.getElementById('d-room').innerText = "₹ " + amt;
+            document.getElementById('m-room').innerText = "₹ " + mRoomTotal;
+        } else {
+            mFoodTotal += amt;
+            document.getElementById('d-food').innerText = "₹ " + amt;
+            document.getElementById('m-food').innerText = "₹ " + mFoodTotal;
         }
-    }
-
-    function closeModal() {
-        document.getElementById('room-modal').classList.add('hidden');
-        document.getElementById('modal-overlay').classList.add('hidden');
+        document.getElementById('g-total').innerText = "₹ " + (mRoomTotal + mFoodTotal);
+        alert("Entry Added");
     }
 
     function showSection(id) {
@@ -270,15 +284,8 @@
         document.getElementById('global-back').classList.toggle('hidden', id === 'room-status');
     }
 
-    function addSale() {
-        const type = document.getElementById('sale-type').value;
-        const amt = parseFloat(document.getElementById('sale-amt').value) || 0;
-        if(type === 'room') roomTotal += amt; else foodTotal += amt;
-        document.getElementById('d-room').innerText = "₹ " + roomTotal;
-        document.getElementById('d-food').innerText = "₹ " + foodTotal;
-        document.getElementById('m-total').innerText = "₹ " + (roomTotal + foodTotal);
-        alert("Daily Entry Recorded");
-    }
+    function closeModal() { document.getElementById('room-modal').classList.add('hidden'); document.getElementById('modal-overlay').classList.add('hidden'); }
+    function deleteGuest() { delete bookedRooms[currentRoom]; closeModal(); renderRooms(); }
 </script>
 </body>
 </html>
