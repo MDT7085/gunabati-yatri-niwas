@@ -1,196 +1,280 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>HOTEL ROYAL INN - Login</title>
-    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOTEL ROYAL INN - Management System</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --available: #2ecc71;
+            --booked: #e74c3c;
+            --accent: #f39c12;
+            --light: #ecf0f1;
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: #f4f7f6; }
+        .hidden { display: none !important; }
+        
+        /* Login Styles */
+        #login-page {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+        .login-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            width: 350px;
+            text-align: center;
+        }
+
+        /* Dashboard Styles */
+        header { background: var(--primary); color: white; padding: 1rem; text-align: center; position: relative; }
+        nav { display: flex; background: var(--secondary); justify-content: center; gap: 10px; padding: 10px; }
+        nav button { padding: 10px 20px; cursor: pointer; border: none; background: #455a64; color: white; border-radius: 5px; }
+        nav button:hover { background: var(--accent); }
+
+        .container { padding: 20px; max-width: 1200px; margin: auto; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+
+        /* Room Grid */
+        .floor-section { margin-bottom: 30px; }
+        .room-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 15px; margin-top: 10px; }
+        .room {
+            padding: 20px;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .room:hover { transform: scale(1.05); }
+        .available { background-color: var(--available); }
+        .booked { background-color: var(--booked); }
+
+        /* Forms */
+        .form-group { margin-bottom: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select, textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        
+        .full-width { grid-column: span 2; }
+        .btn-submit { background: var(--available); color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+
+        footer { text-align: center; padding: 20px; color: #7f8c8d; font-size: 14px; border-top: 1px solid #ddd; margin-top: 40px; }
+
+        @media print {
+            nav, .btn-submit, header, .no-print { display: none !important; }
+            .card { box-shadow: none; border: 1px solid #000; }
+        }
+    </style>
 </head>
 <body>
 
-<div class="login-box">
-    <h2>HOTEL ROYAL INN</h2>
-    <p>Developed by Matindra Tripura</p>
-
-    <input type="text" id="username" placeholder="Username">
-    <input type="password" id="password" placeholder="Password">
-
-    <button onclick="login()">Login</button>
+<div id="login-page">
+    <div class="login-card">
+        <h2>HOTEL ROYAL INN</h2>
+        <p>Location: Udaipur, Gomati, Tripura</p>
+        <div style="margin-bottom: 15px;">
+            <input type="text" id="username" placeholder="Username">
+        </div>
+        <div style="margin-bottom: 20px;">
+            <input type="password" id="password" placeholder="Password">
+        </div>
+        <button class="btn-submit" onclick="handleLogin()" style="width:100%">LOGIN</button>
+    </div>
 </div>
 
-<script src="script.js"></script>
-</body>
-</html>
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Dashboard - HOTEL ROYAL INN</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+<div id="dashboard" class="hidden">
+    <header>
+        <h1>HOTEL ROYAL INN</h1>
+        <p>Udaipur Gomati Tripura</p>
+    </header>
 
-<h1>HOTEL ROYAL INN Dashboard</h1>
+    <nav>
+        <button onclick="showSection('room-status')">Room Status</button>
+        <button onclick="showSection('guest-reg')">Guest Registration</button>
+        <button onclick="showSection('reports')">Sales Reports</button>
+        <button onclick="showSection('event-booking')">Event Booking</button>
+        <button onclick="showSection('payment-slip')">Payment Slip</button>
+    </nav>
 
-<div class="card-container">
-    <div class="card">Total Rooms: 20</div>
-    <div class="card">Available: 10</div>
-    <div class="card">Booked: 10</div>
+    <div class="container">
+        
+        <div id="room-status" class="section">
+            <h2>Room Inventory & Status</h2>
+            <div id="floors-container">
+                <div class="floor-section">
+                    <h3>1st Floor</h3>
+                    <div class="room-grid" id="floor1">
+                        <div class="room available" onclick="openBooking(117)">117</div>
+                        <div class="room available" onclick="openBooking(118)">118</div>
+                    </div>
+                </div>
+                <div class="floor-section">
+                    <h3>2nd Floor</h3>
+                    <div class="room-grid" id="floor2">
+                        <div class="room available" onclick="openBooking(101)">101</div>
+                        <div class="room available" onclick="openBooking(102)">102</div>
+                        <div class="room booked" onclick="openBooking(103)">103</div>
+                        <div class="room available" onclick="openBooking(104)">104</div>
+                        <div class="room available" onclick="openBooking(105)">105</div>
+                        <div class="room available" onclick="openBooking(106)">106</div>
+                        <div class="room available" onclick="openBooking(107)">107</div>
+                        <div class="room available" onclick="openBooking(108)">108</div>
+                    </div>
+                </div>
+                <div class="floor-section">
+                    <h3>3rd Floor</h3>
+                    <div class="room-grid" id="floor3">
+                        <div class="room available" onclick="openBooking(109)">109</div>
+                        <div class="room available" onclick="openBooking(110)">110</div>
+                        <div class="room available" onclick="openBooking(111)">111</div>
+                        <div class="room available" onclick="openBooking(112)">112</div>
+                        <div class="room available" onclick="openBooking(114)">114</div>
+                        <div class="room available" onclick="openBooking(115)">115</div>
+                        <div class="room available" onclick="openBooking(116)">116</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="guest-reg" class="section hidden">
+            <div class="card">
+                <h2>Guest Registration Form</h2>
+                <form id="regForm">
+                    <div class="form-group">
+                        <div><label>Guest Name</label><input type="text" required></div>
+                        <div><label>Father Name</label><input type="text"></div>
+                        <div><label>Guest Pax</label><input type="number"></div>
+                        <div><label>Room Number</label><input type="text" id="reg-room-num"></div>
+                        <div><label>Room Type</label>
+                            <select>
+                                <option>Standard</option>
+                                <option>Deluxe</option>
+                                <option>Suite</option>
+                            </select>
+                        </div>
+                        <div><label>Room Quantity</label><input type="number" value="1"></div>
+                        <div><label>Check-in Date</label><input type="date"></div>
+                        <div><label>Check-out Date</label><input type="date"></div>
+                        <div><label>Total Staying (Days)</label><input type="number"></div>
+                        <div><label>Coming From</label><input type="text"></div>
+                        <div><label>Going To</label><input type="text"></div>
+                        <div><label>Purpose</label><input type="text"></div>
+                        <div><label>Company Name</label><input type="text"></div>
+                        <div><label>Total Amount</label><input type="number" id="t-amt"></div>
+                        <div><label>Advance Payment</label><input type="number" id="a-amt"></div>
+                        <div><label>Pending Amount</label><input type="number" readonly></div>
+                    </div>
+                    <button type="button" class="btn-submit" onclick="alert('Guest Registered Successfully')">Register Guest</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="reports" class="section hidden">
+            <div class="card">
+                <h2>Sales Reports</h2>
+                <div class="form-group">
+                    <div><label>Select Date/Month</label><input type="month"></div>
+                    <div><label>Report Type</label>
+                        <select>
+                            <option>Daily Room Sale</option>
+                            <option>Daily Food Sale</option>
+                            <option>Monthly Room Sale</option>
+                            <option>Monthly Food Sale</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn-submit">Generate Report</button>
+                <div style="margin-top:20px; border:1px solid #eee; padding:10px; text-align:center;">
+                    [ Report Data Will Appear Here ]
+                </div>
+            </div>
+        </div>
+
+        <div id="payment-slip" class="section hidden">
+            <div class="card" id="printable-slip">
+                <center>
+                    <h3>HOTEL ROYAL INN</h3>
+                    <p>Payment Received Slip</p>
+                </center>
+                <hr>
+                <div class="form-group">
+                    <div><label>Guest Name</label><input type="text"></div>
+                    <div><label>Phone Number</label><input type="text"></div>
+                    <div><label>Room Qty</label><input type="number"></div>
+                    <div><label>Guest Pax</label><input type="number"></div>
+                    <div><label>Check-in</label><input type="date"></div>
+                    <div><label>Check-out</label><input type="date"></div>
+                    <div><label>Total Days</label><input type="number"></div>
+                    <div><label>Total Amount</label><input type="number"></div>
+                    <div><label>Advance</label><input type="number"></div>
+                    <div><label>Due Payment</label><input type="number"></div>
+                </div>
+                <button class="btn-submit no-print" onclick="window.print()">Print Slip</button>
+                <button class="btn-submit no-print" style="background:#3498db">Send Welcome SMS</button>
+            </div>
+        </div>
+
+        <div id="event-booking" class="section hidden">
+            <div class="card">
+                <h2>Event Booking Form</h2>
+                <div class="form-group">
+                    <div><label>Event Name</label><input type="text" placeholder="e.g. Wedding, Seminar"></div>
+                    <div><label>Guest / Booking Name</label><input type="text"></div>
+                    <div><label>Pax</label><input type="number"></div>
+                    <div><label>Date</label><input type="date"></div>
+                    <div><label>Total Amount</label><input type="number"></div>
+                    <div><label>Advance</label><input type="number"></div>
+                    <div><label>Due</label><input type="number"></div>
+                </div>
+                <button class="btn-submit" onclick="window.print()">Print & Save Event</button>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        website desain & develop by <b>MATINDRA TRIPURA</b>
+    </footer>
 </div>
 
-<hr>
+<script>
+    // LOGIN LOGIC
+    function handleLogin() {
+        const user = document.getElementById('username').value;
+        const pass = document.getElementById('password').value;
 
-<h2>🎉 Event Management</h2>
-
-<input type="text" id="eventName" placeholder="Event Name">
-<input type="date" id="eventDate">
-<input type="text" id="guestName" placeholder="Guest Name">
-<input type="number" id="totalAmount" placeholder="Total Amount">
-<input type="number" id="advance" placeholder="Advance Payment">
-
-<button onclick="addEvent()">Add Event</button>
-
-<table id="eventTable">
-    <tr>
-        <th>Name</th>
-        <th>Date</th>
-        <th>Guest</th>
-        <th>Total</th>
-        <th>Advance</th>
-        <th>Pending</th>
-        <th>Status</th>
-        <th>Action</th>
-    </tr>
-</table>
-
-<hr>
-
-<h2>🧾 Room Booking Slip</h2>
-
-<input type="text" id="guest" placeholder="Guest Name">
-<input type="text" id="phone" placeholder="Phone">
-<input type="number" id="pax" placeholder="PAX">
-<input type="number" id="roomQty" placeholder="Room Quantity">
-<input type="date" id="checkin">
-<input type="date" id="checkout">
-<input type="number" id="total" placeholder="Total Amount">
-<input type="number" id="paid" placeholder="Paid Amount">
-
-<button onclick="generateSlip()">Generate Slip</button>
-
-<div id="slip"></div>
-
-<script src="script.js"></script>
-</body>
-</html>
-body {
-    font-family: Arial;
-    background: #f5f5f5;
-    text-align: center;
-}
-
-.login-box {
-    width: 300px;
-    margin: 100px auto;
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-}
-
-input {
-    width: 90%;
-    padding: 10px;
-    margin: 5px;
-}
-
-button {
-    padding: 10px 20px;
-    background: royalblue;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
-
-.card-container {
-    display: flex;
-    justify-content: center;
-}
-
-.card {
-    background: white;
-    padding: 20px;
-    margin: 10px;
-    border-radius: 10px;
-}
-
-table {
-    margin: auto;
-    background: white;
-    border-collapse: collapse;
-}
-
-th, td {
-    padding: 10px;
-    border: 1px solid black;
-}
-function login() {
-    let user = document.getElementById("username").value;
-    let pass = document.getElementById("password").value;
-
-    if(user === "admin" && pass === "1234"){
-        window.location.href = "dashboard.html";
-    } else {
-        alert("Invalid Login");
+        if(user === "ROYAL INN" && pass === "MANAGER ROYAL") {
+            document.getElementById('login-page').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+        } else {
+            alert("Invalid Credentials. Please try again.");
+        }
     }
-}
 
-// EVENT MANAGEMENT
-function addEvent() {
-    let name = document.getElementById("eventName").value;
-    let date = document.getElementById("eventDate").value;
-    let guest = document.getElementById("guestName").value;
-    let total = document.getElementById("totalAmount").value;
-    let advance = document.getElementById("advance").value;
+    // NAVIGATION LOGIC
+    function showSection(sectionId) {
+        document.querySelectorAll('.section').forEach(sec => {
+            sec.classList.add('hidden');
+        });
+        document.getElementById(sectionId).classList.remove('hidden');
+    }
 
-    let pending = total - advance;
-    let status = pending == 0 ? "Paid" : "Pending";
+    // ROOM CLICK LOGIC
+    function openBooking(roomNo) {
+        showSection('guest-reg');
+        document.getElementById('reg-room-num').value = roomNo;
+        window.scrollTo(0,0);
+    }
+</script>
 
-    let table = document.getElementById("eventTable");
-
-    let row = table.insertRow();
-
-    row.innerHTML = `
-        <td>${name}</td>
-        <td>${date}</td>
-        <td>${guest}</td>
-        <td>${total}</td>
-        <td>${advance}</td>
-        <td>${pending}</td>
-        <td>${status}</td>
-        <td>
-            <button onclick="this.parentElement.parentElement.remove()">Delete</button>
-            <button onclick="print()">Print</button>
-        </td>
-    `;
-}
-
-// ROOM SLIP
-function generateSlip() {
-    let guest = document.getElementById("guest").value;
-    let phone = document.getElementById("phone").value;
-    let pax = document.getElementById("pax").value;
-    let room = document.getElementById("roomQty").value;
-    let total = document.getElementById("total").value;
-    let paid = document.getElementById("paid").value;
-
-    let pending = total - paid;
-
-    document.getElementById("slip").innerHTML = `
-        <h3>HOTEL ROYAL INN</h3>
-        <p>Guest: ${guest}</p>
-        <p>Phone: ${phone}</p>
-        <p>PAX: ${pax}</p>
-        <p>Rooms: ${room}</p>
-        <p>Total: ₹${total}</p>
-        <p>Paid: ₹${paid}</p>
-        <p>Pending: ₹${pending}</p>
-        <button onclick="window.print()">Print Slip</button>
-    `;
-}
+</body>
+</html>
