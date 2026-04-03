@@ -12,8 +12,8 @@
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f7f6; color: #333; }
         .hidden { display: none !important; }
         header { background: var(--primary); color: white; padding: 1rem; text-align: center; border-bottom: 4px solid var(--accent); }
+        .dev-header { font-size: 14px; color: var(--accent); font-weight: bold; text-transform: uppercase; letter-spacing: 2px; }
         
-        /* NAVIGATION LEFT ALIGNED */
         nav { display: flex; flex-direction: column; background: var(--secondary); justify-content: flex-start; gap: 4px; padding: 15px; position: fixed; left: 0; top: 0; bottom: 0; width: 220px; z-index: 10; overflow-y: auto; }
         nav button { padding: 12px 15px; cursor: pointer; border: none; background: #455a64; color: white; border-radius: 4px; font-weight: bold; transition: 0.3s; text-align: left; font-size: 12px; }
         nav button:hover { background: var(--accent); }
@@ -21,18 +21,6 @@
         .container { padding: 20px; margin-left: 240px; max-width: calc(100% - 260px); }
         .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; border-top: 5px solid var(--primary); }
         
-        /* ORIGINAL INTERACTIVE CALENDAR */
-        .calendar-wrapper { background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #ddd; }
-        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; background: #eee; border: 1px solid #ddd; }
-        .cal-day-head { background: var(--primary); color: white; padding: 10px; text-align: center; font-weight: bold; font-size: 12px; }
-        .cal-date { background: white; min-height: 80px; padding: 5px; position: relative; cursor: pointer; }
-        .cal-date:hover { background: #f9f9f9; }
-        .cal-date.today { background: #fff9c4; }
-        .date-num { font-weight: bold; font-size: 14px; color: #777; }
-        .booking-tag { background: var(--booked); color: white; font-size: 9px; padding: 2px 4px; border-radius: 3px; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-        /* ROOM GRID */
         .room-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 12px; margin: 15px 0; }
         .room { padding: 20px; text-align: center; color: white; font-weight: bold; border-radius: 6px; cursor: pointer; border: 2px solid rgba(0,0,0,0.1); }
         .available { background-color: var(--available); }
@@ -51,19 +39,26 @@
         th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
         th { background: var(--primary); color: white; }
 
-        .staff-img-preview { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; }
+        .cal-container { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; border: 1px solid #ddd; padding: 10px; background: #fff; }
+        .cal-day { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 4px; color: white; font-weight: bold; cursor: pointer; font-size: 10px; }
+
+        .sms-box { background: #e8f4fd; border-left: 5px solid #3498db; padding: 15px; margin-top: 20px; font-style: italic; color: #2c3e50; }
+        .staff-img-preview { width: 80px; height: 80px; border: 1px solid #ddd; object-fit: cover; border-radius: 4px; margin-top: 5px; }
 
         @media print {
-            nav, .no-print { display: none !important; }
+            nav, footer, .no-print, .btn-submit, .btn-delete, .btn-edit { display: none !important; }
             .container { margin-left: 0; max-width: 100%; }
+            .card { border: 1px solid #000; box-shadow: none; margin: 0; }
+            input { border: none !important; border-bottom: 1px solid #000 !important; }
         }
     </style>
 </head>
 <body>
 
 <div id="login-page">
-    <div style="height:100vh; display:flex; justify-content:center; align-items:center; background:var(--primary);">
-        <div style="background:white; padding:40px; border-radius:12px; width:300px; text-align:center;">
+    <div style="height:100vh; display:flex; justify-content:center; align-items:center; background:linear-gradient(135deg, var(--primary), var(--secondary));">
+        <div style="background:white; padding:40px; border-radius:12px; width:320px; text-align:center;">
+            <div class="dev-header">WEBSITE DESAIN BY MATINDRA TRIPURA</div>
             <h2>HOTEL ROYAL INN</h2>
             <input type="text" id="username" placeholder="Username" style="margin-bottom:10px;">
             <input type="password" id="password" placeholder="Password" style="margin-bottom:20px;">
@@ -73,6 +68,11 @@
 </div>
 
 <div id="dashboard" class="hidden">
+    <header>
+        <div class="dev-header">WEBSITE DESAIN & DEVELOP BY MATINDRA TRIPURA</div>
+        <h1>HOTEL ROYAL INN</h1>
+    </header>
+
     <nav class="no-print">
         <button onclick="showSection('room-status')">1. Room Inventory</button>
         <button onclick="showSection('guest-reg')">2. Guest Registration</button>
@@ -87,200 +87,229 @@
     </nav>
 
     <div class="container">
-        <!-- 1. ROOM STATUS + ORIGINAL CALENDAR -->
+        <!-- 1. ROOM STATUS (FIXED) -->
         <div id="room-status" class="section">
-            <div class="card">
-                <div class="calendar-header">
-                    <button onclick="prevMonth()"> < </button>
-                    <h2 id="monthDisplay">Month Year</h2>
-                    <button onclick="nextMonth()"> > </button>
-                </div>
-                <div class="calendar-grid" id="calendarGrid"></div>
-            </div>
-            <div class="card">
-                <h2>Floor Wise Room Status</h2>
-                <div id="room-display"></div>
-            </div>
+            <h2>Room Status Inventory</h2>
+            <div id="room-display"></div>
         </div>
 
-        <!-- 2. GUEST REGISTRATION (ALL DATA KEPT) -->
+        <!-- 2. GUEST REGISTRATION (FIXED SAVE) -->
         <div id="guest-reg" class="section hidden">
             <div class="card">
                 <h2>Guest Registration Form</h2>
-                <div class="form-grid">
-                    <input type="text" id="reg-name" placeholder="Guest Name">
-                    <input type="text" id="reg-father" placeholder="Father Name">
-                    <input type="number" id="reg-pax" placeholder="Pax">
-                    <input type="number" id="reg-room" placeholder="Room No">
-                    <input type="text" id="reg-stay" placeholder="Total Stay">
-                    <input type="number" id="reg-qty" placeholder="Room Qty">
-                    <select id="reg-type">
-                        <option>Single with AC</option><option>King size with AC</option>
-                        <option>Twin bed with AC</option><option>Queen size with AC</option>
-                    </select>
-                    <input type="date" id="reg-in">
-                    <input type="date" id="reg-out">
-                    <textarea id="reg-addr" class="full-row" placeholder="Address"></textarea>
-                    <input type="text" id="reg-from" placeholder="Coming From">
-                    <input type="text" id="reg-to" placeholder="Going To">
-                    <input type="text" id="reg-purpose" placeholder="Purpose">
-                    <input type="text" id="reg-company" placeholder="Company">
-                    <input type="number" id="reg-total" placeholder="Total Amt">
-                    <input type="number" id="reg-advance" placeholder="Advance">
-                    <input type="number" id="reg-pending" placeholder="Pending">
+                <div class="form-grid" id="reg-form">
+                    <div class="form-group"><label>Guest Name</label><input type="text" id="reg-name"></div>
+                    <div class="form-group"><label>Father Name</label><input type="text" id="reg-father"></div>
+                    <div class="form-group"><label>Guest Pax</label><input type="number" id="reg-pax"></div>
+                    <div class="form-group"><label>Room Number</label><input type="number" id="reg-room"></div>
+                    <div class="form-group"><label>Total Staying</label><input type="text" id="reg-stay"></div>
+                    <div class="form-group"><label>Room Quantity</label><input type="number" id="reg-qty"></div>
+                    <div class="form-group"><label>Room Type</label>
+                        <select id="reg-type">
+                            <option>Single with AC</option>
+                            <option>King size bed with AC</option>
+                            <option>Twin bed with AC</option>
+                            <option>Queen size bed with AC</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Check-in Date</label><input type="date" id="reg-in"></div>
+                    <div class="form-group"><label>Check-out Date</label><input type="date" id="reg-out"></div>
+                    <div class="form-group full-row"><label>Residential Address</label><textarea id="reg-addr" rows="2"></textarea></div>
+                    <div class="form-group"><label>Coming From</label><input type="text" id="reg-from"></div>
+                    <div class="form-group"><label>Going To</label><input type="text" id="reg-to"></div>
+                    <div class="form-group"><label>Coming Purpose</label><input type="text" id="reg-purpose"></div>
+                    <div class="form-group"><label>Company Name</label><input type="text" id="reg-company"></div>
+                    <div class="form-group"><label>Total Amount</label><input type="number" id="reg-total"></div>
+                    <div class="form-group"><label>Advance if any</label><input type="number" id="reg-advance"></div>
+                    <div class="form-group"><label>Pending Amount</label><input type="number" id="reg-pending"></div>
                 </div>
                 <button class="btn-submit" onclick="saveGuest()">SAVE AND RECORD</button>
             </div>
         </div>
 
-        <!-- 3. SALE REPORTS (EDIT/DELETE KEPT) -->
+        <!-- 3. SALE REPORTS (WITH EDIT/DELETE) -->
         <div id="reports" class="section hidden">
             <div class="card">
-                <h2>Daily Sale Reports</h2>
+                <h2>Sale Report Inventory</h2>
                 <div class="form-grid">
                     <input type="date" id="sale-date">
-                    <input type="number" id="sale-room-amt" placeholder="Room Sale">
-                    <input type="number" id="sale-food-amt" placeholder="Food Sale">
+                    <input type="number" id="sale-room-amt" placeholder="Daily Room Sale">
+                    <input type="number" id="sale-food-amt" placeholder="Daily Food Sale">
                 </div>
-                <button class="btn-submit" onclick="addSale()">SUBMIT SALE</button>
+                <button class="btn-submit" onclick="addSale()">SUBMIT ENTRY</button>
                 <table id="sales-table">
-                    <thead><tr><th>Date</th><th>Room</th><th>Food</th><th>Action</th></tr></thead>
+                    <thead><tr><th>Date</th><th>Room Sale</th><th>Food Sale</th><th>Monthly (R)</th><th>Monthly (F)</th><th>Action</th></tr></thead>
                     <tbody id="sales-body"></tbody>
                 </table>
             </div>
         </div>
 
-        <!-- 4. PAYMENT SLIP (WELCOME SMS KEPT) -->
+        <!-- 4. PAYMENT SLIP (WITH SMS LINE) -->
         <div id="payment-slip" class="section hidden">
             <div class="card">
-                <center><h2>HOTEL ROYAL INN</h2><p>Payment Slip</p></center>
+                <center><h2>HOTEL ROYAL INN</h2><p>Payment Received Slip</p></center>
                 <div class="form-grid">
-                    <input type="text" id="ps-name" placeholder="Guest Name">
-                    <input type="date" id="ps-date">
+                    <div class="form-group"><label>Guest Name</label><input type="text" id="ps-name" oninput="updateSMS()"></div>
+                    <div class="form-group"><label>Phone Number</label><input type="text"></div>
+                    <div class="form-group"><label>Room Type</label><input type="text"></div>
+                    <div class="form-group"><label>Check-in</label><input type="date" id="ps-date" oninput="updateSMS()"></div>
+                    <div class="form-group"><label>Total Amount</label><input type="number"></div>
+                    <div class="form-group"><label>Advance Payment</label><input type="number"></div>
                 </div>
-                <div style="background:#e3f2fd; padding:15px; margin-top:20px; border-left:5px solid #2196f3;">
-                    <p id="sms-line">Welcome to Hotel Royal Inn! Dear Guest, your booking is confirmed. Call +917629045779. Safe journey!</p>
+                <div class="sms-box">
+                    <strong>Welcome SMS Confirmation:</strong><br>
+                    <span id="sms-text">Welcome to Hotel Royal Inn! Dear [Guest Name] according to entry from, your booking is confirmed for [Date]. We look forward to serving you. For assistance, call +917629045779. Have a safe journey!</span>
                 </div>
                 <button class="btn-submit no-print" onclick="window.print()">PRINT SLIP</button>
             </div>
         </div>
 
-        <!-- 6. STAFF PROFILE (PHOTO/ID KEPT) -->
+        <!-- 5. EVENT BOOKING -->
+        <div id="event-booking" class="section hidden">
+            <div class="card">
+                <h2>Event Booking Form</h2>
+                <div class="form-grid">
+                    <div class="form-group"><label>Event Name</label><input type="text"></div>
+                    <div class="form-group"><label>Guest Name</label><input type="text"></div>
+                    <div class="form-group"><label>Date</label><input type="date"></div>
+                    <div class="form-group"><label>Total Amount</label><input type="number"></div>
+                    <div class="form-group"><label>Advance</label><input type="number"></div>
+                    <div class="form-group"><label>Due</label><input type="number"></div>
+                </div>
+                <button class="btn-submit">SAVE EVENT</button>
+            </div>
+        </div>
+
+        <!-- 6. STAFF PROFILE (PHOTO & ID ADDED) -->
         <div id="staff-mgmt" class="section hidden">
             <div class="card">
-                <h2>Staff Profile</h2>
+                <h2>Staff Profile Management</h2>
                 <div class="form-grid">
-                    <input type="text" id="st-name" placeholder="Name">
-                    <input type="text" id="st-id" placeholder="Staff ID">
-                    <input type="file" id="st-photo" accept="image/*" onchange="previewImg(event)">
+                    <div class="form-group"><label>Staff Name</label><input type="text" id="st-name"></div>
+                    <div class="form-group"><label>Designation</label><input type="text" id="st-desig"></div>
+                    <div class="form-group"><label>Staff ID Number</label><input type="text" id="st-id"></div>
+                    <div class="form-group"><label>Monthly Salary</label><input type="number" id="st-salary"></div>
+                    <div class="form-group">
+                        <label>Upload Staff Photo</label>
+                        <input type="file" id="st-photo-input" accept="image/*" onchange="previewStaffImg(event)">
+                        <img id="st-img-preview" class="staff-img-preview hidden">
+                    </div>
                 </div>
-                <button class="btn-submit" onclick="addStaff()">ADD STAFF</button>
-                <table>
-                    <thead><tr><th>Photo</th><th>ID</th><th>Name</th><th>Action</th></tr></thead>
+                <button class="btn-submit" onclick="addStaff()">ADD STAFF TO PROFILE</button>
+                <table id="staff-table">
+                    <thead><tr><th>Photo</th><th>ID</th><th>Name</th><th>Designation</th><th>Salary</th><th>Action</th></tr></thead>
                     <tbody id="staff-list"></tbody>
                 </table>
             </div>
         </div>
 
-        <!-- 9. GUEST DATA SAVE LOG (SEARCH/EDIT KEPT) -->
+        <!-- 7. STAFF SALARY SLIP (PRINT FIX) -->
+        <div id="staff-salary" class="section hidden">
+            <div class="card">
+                <center><h2>HOTEL ROYAL INN</h2><p>Staff Salary Slip</p></center>
+                <div class="form-grid">
+                    <div class="form-group"><label>Staff Name</label><input type="text" id="sal-name"></div>
+                    <div class="form-group"><label>Designation</label><input type="text" id="sal-desig"></div>
+                    <div class="form-group"><label>Basic Salary</label><input type="number" id="sal-base" oninput="updateSalaryCalc()"></div>
+                    <div class="form-group"><label>Advance</label><input type="number" id="sal-adv" oninput="updateSalaryCalc()"></div>
+                    <div class="form-group"><label>Bonus</label><input type="number" id="sal-bonus" oninput="updateSalaryCalc()"></div>
+                </div>
+                <div class="form-grid" style="margin-top:10px;">
+                    <div class="form-group"><label>Present Days</label><input type="number" id="sal-present-print" readonly></div>
+                    <div class="form-group"><label>Holiday Days</label><input type="number" id="sal-holiday-print" readonly></div>
+                    <div class="form-group"><label>Absent Days</label><input type="number" id="sal-absent-print" readonly></div>
+                </div>
+                <div class="cal-container no-print" id="sal-cal"></div>
+                <h3 style="background:var(--primary); color:white; padding:10px;">Total Payable: ₹ <span id="final-sal-amt">0</span></h3>
+                <button class="btn-submit no-print" onclick="window.print()">PRINT SALARY SLIP</button>
+            </div>
+        </div>
+
+        <!-- 9. GUEST DATA SAVE LOG (FIXED + SEARCH + EDIT) -->
         <div id="data-save-rec" class="section hidden">
             <div class="card">
-                <h2>Guest Data Save Log</h2>
-                <input type="text" id="data-search" placeholder="Search by name..." onkeyup="searchLogs()">
-                <button class="btn-submit" onclick="saveDataLog()">MANUAL SAVE DATA</button>
-                <table id="log-table">
-                    <thead><tr><th>Name</th><th>Father</th><th>Check In</th><th>Action</th></tr></thead>
-                    <tbody id="log-body"></tbody>
+                <h2>Guest Data Save Record Maintenance</h2>
+                <div class="form-grid no-print" style="margin-bottom:15px;">
+                    <input type="text" id="data-search" placeholder="Search Guest Name..." onkeyup="searchGuestData()">
+                </div>
+                <div class="form-grid" id="data-entry-form">
+                    <input type="text" id="ds-name" placeholder="Guest Name">
+                    <input type="text" id="ds-father" placeholder="Father Name">
+                    <input type="date" id="ds-in">
+                    <input type="date" id="ds-out">
+                    <input type="text" id="ds-from" placeholder="Coming From">
+                    <input type="text" id="ds-to" placeholder="Going To">
+                    <input type="text" id="ds-stay" placeholder="Total Stay">
+                </div>
+                <button class="btn-submit" onclick="saveDataLog()">SAVE DATA RECORD</button>
+                <table>
+                    <thead><tr><th>Name</th><th>Father</th><th>In</th><th>Out</th><th>From</th><th>To</th><th>Stay</th><th>Action</th></tr></thead>
+                    <tbody id="data-log-body"></tbody>
                 </table>
             </div>
         </div>
 
-        <!-- 10. ACCOUNTS -->
+        <!-- 10. INCOME & EXPENSES (FIXED + EDIT) -->
         <div id="accounts" class="section hidden">
             <div class="card">
                 <h2>Income & Expenses</h2>
                 <div class="form-grid">
-                    <input type="text" id="acc-source" placeholder="Source">
-                    <input type="number" id="acc-amt" placeholder="Amount">
-                    <select id="acc-type"><option>Income</option><option>Expense</option></select>
+                    <div style="border:1px solid #ddd; padding:10px;">
+                        <h3>Add Income</h3>
+                        <input type="text" id="inc-source" placeholder="Source Details">
+                        <select id="inc-mode"><option>Gpay</option><option>Cash</option><option>Card</option></select>
+                        <input type="number" id="inc-amt" placeholder="Amount">
+                        <button class="btn-submit" onclick="addAccount('income')">ADD INCOME</button>
+                    </div>
+                    <div style="border:1px solid #ddd; padding:10px;">
+                        <h3>Add Expense</h3>
+                        <input type="text" id="exp-source" placeholder="Expense Details">
+                        <input type="number" id="exp-amt" placeholder="Amount">
+                        <button class="btn-submit" style="background:var(--booked)" onclick="addAccount('expense')">ADD EXPENSE</button>
+                    </div>
                 </div>
-                <button class="btn-submit" onclick="addAccount()">ADD ENTRY</button>
-                <table id="acc-table">
-                    <thead><tr><th>Type</th><th>Source</th><th>Amount</th><th>Action</th></tr></thead>
+                <table style="margin-top:20px;">
+                    <thead><tr><th>Type</th><th>Source</th><th>Mode</th><th>Amount</th><th>Action</th></tr></thead>
                     <tbody id="acc-body"></tbody>
                 </table>
             </div>
         </div>
+
+    </div>
+    
+    <!-- ROOM MODAL (FIXED) -->
+    <div id="modal-overlay" class="hidden" onclick="closeModal()" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:99;"></div>
+    <div id="room-modal" class="hidden" style="position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:white; padding:30px; z-index:100; border-radius:10px; width:350px;">
+        <h3 id="m-room-no"></h3>
+        <p><strong>Guest:</strong> <span id="m-guest-name"></span></p>
+        <p><strong>Check-in:</strong> <span id="m-in-date"></span></p>
+        <p><strong>Check-out:</strong> <span id="m-out-date"></span></p>
+        <button class="btn-submit" style="background:#e67e22" onclick="closeModal()">CLOSE</button>
+        <button class="btn-delete" style="width:100%; margin-top:10px; padding:10px;" onclick="checkoutRoom()">CHECKOUT ROOM</button>
     </div>
 
-    <!-- ROOM MODAL -->
-    <div id="modal-overlay" class="hidden" onclick="closeModal()" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:99;"></div>
-    <div id="room-modal" class="hidden" style="position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:white; padding:30px; z-index:100; border-radius:10px; width:300px;">
-        <h3 id="m-room-no"></h3>
-        <p>Guest: <span id="m-guest-name"></span></p>
-        <button class="btn-submit" onclick="closeModal()">CLOSE</button>
-        <button class="btn-delete" style="width:100%; margin-top:10px;" onclick="checkoutRoom()">CHECKOUT ROOM</button>
-    </div>
+    <footer>website desain & develop by MATINDRA TRIPURA</footer>
 </div>
 
 <script>
-    let bookedRooms = {}; 
+    let bookedRooms = {};
     let salesData = [];
     let staffData = [];
     let guestLogs = [];
     let accountData = [];
+    let attendance = Array(31).fill('work');
     let currentRoom = null;
-    let staffPhoto = "";
+    let previewImgData = "";
 
-    // CALENDAR LOGIC
-    let dt = new Date();
-    function renderCalendar() {
-        dt.setDate(1);
-        const monthDisplay = document.getElementById('monthDisplay');
-        const grid = document.getElementById('calendarGrid');
-        const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-        
-        monthDisplay.innerText = months[dt.getMonth()] + " " + dt.getFullYear();
-        grid.innerHTML = "";
-
-        const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-        days.forEach(d => grid.innerHTML += `<div class="cal-day-head">${d}</div>`);
-
-        const lastDay = new Date(dt.getFullYear(), dt.getMonth() + 1, 0).getDate();
-        const firstDayIndex = dt.getDay();
-
-        for(let x = 0; x < firstDayIndex; x++) grid.innerHTML += `<div class="cal-date"></div>`;
-
-        for(let i = 1; i <= lastDay; i++) {
-            let dayStr = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
-            let bookingsHtml = "";
-            
-            for(let rm in bookedRooms) {
-                if(dayStr >= bookedRooms[rm].in && dayStr <= bookedRooms[rm].out) {
-                    bookingsHtml += `<div class="booking-tag">R${rm}: ${bookedRooms[rm].name}</div>`;
-                }
-            }
-
-            grid.innerHTML += `<div class="cal-date">
-                <span class="date-num">${i}</span>
-                ${bookingsHtml}
-            </div>`;
-        }
-    }
-
-    function prevMonth() { dt.setMonth(dt.getMonth()-1); renderCalendar(); }
-    function nextMonth() { dt.setMonth(dt.getMonth()+1); renderCalendar(); }
-
-    // LOGIN & CORE FUNCTIONS
     function handleLogin() {
         if(document.getElementById('username').value === "ROYAL INN" && document.getElementById('password').value === "MANAGER ROYAL") {
             document.getElementById('login-page').classList.add('hidden');
             document.getElementById('dashboard').classList.remove('hidden');
-            renderRooms();
-            renderCalendar();
-        } else alert("Error");
+            renderRooms(); renderCalendar('sal-cal');
+        } else alert("Invalid Login");
     }
 
+    // 1. ROOMS LOGIC (FIXED)
     function renderRooms() {
         const floors = { "1st": [118, 117], "2nd": [101,102,103,104,105,106,107,108], "3rd": [109,110,111,112,114,115,116,117] };
         let h = "";
@@ -292,7 +321,6 @@
             h += `</div>`;
         }
         document.getElementById('room-display').innerHTML = h;
-        renderCalendar();
     }
 
     function openRoom(r) {
@@ -303,65 +331,174 @@
             currentRoom = r;
             document.getElementById('m-room-no').innerText = "Room " + r;
             document.getElementById('m-guest-name').innerText = bookedRooms[r].name;
+            document.getElementById('m-in-date').innerText = bookedRooms[r].in;
+            document.getElementById('m-out-date').innerText = bookedRooms[r].out;
             document.getElementById('room-modal').classList.remove('hidden');
             document.getElementById('modal-overlay').classList.remove('hidden');
         }
     }
 
+    function closeModal() { document.getElementById('room-modal').classList.add('hidden'); document.getElementById('modal-overlay').classList.add('hidden'); }
+    function checkoutRoom() { delete bookedRooms[currentRoom]; closeModal(); renderRooms(); }
+
+    // 2. GUEST REG (FIXED)
     function saveGuest() {
         let r = document.getElementById('reg-room').value;
         let n = document.getElementById('reg-name').value;
-        if(!r || !n) return;
-        bookedRooms[r] = { name: n, in: document.getElementById('reg-in').value, out: document.getElementById('reg-out').value };
-        guestLogs.push({ name: n, father: document.getElementById('reg-father').value, in: document.getElementById('reg-in').value });
-        renderRooms();
-        renderLogs();
+        if(!r || !n) { alert("Room & Name Required"); return; }
+        
+        bookedRooms[r] = { 
+            name: n, 
+            in: document.getElementById('reg-in').value, 
+            out: document.getElementById('reg-out').value 
+        };
+        
+        // Auto-add to Guest Log Inventory 9
+        guestLogs.push({
+            name: n, father: document.getElementById('reg-father').value,
+            in: document.getElementById('reg-in').value, out: document.getElementById('reg-out').value,
+            from: document.getElementById('reg-from').value, to: document.getElementById('reg-to').value,
+            stay: document.getElementById('reg-stay').value
+        });
+        
+        renderRooms(); renderDataLogs();
+        alert("Registration Saved & Recorded!");
         showSection('room-status');
     }
 
-    function checkoutRoom() { delete bookedRooms[currentRoom]; closeModal(); renderRooms(); }
-    function closeModal() { document.getElementById('room-modal').classList.add('hidden'); document.getElementById('modal-overlay').classList.add('hidden'); }
+    // 3. SALES (EDIT/DELETE)
+    function addSale() {
+        let d = document.getElementById('sale-date').value;
+        let r = parseFloat(document.getElementById('sale-room-amt').value) || 0;
+        let f = parseFloat(document.getElementById('sale-food-amt').value) || 0;
+        if(d) { salesData.push({ d, r, f }); renderSales(); }
+    }
 
-    function previewImg(e) {
+    function renderSales() {
+        let h = "", mR = 0, mF = 0;
+        salesData.forEach((s, i) => {
+            mR += s.r; mF += s.f;
+            h += `<tr><td>${s.d}</td><td>${s.r}</td><td>${s.f}</td><td>${mR}</td><td>${mF}</td>
+            <td><button class="btn-edit" onclick="editSale(${i})">Edit</button><button class="btn-delete" onclick="salesData.splice(${i},1);renderSales();">Del</button></td></tr>`;
+        });
+        document.getElementById('sales-body').innerHTML = h;
+    }
+    function editSale(i) {
+        let s = salesData[i];
+        document.getElementById('sale-date').value = s.d;
+        document.getElementById('sale-room-amt').value = s.r;
+        document.getElementById('sale-food-amt').value = s.f;
+        salesData.splice(i,1); renderSales();
+    }
+
+    // 4. SMS UPDATE
+    function updateSMS() {
+        let name = document.getElementById('ps-name').value || "[Guest Name]";
+        let date = document.getElementById('ps-date').value || "[Date]";
+        document.getElementById('sms-text').innerText = `Welcome to Hotel Royal Inn! Dear ${name} according to entry from, your booking is confirmed for ${date}. We look forward to serving you. For assistance, call +917629045779. Have a safe journey!`;
+    }
+
+    // 6. STAFF PROFILE (PHOTO)
+    function previewStaffImg(e) {
         let reader = new FileReader();
-        reader.onload = () => staffPhoto = reader.result;
+        reader.onload = function() {
+            let out = document.getElementById('st-img-preview');
+            out.src = reader.result; out.classList.remove('hidden');
+            previewImgData = reader.result;
+        }
         reader.readAsDataURL(e.target.files[0]);
     }
 
     function addStaff() {
-        staffData.push({ id: document.getElementById('st-id').value, name: document.getElementById('st-name').value, img: staffPhoto });
+        staffData.push({
+            name: document.getElementById('st-name').value,
+            desig: document.getElementById('st-desig').value,
+            sal: document.getElementById('st-salary').value,
+            id: document.getElementById('st-id').value,
+            img: previewImgData
+        });
         renderStaff();
     }
     function renderStaff() {
         let h = "";
-        staffData.forEach((s, i) => h += `<tr><td><img src="${s.img}" class="staff-img-preview"></td><td>${s.id}</td><td>${s.name}</td><td><button class="btn-delete" onclick="staffData.splice(${i},1);renderStaff();">Del</button></td></tr>`);
+        staffData.forEach((s, i) => {
+            h += `<tr><td><img src="${s.img}" style="width:40px;height:40px;border-radius:50%"></td><td>${s.id}</td><td>${s.name}</td><td>${s.desig}</td><td>${s.sal}</td>
+            <td><button class="btn-delete" onclick="staffData.splice(${i},1);renderStaff();">Del</button></td></tr>`;
+        });
         document.getElementById('staff-list').innerHTML = h;
     }
 
-    function addSale() {
-        salesData.push({ d: document.getElementById('sale-date').value, r: document.getElementById('sale-room-amt').value, f: document.getElementById('sale-food-amt').value });
-        renderSales();
-    }
-    function renderSales() {
+    // 7. SALARY
+    function renderCalendar(id) {
         let h = "";
-        salesData.forEach((s, i) => h += `<tr><td>${s.d}</td><td>${s.r}</td><td>${s.f}</td><td><button class="btn-delete" onclick="salesData.splice(${i},1);renderSales();">Del</button></td></tr>`);
-        document.getElementById('sales-body').innerHTML = h;
+        attendance.forEach((state, i) => {
+            let color = state === 'work' ? 'var(--available)' : (state === 'holiday' ? 'var(--holiday)' : 'var(--booked)');
+            h += `<div class="cal-day no-print" style="background:${color}" onclick="toggleDay(${i}, '${id}')">${i+1}</div>`;
+        });
+        document.getElementById(id).innerHTML = h;
+        updateSalaryCalc();
+    }
+    function toggleDay(i, id) {
+        let st = ['work', 'holiday', 'absent'];
+        attendance[i] = st[(st.indexOf(attendance[i]) + 1) % 3];
+        renderCalendar(id);
+    }
+    function updateSalaryCalc() {
+        let base = parseFloat(document.getElementById('sal-base').value) || 0;
+        let pres = attendance.filter(x => x === 'work').length;
+        let holi = attendance.filter(x => x === 'holiday').length;
+        let abs = attendance.filter(x => x === 'absent').length;
+        
+        document.getElementById('sal-present-print').value = pres;
+        document.getElementById('sal-holiday-print').value = holi;
+        document.getElementById('sal-absent-print').value = abs;
+
+        let fin = base - (abs * (base/30)) - (parseFloat(document.getElementById('sal-adv').value)||0) + (parseFloat(document.getElementById('sal-bonus').value)||0);
+        document.getElementById('final-sal-amt').innerText = Math.round(fin);
     }
 
-    function renderLogs(f="") {
-        let h = "";
-        guestLogs.filter(g => g.name.toLowerCase().includes(f.toLowerCase())).forEach((g, i) => h += `<tr><td>${g.name}</td><td>${g.father}</td><td>${g.in}</td><td><button class="btn-delete" onclick="guestLogs.splice(${i},1);renderLogs();">Del</button></td></tr>`);
-        document.getElementById('log-body').innerHTML = h;
+    // 9. GUEST DATA LOG (FIXED + SEARCH)
+    function saveDataLog() {
+        guestLogs.push({
+            name: document.getElementById('ds-name').value, father: document.getElementById('ds-father').value,
+            in: document.getElementById('ds-in').value, out: document.getElementById('ds-out').value,
+            from: document.getElementById('ds-from').value, to: document.getElementById('ds-to').value,
+            stay: document.getElementById('ds-stay').value
+        });
+        renderDataLogs();
     }
-    function searchLogs() { renderLogs(document.getElementById('data-search').value); }
+    function renderDataLogs(filter = "") {
+        let h = "";
+        guestLogs.filter(g => g.name.toLowerCase().includes(filter.toLowerCase())).forEach((g, i) => {
+            h += `<tr><td>${g.name}</td><td>${g.father}</td><td>${g.in}</td><td>${g.out}</td><td>${g.from}</td><td>${g.to}</td><td>${g.stay}</td>
+            <td><button class="btn-edit" onclick="editLog(${i})">Edit</button><button class="btn-delete" onclick="guestLogs.splice(${i},1);renderDataLogs();">Del</button></td></tr>`;
+        });
+        document.getElementById('data-log-body').innerHTML = h;
+    }
+    function searchGuestData() { renderDataLogs(document.getElementById('data-search').value); }
+    function editLog(i) {
+        let g = guestLogs[i];
+        document.getElementById('ds-name').value = g.name; document.getElementById('ds-father').value = g.father;
+        document.getElementById('ds-in').value = g.in; document.getElementById('ds-out').value = g.out;
+        guestLogs.splice(i,1); renderDataLogs();
+    }
 
-    function addAccount() {
-        accountData.push({ type: document.getElementById('acc-type').value, src: document.getElementById('acc-source').value, amt: document.getElementById('acc-amt').value });
-        renderAccounts();
+    // 10. ACCOUNTS
+    function addAccount(type) {
+        let source = type === 'income' ? document.getElementById('inc-source').value : document.getElementById('exp-source').value;
+        let amt = type === 'income' ? document.getElementById('inc-amt').value : document.getElementById('exp-amt').value;
+        let mode = type === 'income' ? document.getElementById('inc-mode').value : "Cash";
+        if(source && amt) {
+            accountData.push({ type, source, mode, amt });
+            renderAccounts();
+        }
     }
     function renderAccounts() {
         let h = "";
-        accountData.forEach((a, i) => h += `<tr><td>${a.type}</td><td>${a.src}</td><td>${a.amt}</td><td><button class="btn-delete" onclick="accountData.splice(${i},1);renderAccounts();">Del</button></td></tr>`);
+        accountData.forEach((a, i) => {
+            h += `<tr><td>${a.type}</td><td>${a.source}</td><td>${a.mode}</td><td>${a.amt}</td>
+            <td><button class="btn-delete" onclick="accountData.splice(${i},1);renderAccounts();">Del</button></td></tr>`;
+        });
         document.getElementById('acc-body').innerHTML = h;
     }
 
