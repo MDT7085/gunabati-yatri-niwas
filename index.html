@@ -13,119 +13,154 @@
             --success: #00a86b; 
             --danger: #e74c3c;
             --report-blue: #1e4f8a;
+            --nav-bg: #1e4f8a;
             --bg: #f4f7f6;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background: var(--bg); height: 100vh; display: flex; flex-direction: column; }
+        body { background: var(--bg); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 
-        /* Login */
+        /* Login Screen */
         #login-page { height: 100vh; display: flex; justify-content: center; align-items: center; background: linear-gradient(to right, #1a2a6c, #b21f1f); position: fixed; width: 100%; z-index: 9999; }
         .login-box { background: white; padding: 40px; border-radius: 12px; width: 350px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
 
-        /* Layout */
-        #dashboard { display: none; height: 100vh; grid-template-columns: 260px 1fr; }
-        .sidebar { background: var(--secondary); color: white; padding: 20px; overflow-y: auto; }
-        .nav-item { padding: 12px; margin: 5px 0; cursor: pointer; border-radius: 6px; display: flex; align-items: center; transition: 0.3s; font-size: 13px; }
-        .nav-item:hover, .nav-item.active { background: var(--accent); color: #2c3e50; font-weight: bold; }
-        .nav-item i { margin-right: 12px; width: 20px; }
+        /* Top Navigation Bar */
+        .top-nav { background: var(--nav-bg); display: flex; justify-content: center; padding: 10px 0; gap: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .nav-btn { background: rgba(255,255,255,0.1); color: white; border: none; padding: 10px 15px; cursor: pointer; font-size: 13px; font-weight: 500; border-radius: 4px; transition: 0.3s; }
+        .nav-btn:hover, .nav-btn.active { background: white; color: var(--nav-bg); }
 
-        .main { padding: 25px; overflow-y: auto; position: relative; padding-bottom: 60px; }
+        .main-container { flex: 1; overflow-y: auto; padding: 20px; position: relative; padding-bottom: 60px; }
         .inventory { display: none; }
         .inventory.active { display: block; }
 
-        /* UI Cards & Forms */
-        .card { background: white; padding: 20px; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        label { font-size: 12px; font-weight: bold; color: #555; display: block; margin-bottom: 5px; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 10px; }
+        /* General UI */
+        .card { background: white; padding: 25px; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin: 0 auto; max-width: 1000px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        label { font-size: 13px; font-weight: 600; color: #444; display: block; margin-bottom: 8px; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 15px; background: #fff; font-size: 14px; }
         
-        .btn-submit { width: 100%; background: var(--success); color: white; border: none; padding: 12px; font-weight: bold; cursor: pointer; border-radius: 4px; text-transform: uppercase; margin-top: 10px; }
+        /* Payment Slip Styles (Matching Image) */
+        .slip-header { text-align: center; margin-bottom: 25px; }
+        .slip-header h1 { font-size: 24px; color: #333; margin-bottom: 5px; }
+        .slip-header p { font-size: 16px; color: #666; }
+        .btn-print { width: 100%; background: var(--success); color: white; border: none; padding: 15px; font-weight: bold; cursor: pointer; border-radius: 4px; text-transform: uppercase; margin-top: 20px; font-size: 15px; }
 
-        /* Room Management UI */
-        .room-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; margin-bottom: 20px; }
-        .room { padding: 15px 0; text-align: center; border-radius: 4px; color: white; cursor: pointer; font-weight: bold; font-size: 14px; }
+        /* Room Grid */
+        .room-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; margin-bottom: 30px; }
+        .room { padding: 15px 0; text-align: center; border-radius: 4px; color: white; cursor: pointer; font-weight: bold; }
         .available { background: var(--success); }
         .booked { background: var(--danger); }
 
-        /* Modal for Room Edit/Checkout */
+        /* Tables */
+        .report-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .report-table th { background: var(--report-blue); color: white; padding: 12px; border: 1px solid #ddd; font-weight: 500; }
+        .report-table td { padding: 10px; border: 1px solid #ddd; text-align: center; background: white; }
+
+        footer { position: fixed; bottom: 0; left: 0; width: 100%; background: #f4f7f6; padding: 12px; text-align: center; font-size: 13px; color: #555; font-weight: 600; border-top: 1px solid #ddd; }
+
+        /* Modal */
         #room-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; }
         .modal-content { background: white; padding: 30px; border-radius: 8px; width: 400px; position: relative; }
 
-        /* Sale Report Table Style */
-        .report-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .report-table th { background: var(--report-blue); color: white; padding: 12px; border: 1px solid #ddd; font-weight: 500; font-size: 14px; }
-        .report-table td { padding: 10px; border: 1px solid #ddd; text-align: center; background: white; font-size: 13px; }
-
-        footer { position: fixed; bottom: 0; right: 0; width: calc(100% - 260px); background: white; padding: 10px; text-align: center; font-size: 12px; border-top: 1px solid #ddd; font-weight: bold; }
-        
-        @media print { .sidebar, .btn-submit, footer, .no-print { display: none !important; } .main { width: 100%; } }
+        @media print {
+            .top-nav, footer, .btn-print, .no-print { display: none !important; }
+            body, .main-container { overflow: visible !important; height: auto !important; }
+            .card { box-shadow: none !important; border: none !important; max-width: 100% !important; padding: 0 !important; }
+        }
     </style>
 </head>
 <body>
 
-    <!-- 🔐 LOGIN -->
+    <!-- 🔐 LOGIN (Stays until logged in) -->
     <div id="login-page">
         <div class="login-box">
-            <h2 style="color: var(--primary)">HOTEL ROYAL INN</h2>
+            <h1>HOTEL ROYAL INN</h1>
             <p style="font-size: 11px; margin-bottom: 20px; color: #666;">website desain & develop by MATINDRA TRIPURA</p>
-            <input type="text" id="user" placeholder="Username (ROYAL INN)">
-            <input type="password" id="pass" placeholder="Password (543215)">
-            <button class="btn-submit" onclick="login()">LOGIN</button>
+            <input type="text" id="user" placeholder="Username">
+            <input type="password" id="pass" placeholder="Password">
+            <button class="btn-print" onclick="login()">LOGIN</button>
         </div>
     </div>
 
-    <!-- 🛠 DASHBOARD -->
-    <div id="dashboard">
-        <div class="sidebar">
-            <h3 style="text-align:center; margin-bottom:30px;">ROYAL INN</h3>
-            <div class="nav-item active" onclick="nav('room-inv')"><i class="fas fa-bed"></i> Room Management</div>
-            <div class="nav-item" onclick="nav('guest-inv')"><i class="fas fa-user-plus"></i> Guest Registration</div>
-            <div class="nav-item" onclick="nav('report-inv')"><i class="fas fa-chart-line"></i> Sale Report Inventory</div>
-            <div class="nav-item" onclick="nav('payment-inv')"><i class="fas fa-file-invoice"></i> Payment Slip</div>
-            <div class="nav-item" onclick="nav('staff-inv')"><i class="fas fa-users"></i> Staff Management</div>
-            <div class="nav-item" onclick="nav('salary-inv')"><i class="fas fa-wallet"></i> Staff Salary Slip</div>
-            <button onclick="location.reload()" style="background:none; border:1px solid white; color:white; width:100%; padding:10px; margin-top:20px; cursor:pointer; border-radius:4px;">Logout</button>
+    <!-- 🏷️ TOP NAVIGATION -->
+    <div class="top-nav no-print">
+        <button class="nav-btn active" onclick="nav('room-inv', this)">Room Inventory</button>
+        <button class="nav-btn" onclick="nav('guest-inv', this)">Guest Registration</button>
+        <button class="nav-btn" onclick="nav('report-inv', this)">Sale Reports</button>
+        <button class="nav-btn" onclick="nav('payment-inv', this)">Payment Slip</button>
+        <button class="nav-btn" onclick="nav('event-inv', this)">Event Booking</button>
+        <button class="nav-btn" onclick="nav('staff-inv', this)">Staff Management</button>
+        <button class="nav-btn" onclick="nav('salary-inv', this)">Staff Salary Slip</button>
+    </div>
+
+    <!-- 🛠️ MAIN CONTENT -->
+    <div class="main-container">
+        
+        <!-- ROOM INVENTORY -->
+        <div id="room-inv" class="inventory active">
+            <div id="room-container"></div>
         </div>
 
-        <div class="main">
-            
-            <!-- ROOM INVENTORY -->
-            <div id="room-inv" class="inventory active">
-                <h2 style="margin-bottom:20px;">📦 Room Management</h2>
-                <div id="room-container"></div>
-            </div>
-
-            <!-- GUEST REGISTRATION -->
-            <div id="guest-inv" class="inventory">
-                <h2>📋 Guest Registration Form</h2>
-                <div class="card">
-                    <div class="grid-2">
-                        <div><label>Guest Name</label><input type="text" id="g-name"></div>
-                        <div><label>Phone Number</label><input type="text" id="g-phone"></div>
-                        <div><label>Guest Pax</label><input type="number" id="g-pax"></div>
-                        <div><label>Room Number</label><input type="text" id="g-room"></div>
-                        <div><label>Check-in</label><input type="date" id="g-in"></div>
-                        <div><label>Check-out</label><input type="date" id="g-out"></div>
-                        <div><label>Room Type</label><select id="g-type"><option>King Size</option><option>Queen Size</option><option>Twin Bed</option><option>Single</option></select></div>
-                        <div><label>Room Tariff</label><input type="number" id="g-tariff"></div>
-                    </div>
-                    <button class="btn-submit" onclick="saveBooking()">Save Guest & Book Room</button>
+        <!-- GUEST REGISTRATION -->
+        <div id="guest-inv" class="inventory">
+            <div class="card">
+                <h3>Guest Registration</h3><br>
+                <div class="grid-2">
+                    <div><label>Guest Name</label><input type="text" id="g-name"></div>
+                    <div><label>Phone Number</label><input type="text" id="g-phone"></div>
+                    <div><label>Room Quantity</label><input type="number" id="g-qty" value="1"></div>
+                    <div><label>Guest Pax</label><input type="number" id="g-pax"></div>
+                    <div><label>Room Number</label><input type="text" id="g-room"></div>
+                    <div><label>Room Type</label><input type="text" id="g-type"></div>
+                    <div><label>Check-in</label><input type="date" id="g-in"></div>
+                    <div><label>Check-out</label><input type="date" id="g-out"></div>
+                    <div><label>Total Amount</label><input type="number" id="g-tariff"></div>
+                    <div><label>Advance Payment</label><input type="number" id="g-adv" value="0"></div>
                 </div>
+                <button class="btn-print" onclick="saveBooking()">Save & Generate Slip</button>
             </div>
+        </div>
 
-            <!-- SALE REPORT (MATCHING IMAGE) -->
-            <div id="report-inv" class="inventory">
-                <h2 style="margin-bottom:15px;">Sale Report Inventory</h2>
-                <div class="card">
-                    <div class="grid-2">
-                        <div><label>Select Date</label><input type="date" id="rep-date"></div>
-                        <div><label>Daily Room Sale Amount</label><input type="number" id="rep-room" placeholder="Enter amount"></div>
-                    </div>
-                    <div style="width: 50%;"><label>Daily Food Sale Amount</label><input type="number" id="rep-food" placeholder="Enter amount"></div>
-                    <button class="btn-submit" onclick="submitSale()">SUBMIT DAILY SALES ENTRY</button>
+        <!-- PAYMENT SLIP (MATCHING IMAGE EXACTLY) -->
+        <div id="payment-inv" class="inventory">
+            <div class="card">
+                <div class="slip-header">
+                    <h1>HOTEL ROYAL INN</h1>
+                    <p>Payment Received Slip</p>
                 </div>
+                <div class="grid-2">
+                    <div><label>Guest Name</label><input type="text" id="p-name"></div>
+                    <div><label>Phone Number</label><input type="text" id="p-phone"></div>
+                    
+                    <div><label>Room Quantity</label><input type="number" id="p-qty"></div>
+                    <div><label>Guest Pax</label><input type="number" id="p-pax"></div>
+                    
+                    <div><label>Room Type</label><input type="text" id="p-type"></div>
+                    <div><label>Check-in</label><input type="date" id="p-in"></div>
+                    
+                    <div><label>Check-out</label><input type="date" id="p-out"></div>
+                    <div><label>Total Staying</label><input type="text" id="p-stay"></div>
+                    
+                    <div><label>Total Amount</label><input type="number" id="p-total"></div>
+                    <div><label>Advance Payment</label><input type="number" id="p-adv" oninput="calcDue()"></div>
+                    
+                    <div><label>Due Payment</label><input type="number" id="p-due" readonly></div>
+                </div>
+                <button class="btn-print" onclick="window.print()">PRINT SLIP</button>
+            </div>
+        </div>
 
+        <!-- SALE REPORTS -->
+        <div id="report-inv" class="inventory">
+            <div class="card">
+                <h3>Sale Report Inventory</h3><br>
+                <div class="grid-2">
+                    <div><label>Select Date</label><input type="date" id="rep-date"></div>
+                    <div><label>Daily Room Sale Amount</label><input type="number" id="rep-room"></div>
+                </div>
+                <div style="width: 48.5%;"><label>Daily Food Sale Amount</label><input type="number" id="rep-food"></div>
+                <button class="btn-print" onclick="submitSale()">SUBMIT DAILY SALES ENTRY</button>
+                
                 <table class="report-table">
                     <thead>
                         <tr>
@@ -139,55 +174,51 @@
                     <tbody id="report-body"></tbody>
                 </table>
             </div>
-
-            <!-- PAYMENT SLIP -->
-            <div id="payment-inv" class="inventory">
-                <h2>🧾 Payment Slip</h2>
-                <div id="payment-content" class="card">
-                    <p style="text-align:center; color:#888;">Select a booked room to generate slip.</p>
-                </div>
-            </div>
-
-            <footer>website desain & develop by MATINDRA TRIPURA</footer>
         </div>
+
+        <!-- OTHER INVENTORIES (PLACEHOLDERS) -->
+        <div id="event-inv" class="inventory"><div class="card"><h3>Event Booking</h3><p>Coming Soon...</p></div></div>
+        <div id="staff-inv" class="inventory"><div class="card"><h3>Staff Management</h3><p>Coming Soon...</p></div></div>
+        <div id="salary-inv" class="inventory"><div class="card"><h3>Staff Salary Slip</h3><p>Coming Soon...</p></div></div>
+
+        <footer>website desain & develop by MATINDRA TRIPURA</footer>
     </div>
 
     <!-- ROOM DETAILS MODAL -->
     <div id="room-modal">
         <div class="modal-content">
-            <h3 id="modal-room-title" style="margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">Room Details</h3>
-            <div id="modal-data" style="font-size: 14px; line-height: 1.8; color: #444;"></div>
-            <div style="margin-top:20px; display:flex; gap:10px;">
-                <button onclick="editFromModal()" style="flex:1; padding:10px; background:#2980b9; color:white; border:none; border-radius:4px; cursor:pointer;">Edit Details</button>
-                <button onclick="checkoutFromModal()" style="flex:1; padding:10px; background:var(--danger); color:white; border:none; border-radius:4px; cursor:pointer;">CHECK-OUT</button>
+            <h3 id="modal-room-title">Room Details</h3><hr><br>
+            <div id="modal-data"></div><br>
+            <div style="display:flex; gap:10px;">
+                <button onclick="editBooking()" style="flex:1; padding:10px; background:#2980b9; color:white; border:none; cursor:pointer;">Edit</button>
+                <button onclick="checkoutRoom()" style="flex:1; padding:10px; background:var(--danger); color:white; border:none; cursor:pointer;">Check-out</button>
             </div>
             <button onclick="closeModal()" style="position:absolute; top:10px; right:10px; background:none; border:none; font-size:20px; cursor:pointer;">&times;</button>
         </div>
     </div>
 
     <script>
-        // Data persistence
+        // --- DATA PERSISTENCE (Safe Loading) ---
         let rooms = JSON.parse(localStorage.getItem('royal_rooms')) || {};
         let sales = JSON.parse(localStorage.getItem('royal_sales')) || [];
-        let activeRoom = null;
+        let activeRoomNum = null;
 
         function login() {
             if(document.getElementById('user').value === "ROYAL INN" && document.getElementById('pass').value === "543215") {
                 document.getElementById('login-page').style.display = 'none';
-                document.getElementById('dashboard').style.display = 'grid';
                 initRoomGrid();
                 renderSalesReport();
             } else { alert("Invalid Credentials"); }
         }
 
-        function nav(id) {
+        function nav(id, btn) {
             document.querySelectorAll('.inventory').forEach(v => v.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            event.currentTarget.classList.add('active');
+            btn.classList.add('active');
         }
 
-        // --- ROOM MANAGEMENT ---
+        // --- ROOM LOGIC ---
         function initRoomGrid() {
             const container = document.getElementById('room-container');
             container.innerHTML = "";
@@ -197,114 +228,117 @@
                 "3rd Floor": ["109","110","111","112","114","115","116"]
             };
             for(let f in floors) {
-                let h = `<h4 style="margin: 15px 0 10px 0; color:#444;">${f}</h4><div class="room-grid">`;
+                let h = `<h4 style="margin:20px 0 10px 0;">${f}</h4><div class="room-grid">`;
                 floors[f].forEach(r => {
                     let status = rooms[r] ? 'booked' : 'available';
-                    h += `<div class="room ${status}" onclick="roomAction('${r}')">${r}</div>`;
+                    h += `<div class="room ${status}" onclick="handleRoom('${r}')">${r}</div>`;
                 });
                 container.innerHTML += h + `</div>`;
             }
         }
 
-        function roomAction(rNum) {
-            activeRoom = rNum;
-            if(rooms[rNum]) {
-                const g = rooms[rNum];
-                document.getElementById('modal-room-title').innerText = "Room " + rNum + " - Occupied";
-                document.getElementById('modal-data').innerHTML = `
-                    <b>Guest:</b> ${g.name}<br>
-                    <b>Phone:</b> ${g.phone}<br>
-                    <b>Pax:</b> ${g.pax}<br>
-                    <b>Check-in:</b> ${g.in}<br>
-                    <b>Check-out:</b> ${g.out}
-                `;
+        function handleRoom(r) {
+            activeRoomNum = r;
+            if(rooms[r]) {
+                const g = rooms[r];
+                document.getElementById('modal-room-title').innerText = "Room " + r;
+                document.getElementById('modal-data').innerHTML = `<b>Guest:</b> ${g.name}<br><b>Check-in:</b> ${g.in}<br><b>Check-out:</b> ${g.out}`;
                 document.getElementById('room-modal').style.display = 'flex';
             } else {
-                document.getElementById('g-room').value = rNum;
-                nav('guest-inv');
+                document.getElementById('g-room').value = r;
+                nav('guest-inv', document.querySelectorAll('.nav-btn')[1]);
             }
         }
 
-        function checkoutFromModal() {
-            if(confirm("Process Check-out for Room " + activeRoom + "? This will make the room available (Green).")) {
-                delete rooms[activeRoom];
-                localStorage.setItem('royal_rooms', JSON.stringify(rooms));
-                closeModal();
-                initRoomGrid();
-            }
+        function saveBooking() {
+            const r = document.getElementById('g-room').value;
+            const data = {
+                name: document.getElementById('g-name').value,
+                phone: document.getElementById('g-phone').value,
+                qty: document.getElementById('g-qty').value,
+                pax: document.getElementById('g-pax').value,
+                type: document.getElementById('g-type').value,
+                in: document.getElementById('g-in').value,
+                out: document.getElementById('g-out').value,
+                total: document.getElementById('g-tariff').value,
+                adv: document.getElementById('g-adv').value
+            };
+            rooms[r] = data;
+            localStorage.setItem('royal_rooms', JSON.stringify(rooms));
+            initRoomGrid();
+            loadSlip(r);
+            nav('payment-inv', document.querySelectorAll('.nav-btn')[3]);
         }
 
-        function editFromModal() {
-            const g = rooms[activeRoom];
+        function loadSlip(r) {
+            const g = rooms[r];
+            document.getElementById('p-name').value = g.name;
+            document.getElementById('p-phone').value = g.phone;
+            document.getElementById('p-qty').value = g.qty;
+            document.getElementById('p-pax').value = g.pax;
+            document.getElementById('p-type').value = g.type;
+            document.getElementById('p-in').value = g.in;
+            document.getElementById('p-out').value = g.out;
+            document.getElementById('p-total').value = g.total;
+            document.getElementById('p-adv').value = g.adv;
+            
+            // Stay calculation
+            const d1 = new Date(g.in);
+            const d2 = new Date(g.out);
+            const diff = Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24)) || 1;
+            document.getElementById('p-stay').value = diff + " Day(s)";
+            calcDue();
+        }
+
+        function calcDue() {
+            const t = document.getElementById('p-total').value || 0;
+            const a = document.getElementById('p-adv').value || 0;
+            document.getElementById('p-due').value = t - a;
+        }
+
+        function checkoutRoom() {
+            delete rooms[activeRoomNum];
+            localStorage.setItem('royal_rooms', JSON.stringify(rooms));
+            closeModal();
+            initRoomGrid();
+        }
+
+        function editBooking() {
+            const r = activeRoomNum;
+            const g = rooms[r];
             document.getElementById('g-name').value = g.name;
             document.getElementById('g-phone').value = g.phone;
-            document.getElementById('g-pax').value = g.pax;
-            document.getElementById('g-room').value = activeRoom;
+            document.getElementById('g-room').value = r;
             document.getElementById('g-in').value = g.in;
             document.getElementById('g-out').value = g.out;
-            document.getElementById('g-type').value = g.type;
-            document.getElementById('g-tariff').value = g.tariff;
+            document.getElementById('g-tariff').value = g.total;
             closeModal();
-            nav('guest-inv');
+            nav('guest-inv', document.querySelectorAll('.nav-btn')[1]);
         }
 
         function closeModal() { document.getElementById('room-modal').style.display = 'none'; }
 
-        function saveBooking() {
-            const r = document.getElementById('g-room').value;
-            rooms[r] = {
-                name: document.getElementById('g-name').value,
-                phone: document.getElementById('g-phone').value,
-                pax: document.getElementById('g-pax').value,
-                in: document.getElementById('g-in').value,
-                out: document.getElementById('g-out').value,
-                type: document.getElementById('g-type').value,
-                tariff: document.getElementById('g-tariff').value
-            };
-            localStorage.setItem('royal_rooms', JSON.stringify(rooms));
-            alert("Booking Saved!");
-            initRoomGrid();
-            nav('room-inv');
-        }
-
-        // --- SALE REPORT LOGIC ---
+        // --- SALES LOGIC ---
         function submitSale() {
-            const date = document.getElementById('rep-date').value;
-            const rAmt = parseFloat(document.getElementById('rep-room').value) || 0;
-            const fAmt = parseFloat(document.getElementById('rep-food').value) || 0;
-
-            if(!date) return alert("Select Date");
-
-            sales.push({ date, room: rAmt, food: fAmt, month: date.substring(0, 7) });
+            const d = document.getElementById('rep-date').value;
+            const r = parseFloat(document.getElementById('rep-room').value) || 0;
+            const f = parseFloat(document.getElementById('rep-food').value) || 0;
+            if(!d) return alert("Select Date");
+            sales.push({ date: d, room: r, food: f, month: d.substring(0, 7) });
             localStorage.setItem('royal_sales', JSON.stringify(sales));
             renderSalesReport();
-            
-            document.getElementById('rep-room').value = "";
-            document.getElementById('rep-food').value = "";
         }
 
         function renderSalesReport() {
             const body = document.getElementById('report-body');
             body.innerHTML = "";
-            
-            // Calculate totals by month
-            let monthlyTotals = {};
+            let mTotals = {};
             sales.sort((a,b) => new Date(a.date) - new Date(b.date));
-
             sales.forEach(s => {
-                if(!monthlyTotals[s.month]) monthlyTotals[s.month] = { r: 0, f: 0 };
-                monthlyTotals[s.month].r += s.room;
-                monthlyTotals[s.month].f += s.food;
-
-                body.innerHTML += `
-                    <tr>
-                        <td>${s.date}</td>
-                        <td>${s.room}</td>
-                        <td>${s.food}</td>
-                        <td style="font-weight:bold">${monthlyTotals[s.month].r}</td>
-                        <td style="font-weight:bold">${monthlyTotals[s.month].f}</td>
-                    </tr>
-                `;
+                if(!mTotals[s.month]) mTotals[s.month] = { r: 0, f: 0 };
+                mTotals[s.month].r += s.room;
+                mTotals[s.month].f += s.food;
+                body.innerHTML += `<tr><td>${s.date}</td><td>${s.room}</td><td>${s.food}</td><td>${mTotals[s.month].r}</td><td>${mTotals[s.month].f}</td></tr>`;
             });
         }
     </script>
