@@ -1,211 +1,169 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HOTEL ROYAL INN - TOTAL MANAGEMENT SYSTEM</title>
+<!-- SAME YOUR FULL HTML CODE ABOVE (NO CHANGE) -->
 
-<style>
-:root { 
-    --primary: #2c3e50; --secondary: #34495e; --available: #2ecc71; 
-    --booked: #e74c3c; --accent: #f39c12; --holiday: #f1c40f; 
-}
-body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f7f6; }
-.hidden { display:none!important; }
-header { background: var(--primary); color:white; padding:1rem; text-align:center; }
-nav { background: var(--secondary); padding:10px; }
-nav button { padding:10px; margin:3px; color:white; background:#455a64; border:none; cursor:pointer; }
-.container { padding:20px; }
-.room { padding:15px; margin:5px; display:inline-block; color:white; cursor:pointer; border-radius:5px; }
-.available { background:var(--available); }
-.booked { background:var(--booked); }
-.card { background:white; padding:20px; margin-bottom:20px; }
-input,select,textarea { width:100%; padding:8px; margin:5px 0; }
-.btn-submit { background:var(--available); color:white; padding:10px; border:none; cursor:pointer; }
-</style>
-</head>
-
-<body>
-
-<!-- LOGIN -->
-<div id="login-page">
-<div style="height:100vh;display:flex;justify-content:center;align-items:center;background:linear-gradient(135deg,#2c3e50,#34495e);">
-<div style="background:white;padding:30px;border-radius:10px;text-align:center;">
-<div style="color:orange;font-weight:bold;">WEBSITE DEVELOP BY MATINDRA TRIPURA</div>
-<h2>HOTEL ROYAL INN</h2>
-<input id="username" placeholder="Username">
-<input id="password" type="password" placeholder="Password">
-<button class="btn-submit" onclick="handleLogin()">LOGIN</button>
-</div>
-</div>
-</div>
-
-<!-- DASHBOARD -->
-<div id="dashboard" class="hidden">
-
-<header>
-<h2>HOTEL MANAGEMENT SYSTEM</h2>
-</header>
-
-<nav>
-<button onclick="showSection('rooms')">Rooms</button>
-<button onclick="showSection('guest')">Guest</button>
-<button onclick="showSection('staff')">Staff</button>
-<button onclick="showSection('sales')">Sales</button>
-</nav>
-
-<div class="container">
-
-<div id="rooms">
-<h3>Room Status</h3>
-<div id="room-display"></div>
-</div>
-
-<div id="guest" class="hidden">
-<div class="card">
-<h3>Guest Entry</h3>
-<input id="reg-name" placeholder="Name">
-<input id="reg-room" placeholder="Room">
-<input type="date" id="reg-in">
-<input type="date" id="reg-out">
-<button class="btn-submit" onclick="saveGuest()">SAVE</button>
-</div>
-</div>
-
-<div id="staff" class="hidden">
-<div class="card">
-<input id="st-name" placeholder="Name">
-<input id="st-desig" placeholder="Designation">
-<input id="st-salary" placeholder="Salary">
-<button onclick="addStaff()">ADD STAFF</button>
-</div>
-<div id="staff-list"></div>
-</div>
-
-<div id="sales" class="hidden">
-<div class="card">
-<input type="date" id="sale-date">
-<input id="sale-room" placeholder="Room Sale">
-<input id="sale-food" placeholder="Food Sale">
-<button onclick="addSale()">ADD</button>
-</div>
-<div id="sales-list"></div>
-</div>
-
-</div>
-</div>
+<!-- ONLY SCRIPT UPDATED BELOW -->
 
 <script>
 
-// LOAD DATA
+// 🔥 LOAD SAVED DATA
 let bookedRooms = JSON.parse(localStorage.getItem("rooms")) || {};
-let staffData = JSON.parse(localStorage.getItem("staff")) || [];
 let salesData = JSON.parse(localStorage.getItem("sales")) || [];
+let staffData = JSON.parse(localStorage.getItem("staff")) || [];
+let guestLogs = JSON.parse(localStorage.getItem("guestLogs")) || [];
+let accountData = JSON.parse(localStorage.getItem("accounts")) || [];
+let attendance = JSON.parse(localStorage.getItem("attendance")) || Array(31).fill('work');
 
-// SAVE FUNCTION
+let currentRoom = null;
+let previewImgData = "";
+
+// 🔥 SAVE FUNCTION
 function saveAll(){
-localStorage.setItem("rooms", JSON.stringify(bookedRooms));
-localStorage.setItem("staff", JSON.stringify(staffData));
-localStorage.setItem("sales", JSON.stringify(salesData));
+    localStorage.setItem("rooms", JSON.stringify(bookedRooms));
+    localStorage.setItem("sales", JSON.stringify(salesData));
+    localStorage.setItem("staff", JSON.stringify(staffData));
+    localStorage.setItem("guestLogs", JSON.stringify(guestLogs));
+    localStorage.setItem("accounts", JSON.stringify(accountData));
+    localStorage.setItem("attendance", JSON.stringify(attendance));
 }
 
-// LOGIN
-function handleLogin(){
-let u=document.getElementById("username").value;
-let p=document.getElementById("password").value;
+// 🔐 LOGIN (UPDATED LOAD)
+function handleLogin() {
+    if(document.getElementById('username').value === "ROYAL INN" &&
+       document.getElementById('password').value === "MANAGER ROYAL") {
 
-if(u==="ROYAL INN" && p==="MANAGER ROYAL"){
-document.getElementById("login-page").classList.add("hidden");
-document.getElementById("dashboard").classList.remove("hidden");
-renderRooms(); renderStaff(); renderSales();
-}else alert("Wrong Login");
-}
+        document.getElementById('login-page').classList.add('hidden');
+        document.getElementById('dashboard').classList.remove('hidden');
 
-// NAV
-function showSection(id){
-document.querySelectorAll(".container > div").forEach(d=>d.classList.add("hidden"));
-document.getElementById(id).classList.remove("hidden");
-}
+        renderRooms();
+        renderCalendar('sal-cal');
+        renderSales();
+        renderStaff();
+        renderDataLogs();
+        renderAccounts();
 
-// ROOMS
-function renderRooms(){
-let html="";
-for(let i=101;i<=110;i++){
-html+=`<div class="room ${bookedRooms[i]?"booked":"available"}" onclick="openRoom(${i})">${i}</div>`;
-}
-document.getElementById("room-display").innerHTML=html;
+    } else alert("Invalid Login");
 }
 
-function openRoom(r){
-if(!bookedRooms[r]){
-showSection("guest");
-document.getElementById("reg-room").value=r;
-}else{
-if(confirm("Checkout?")){
-delete bookedRooms[r];
-saveAll();
-renderRooms();
-}
-}
+// 🏨 ROOM SAVE
+function checkoutRoom() {
+    delete bookedRooms[currentRoom];
+    saveAll();
+    closeModal();
+    renderRooms();
 }
 
-function saveGuest(){
-let r=document.getElementById("reg-room").value;
-bookedRooms[r]={
-name:document.getElementById("reg-name").value,
-in:document.getElementById("reg-in").value,
-out:document.getElementById("reg-out").value
-};
-saveAll();
-renderRooms();
-showSection("rooms");
+function saveGuest() {
+    let r = document.getElementById('reg-room').value;
+    let n = document.getElementById('reg-name').value;
+
+    if(!r || !n) return alert("Room & Name Required");
+
+    bookedRooms[r] = {
+        name: n,
+        in: document.getElementById('reg-in').value,
+        out: document.getElementById('reg-out').value
+    };
+
+    guestLogs.push({
+        name: n,
+        father: document.getElementById('reg-father').value,
+        in: document.getElementById('reg-in').value,
+        out: document.getElementById('reg-out').value,
+        from: document.getElementById('reg-from').value,
+        to: document.getElementById('reg-to').value,
+        stay: document.getElementById('reg-stay').value
+    });
+
+    saveAll();
+    renderRooms();
+    renderDataLogs();
+    showSection('room-status');
 }
 
-// STAFF
-function addStaff(){
-staffData.push({
-name:st-name.value,
-desig:st-desig.value,
-salary:st-salary.value
-});
-saveAll();
-renderStaff();
+// 💰 SALES SAVE
+function addSale() {
+    let d = document.getElementById('sale-date').value;
+    let r = parseFloat(document.getElementById('sale-room-amt').value) || 0;
+    let f = parseFloat(document.getElementById('sale-food-amt').value) || 0;
+
+    if(d) {
+        salesData.push({ d, r, f });
+        saveAll();
+        renderSales();
+    }
 }
 
-function renderStaff(){
-let h="";
-staffData.forEach((s,i)=>{
-h+=`${s.name} (${s.desig}) - ₹${s.salary} <button onclick="delStaff(${i})">X</button><br>`;
-});
-document.getElementById("staff-list").innerHTML=h;
+// 👨‍💼 STAFF SAVE
+function addStaff() {
+    staffData.push({
+        name: document.getElementById('st-name').value,
+        desig: document.getElementById('st-desig').value,
+        sal: document.getElementById('st-salary').value,
+        id: document.getElementById('st-id').value,
+        img: previewImgData
+    });
+    saveAll();
+    renderStaff();
 }
 
-function delStaff(i){
-staffData.splice(i,1);
-saveAll();
-renderStaff();
+// 📋 DATA LOG SAVE
+function saveDataLog() {
+    guestLogs.push({
+        name: document.getElementById('ds-name').value,
+        father: document.getElementById('ds-father').value,
+        in: document.getElementById('ds-in').value,
+        out: document.getElementById('ds-out').value,
+        from: document.getElementById('ds-from').value,
+        to: document.getElementById('ds-to').value,
+        stay: document.getElementById('ds-stay').value
+    });
+    saveAll();
+    renderDataLogs();
 }
 
-// SALES
-function addSale(){
-salesData.push({
-date:sale-date.value,
-room:sale-room.value,
-food:sale-food.value
-});
-saveAll();
-renderSales();
+// 💳 ACCOUNTS SAVE
+function addAccount(type) {
+    let source = type === 'income' ? document.getElementById('inc-source').value : document.getElementById('exp-source').value;
+    let amt = type === 'income' ? document.getElementById('inc-amt').value : document.getElementById('exp-amt').value;
+    let mode = type === 'income' ? document.getElementById('inc-mode').value : "Cash";
+
+    if(source && amt) {
+        accountData.push({ type, source, mode, amt });
+        saveAll();
+        renderAccounts();
+    }
 }
 
-function renderSales(){
-let h="";
-salesData.forEach(s=>{
-h+=`${s.date} - Room: ${s.room} | Food: ${s.food}<br>`;
-});
-document.getElementById("sales-list").innerHTML=h;
+// 📅 ATTENDANCE SAVE
+function toggleDay(i, id) {
+    let st = ['work', 'holiday', 'absent'];
+    attendance[i] = st[(st.indexOf(attendance[i]) + 1) % 3];
+    saveAll();
+    renderCalendar(id);
+}
+
+// ❌ DELETE FIX (EXAMPLE — APPLY EVERYWHERE)
+function deleteSale(i){
+    salesData.splice(i,1);
+    saveAll();
+    renderSales();
+}
+
+function deleteStaff(i){
+    staffData.splice(i,1);
+    saveAll();
+    renderStaff();
+}
+
+function deleteLog(i){
+    guestLogs.splice(i,1);
+    saveAll();
+    renderDataLogs();
+}
+
+function deleteAccount(i){
+    accountData.splice(i,1);
+    saveAll();
+    renderAccounts();
 }
 
 </script>
-
-</body>
-</html>
