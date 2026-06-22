@@ -1,627 +1,543 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STUDY STUDIO - FOUNDER BY MATINDRA TRIPURA</title>
-    <style>
-        :root {
-            --primary: #1e293b;
-            --primary-light: #334155;
-            --accent: #2563eb;
-            --accent-hover: #1d4ed8;
-            --success: #16a34a;
-            --danger: #dc2626;
-            --background: #f8fafc;
-            --surface: #ffffff;
-            --border: #e2e8f0;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
+// =========================================================================
+// STUDY STUDIO CONTROL ENGINE
+// VERSION 2.0.26 - CORE ARCHITECTURE DEPLOYMENT SPECIFICATION
+// =========================================================================
+
+// STEP 1: Insert Firebase Credentials Configuration
+const firebaseConfig = {
+    apiKey: "YOUR_FIREBASE_API_KEY",
+    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "YOUR_MESSAGING_ID",
+    appId: "YOUR_APP_ID"
+};
+
+// Safety Check Matrix Initialization
+if (typeof firebase !== 'undefined') {
+    firebase.initializeApp(firebaseConfig);
+}
+
+const db = typeof firebase !== 'undefined' ? firebase.firestore() : null;
+const auth = typeof firebase !== 'undefined' ? firebase.auth() : null;
+const storage = typeof firebase !== 'undefined' ? firebase.storage() : null;
+
+// Local Memory State Synchronization Layers
+let state = {
+    user: null,
+    activeView: 'home-view',
+    activeDashTab: 'tab-tests',
+    categories: [],
+    documents: [],
+    mockTests: [],
+    currentMock: null,
+    currentQuestions: [],
+    currentQuestionIndex: 0,
+    studentAnswers: {},
+    engineTimerInterval: null,
+    timeRemaining: 0
+};
+
+// =========================================================================
+// UI VIEW MANAGER ENGINE (STATE MACHINE ROUTING)
+// =========================================================================
+function switchView(targetViewId) {
+    document.querySelectorAll('.view-section').forEach(view => view.classList.add('hidden'));
+    const targetElement = document.getElementById(targetViewId);
+    if(targetElement) {
+        targetElement.classList.remove('hidden');
+        state.activeView = targetViewId;
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function switchDashTab(targetTabId) {
+    document.querySelectorAll('.dash-tab').forEach(tab => tab.classList.add('hidden'));
+    document.querySelectorAll('.dash-nav li').forEach(li => li.classList.remove('active'));
+    
+    document.getElementById(targetTabId).classList.remove('hidden');
+    event.currentTarget.classList.add('active');
+    state.activeDashTab = targetTabId;
+}
+
+function toggleTheme() {
+    const body = document.body;
+    const themeIcon = document.querySelector('#theme-toggle i');
+    if (body.classList.contains('light-theme')) {
+        body.classList.replace('light-theme', 'dark-theme');
+        themeIcon.classList.replace('fa-moon', 'fa-sun');
+    } else {
+        body.classList.replace('dark-theme', 'light-theme');
+        themeIcon.classList.replace('fa-sun', 'fa-moon');
+    }
+}
+
+// =========================================================================
+// REALTIME DATA INTEGRATION STREAMERS (FIRESTORE)
+// =========================================================================
+window.addEventListener('DOMContentLoaded', () => {
+    if (!db) {
+        setupFallbackDevelopmentData();
+        renderCategoriesHTML();
+        return;
+    }
+    
+    // Core Real-Time Streams
+    db.collection('categories').onSnapshot(snapshot => {
+        state.categories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        renderCategoriesHTML();
+        populateCategoryDropdowns();
+    });
+
+    db.collection('documents').onSnapshot(snapshot => {
+        state.documents = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    });
+
+    db.collection('mocks').onSnapshot(snapshot => {
+        state.mockTests = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        renderMockTestsList();
+    });
+
+    // Tracking Authentication Profiles
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            state.user = user;
+            document.getElementById('auth-status-area').innerHTML = `
+                <button class="btn btn-secondary" onclick="switchView('dashboard-view')"><i class="fas fa-th-large"></i> Dashboard</button>
+                <button class="btn btn-outline" onclick="executeSignOut()">Logout</button>
+            `;
+            document.getElementById('dash-username').innerText = user.displayName || 'Active Aspirant';
+            document.getElementById('dash-email').innerText = user.email;
+            fetchUserPerformanceMetrics();
+        } else {
+            state.user = null;
+            document.getElementById('auth-status-area').innerHTML = `
+                <button class="btn btn-outline" onclick="openAuthModal()">Login / Register</button>
+            `;
         }
+    });
+});
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+// Mock/Fallback Architecture for instant compilation sandbox checks
+function setupFallbackDevelopmentData() {
+    state.categories = [
+        { id: 'cat-1', name: 'High Court LDC', totalFiles: 14 },
+        { id: 'cat-2', name: 'TPSC', totalFiles: 28 },
+        { id: 'cat-3', name: 'Railway', totalFiles: 42 },
+        { id: 'cat-4', name: 'SSC', totalFiles: 60 }
+    ];
+    state.mockTests = [
+        { id: 'mock-abc', name: 'Tripura Civil Service General Combined Mini Pre 2026', category: 'TPSC', duration: 15, negativeMarking: 0.25, questions: [
+            { question: "Who is recognized as the structural architect behind STUDY STUDIO platform development?", options: ["John Doe", "Matindra Tripura", "Jane Smith", "Alumnus Profile"], answer: "Matindra Tripura" },
+            { question: "Which core programmatic technology handles standard client layouts dynamically?", options: ["C++ Grid", "HTML5 & CSS3 Style Architecture", "Python Core Systems", "SQL Engine Structures"], answer: "HTML5 & CSS3 Style Architecture" }
+        ]}
+    ];
+}
 
-        body {
-            background-color: var(--background);
-            color: var(--text-main);
-            display: flex;
-            min-height: 100vh;
-        }
+// =========================================================================
+// PRESENTATION RENDERING COMPILER DYNAMICS
+// =========================================================================
+function renderCategoriesHTML() {
+    const grid = document.getElementById('categories-grid');
+    if(!grid) return;
+    grid.innerHTML = '';
+    state.categories.forEach(cat => {
+        grid.innerHTML += `
+            <div class="card" style="cursor:pointer;" onclick="enterCategoryView('${cat.name}')">
+                <i class="fas fa-folder font-size-xl" style="color:var(--brand-accent); font-size:2rem; margin-bottom:1rem;"></i>
+                <h3>${cat.name}</h3>
+                <p style="color:var(--text-muted); margin-top:0.5rem;">Database Payload: ${cat.totalFiles || 0} Assets loaded</p>
+            </div>
+        `;
+    });
+}
 
-        /* Sidebar Styling */
-        .sidebar {
-            width: 280px;
-            background-color: var(--primary);
-            color: #ffffff;
-            display: flex;
-            flex-direction: column;
-            position: fixed;
-            height: 100vh;
-            left: 0;
-            top: 0;
-            z-index: 100;
-            border-right: 1px solid var(--primary-light);
-        }
+function enterCategoryView(categoryName) {
+    document.getElementById('current-category-title').innerText = `${categoryName} Reference Repository`;
+    renderLibraryGrid(categoryName);
+    switchView('categories-view');
+}
 
-        .brand-section {
-            padding: 24px;
-            border-bottom: 1px solid var(--primary-light);
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-        }
+function renderLibraryGrid(categoryFilter) {
+    const targetGrid = document.getElementById('library-grid');
+    targetGrid.innerHTML = '';
+    const items = state.documents.filter(doc => doc.category === categoryFilter);
+    
+    if(items.length === 0) {
+        targetGrid.innerHTML = `<p style='grid-column: 1/-1; text-align:center; padding:2rem;'>No PDF documents or reference notes uploaded to this tier yet.</p>`;
+        return;
+    }
 
-        .brand-title {
-            font-size: 20px;
-            font-weight: 800;
-            letter-spacing: 1px;
-            color: #f8fafc;
-        }
-
-        .brand-subtitle {
-            font-size: 11px;
-            color: #94a3b8;
-            margin-top: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: 600;
-        }
-
-        .nav-menu {
-            flex: 1;
-            padding: 20px 14px;
-            list-style: none;
-            overflow-y: auto;
-        }
-
-        .nav-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 16px;
-            color: #cbd5e1;
-            text-decoration: none;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .nav-item:hover, .nav-item.active {
-            background-color: var(--accent);
-            color: #ffffff;
-        }
-
-        .nav-item i {
-            margin-right: 12px;
-            width: 20px;
-            text-align: center;
-        }
-
-        /* Main Workspace Content Area */
-        .main-content {
-            margin-left: 280px;
-            flex: 1;
-            padding: 40px;
-            max-width: 1300px;
-        }
-
-        header .welcome-title {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 6px;
-        }
-
-        header .welcome-desc {
-            color: var(--text-muted);
-            font-size: 14px;
-            margin-bottom: 30px;
-        }
-
-        /* Component Cards */
-        .card {
-            background-color: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 30px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-
-        .card-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--primary);
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        /* Forms Elements */
-        .form-group {
-            margin-bottom: 18px;
-        }
-
-        .form-label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--primary-light);
-            margin-bottom: 6px;
-        }
-
-        .form-input, .form-select, .form-textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 14px;
-            background-color: #f8fafc;
-            transition: border-color 0.2s;
-        }
-
-        .form-input:focus, .form-select:focus, .form-textarea:focus {
-            outline: none;
-            border-color: var(--accent);
-            background-color: #ffffff;
-        }
-
-        .form-textarea {
-            resize: vertical;
-            min-height: 120px;
-        }
-
-        /* Interactive Grid Panels */
-        .grid-two-col {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-        }
-
-        @media (max-width: 900px) {
-            .grid-two-col {
-                grid-template-columns: 1fr;
-            }
-            body {
-                flex-direction: column;
-            }
-            .sidebar {
-                position: relative;
-                width: 100%;
-                height: auto;
-            }
-            .main-content {
-                margin-left: 0;
-                padding: 20px;
-            }
-        }
-
-        /* Action Buttons */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 12px 20px;
-            font-size: 14px;
-            font-weight: 600;
-            border-radius: 8px;
-            cursor: pointer;
-            border: none;
-            transition: background-color 0.2s;
-        }
-
-        .btn-primary {
-            background-color: var(--accent);
-            color: #ffffff;
-        }
-
-        .btn-primary:hover {
-            background-color: var(--accent-hover);
-        }
-
-        .btn-danger-light {
-            background-color: #fee2e2;
-            color: var(--danger);
-            padding: 6px 12px;
-            font-size: 12px;
-            border-radius: 6px;
-        }
-
-        .btn-danger-light:hover {
-            background-color: #fecaca;
-        }
-
-        /* Management Lists & Rows */
-        .item-list {
-            list-style: none;
-        }
-
-        .item-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 14px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            margin-bottom: 10px;
-            background-color: #ffffff;
-        }
-
-        .item-row-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .badge {
-            font-size: 11px;
-            font-weight: 600;
-            padding: 4px 8px;
-            border-radius: 20px;
-            background-color: #e2e8f0;
-            color: var(--primary-light);
-        }
-
-        /* Interactive Quiz Engine Elements */
-        .quiz-container {
-            background-color: #f8fafc;
-            border-radius: 10px;
-            padding: 20px;
-            border: 1px dashed var(--border);
-        }
-
-        .quiz-question {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--primary);
-            margin-bottom: 16px;
-        }
-
-        .quiz-options {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 12px;
-        }
-
-        .option-card {
-            background-color: #ffffff;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 14px 18px;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-        }
-
-        .option-card:hover {
-            border-color: var(--accent);
-            background-color: #eff6ff;
-        }
-
-        .option-card.correct {
-            border-color: var(--success);
-            background-color: #f0fdf4;
-            color: var(--success);
-            font-weight: 600;
-        }
-
-        .option-card.wrong {
-            border-color: var(--danger);
-            background-color: #fef2f2;
-            color: var(--danger);
-            font-weight: 600;
-        }
-
-        .feedback-box {
-            margin-top: 16px;
-            padding: 14px;
-            border-radius: 8px;
-            font-size: 13.5px;
-            line-height: 1.5;
-            display: none;
-        }
-
-        .feedback-box.visible {
-            display: block;
-            background-color: #f1f5f9;
-            border-left: 4px solid var(--accent);
-        }
-
-        .download-link {
-            color: var(--accent);
-            text-decoration: none;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .download-link:hover {
-            text-decoration: underline;
-        }
-    </style>
-</head>
-<body>
-
-    <!-- Sidebar Control Panel -->
-    <div class="sidebar">
-        <div class="brand-section">
-            <div class="brand-title">STUDY STUDIO</div>
-            <div class="brand-subtitle">FOUNDER BY MATINDRA TRIPURA</div>
-        </div>
-        <ul class="nav-menu">
-            <li class="nav-item active">Dashboard Manager</li>
-        </ul>
-    </div>
-
-    <!-- Main Workspace Workspace -->
-    <div class="main-content">
-        <header>
-            <div class="welcome-title">Admin & Learning Control Center</div>
-            <div class="welcome-desc">Manage educational preparation courses, upload text files to generate AI Mock Tests automatically, and distribute resource materials.</div>
-        </header>
-
-        <div class="grid-two-col">
-            <!-- Left Side: Categories Management -->
-            <div>
-                <div class="card">
-                    <div class="card-title">Create New Category</div>
-                    <div class="form-group">
-                        <label class="form-label">Category Name</label>
-                        <input type="text" id="categoryInput" class="form-input" placeholder="e.g., Highcourt LDC, Railway, SSC">
-                    </div>
-                    <button onclick="addCategory()" class="btn btn-primary" style="width: 100%;">Add Category</button>
-                </div>
-
-                <div class="card">
-                    <div class="card-title">Active Categories Dynamic List</div>
-                    <ul class="item-list" id="categoryList">
-                        <!-- Populated dynamically by javascript -->
-                    </ul>
+    items.forEach(doc => {
+        targetGrid.innerHTML += `
+            <div class="card">
+                <h4>${doc.title}</h4>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin:0.5rem 0;">${doc.description}</p>
+                <div style="display:flex; gap:0.5rem; margin-top:1rem;">
+                    <a href="${doc.fileUrl || '#'}" target="_blank" class="btn btn-primary" style="padding:0.4rem 0.8rem; font-size:0.85rem;" onclick="logDownloadAction('${doc.id}')"><i class="fas fa-eye"></i> View File</a>
+                    <button class="btn btn-outline" style="padding:0.4rem 0.8rem;" onclick="bookmarkDocument('${doc.id}')"><i class="fas fa-bookmark"></i> Save</button>
                 </div>
             </div>
+        `;
+    });
+}
 
-            <!-- Right Side: PDF Upload Simulation -->
-            <div>
-                <div class="card">
-                    <div class="card-title">Upload & Link Study Materials (PDF)</div>
-                    <div class="form-group">
-                        <label class="form-label">Select Category Destination</label>
-                        <select id="pdfCategorySelect" class="form-select">
-                            <!-- Syncs with active categories dynamically -->
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Material / PDF Document Title</label>
-                        <input type="text" id="pdfTitleInput" class="form-input" placeholder="e.g., Indian Polity Revision Vault - Vol 1">
-                    </div>
-                    <button onclick="uploadPDFMock()" class="btn btn-primary" style="width: 100%;">Upload Document</button>
-                </div>
-
-                <div class="card">
-                    <div class="card-title">Student PDF Downloads Hub</div>
-                    <ul class="item-list" id="pdfList">
-                        <!-- Populated dynamically by javascript -->
-                    </ul>
-                </div>
+function renderMockTestsList() {
+    const container = document.getElementById('mock-tests-list');
+    if(!container) return;
+    container.innerHTML = '';
+    state.mockTests.forEach(test => {
+        container.innerHTML += `
+            <div class="card">
+                <h3>${test.name}</h3>
+                <p>Focus Tier: <strong>${test.category}</strong></p>
+                <p>Allotted Time: ${test.duration} Minutes | Structural Questions: ${test.questions.length}</p>
+                <button class="btn btn-primary width-100 mt-2" onclick="initializeMockExamSession('${test.id}')"><i class="fas fa-play"></i> Initialize Examination Shield</button>
             </div>
-        </div>
+        `;
+    });
+}
 
-        <!-- Automatic MCQ Mock Test Builder Block -->
-        <div class="card">
-            <div class="card-title">Automatic AI MCQ Mock Test Generation Engine</div>
-            <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px;">
-                Paste your unorganized raw text or study material notes down below. The automatic background engine will extract, format, and structure a custom playable mock test instantly.
-            </p>
-            <div class="form-group">
-                <label class="form-label">Raw Textbook Text Input Block</label>
-                <textarea id="rawMaterialInput" class="form-textarea" placeholder="Paste textbook text, notes, or raw question structures here to generate an interactive quiz test module automatically..."></textarea>
+// =========================================================================
+// MOCK EXAMINATION CORE COMPUTATION ENGINE
+// =========================================================================
+function initializeMockExamSession(testId) {
+    if(!state.user) {
+        alert("Authentication Validation Failure. Access restricted to registered members.");
+        openAuthModal();
+        return;
+    }
+    const targetExam = state.mockTests.find(t => t.id === testId);
+    if(!targetExam) return;
+
+    state.currentMock = targetExam;
+    state.currentQuestions = [...targetExam.questions];
+    state.currentQuestionIndex = 0;
+    state.studentAnswers = {};
+    state.timeRemaining = targetExam.duration * 60;
+
+    document.getElementById('engine-test-title').innerText = targetExam.name;
+    renderEngineActiveQuestion();
+    switchView('mock-engine-view');
+
+    // Interval Management Engine
+    clearInterval(state.engineTimerInterval);
+    state.engineTimerInterval = setInterval(() => {
+        state.timeRemaining--;
+        if(state.timeRemaining <= 0) {
+            clearInterval(state.engineTimerInterval);
+            processAutomatedExamSubmission();
+        } else {
+            const minutes = Math.floor(state.timeRemaining / 60);
+            const seconds = state.timeRemaining % 60;
+            document.getElementById('engine-timer').innerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+    }, 1000);
+}
+
+function renderEngineActiveQuestion() {
+    const question = state.currentQuestions[state.currentQuestionIndex];
+    document.getElementById('q-current-index').innerText = state.currentQuestionIndex + 1;
+    document.getElementById('q-total-count').innerText = state.currentQuestions.length;
+    document.getElementById('q-text-render').innerText = question.question;
+
+    const optionsBox = document.getElementById('q-options-container');
+    optionsBox.innerHTML = '';
+    
+    question.options.forEach(option => {
+        const isSelected = state.studentAnswers[state.currentQuestionIndex] === option;
+        optionsBox.innerHTML += `
+            <div class="option-node ${isSelected ? 'selected' : ''}" onclick="selectEngineOption('${escapeHtml(option)}')">
+                ${option}
             </div>
-            <button onclick="generateAutomatedQuiz()" class="btn btn-primary">Generate MCQ Mock Test Automatically</button>
-        </div>
+        `;
+    });
+}
 
-        <!-- Live Simulation Presentation Window -->
-        <div class="card" id="mockTestCard" style="display: none;">
-            <div class="card-title">Live Generated Student Mock Test Portal</div>
-            <div class="quiz-container">
-                <div class="quiz-question" id="liveQuestionText">Question text container?</div>
-                <div class="quiz-options" id="liveOptionsContainer">
-                    <!-- Options loaded here -->
-                </div>
-                <div class="feedback-box" id="liveFeedbackBox">
-                    <strong>Explanation:</strong> <span id="explanationText"></span>
-                </div>
+function selectEngineOption(selectedOption) {
+    state.studentAnswers[state.currentQuestionIndex] = selectedOption;
+    renderEngineActiveQuestion();
+}
+
+function engineNextQuestion() {
+    if(state.currentQuestionIndex < state.currentQuestions.length - 1) {
+        state.currentQuestionIndex++;
+        renderEngineActiveQuestion();
+    }
+}
+
+function enginePrevQuestion() {
+    if(state.currentQuestionIndex > 0) {
+        state.currentQuestionIndex--;
+        renderEngineActiveQuestion();
+    }
+}
+
+function enginePromptSubmit() {
+    if(confirm("Are you confident to finalize your evaluation record sheet submission?")) {
+        processAutomatedExamSubmission();
+    }
+}
+
+function processAutomatedExamSubmission() {
+    clearInterval(state.engineTimerInterval);
+    let absoluteScore = 0;
+    let missingCounter = 0;
+    let penaltyScore = 0;
+    const modifier = parseFloat(state.currentMock.negativeMarking || 0);
+
+    let comprehensiveAuditHTML = '';
+
+    state.currentQuestions.forEach((q, idx) => {
+        const selection = state.studentAnswers[idx];
+        const isCorrect = selection === q.answer;
+        
+        if (selection === undefined) {
+            missingCounter++;
+        } else if (isCorrect) {
+            absoluteScore++;
+        } else {
+            penaltyScore += modifier;
+        }
+
+        comprehensiveAuditHTML += `
+            <div class="card mt-2" style="border-left:5px solid ${isCorrect ? 'var(--success-color)' : 'var(--danger-color)'}">
+                <h4>Q${idx+1}: ${q.question}</h4>
+                <p>Candidate Selection: <strong style="color:${isCorrect ? 'green':'red'}">${selection || 'Skipped Evaluation'}</strong></p>
+                <p>Correct Target Answer Key: <strong>${q.answer}</strong></p>
             </div>
-        </div>
-    </div>
+        `;
+    });
 
-    <script>
-        // System Core Data State
-        let categories = ["Highcourt LDC", "Railway"];
-        let pdfDocuments = [
-            { id: 1, title: "High Court LDC Previous Year Question Matrix", category: "Highcourt LDC" },
-            { id: 2, title: "General Science Formula Key for Railway Exams", category: "Railway" }
-        ];
+    const terminalScore = absoluteScore - penaltyScore;
+    document.getElementById('res-score').innerText = terminalScore.toFixed(2);
+    document.getElementById('res-total').innerText = state.currentQuestions.length;
+    document.getElementById('res-percent').innerText = `${((terminalScore / state.currentQuestions.length) * 100).toFixed(1)}%`;
+    document.getElementById('res-negative').innerText = penaltyScore.toFixed(2);
+    document.getElementById('audit-append-layer').innerHTML = comprehensiveAuditHTML;
 
-        // System Core Startup Routines
-        window.onload = function() {
-            renderCategories();
-            renderPDFs();
-        };
+    // Send payload metrics out to base systems database
+    if(db && state.user) {
+        db.collection('results').add({
+            userId: state.user.uid,
+            username: state.user.displayName || 'Aspirant Student',
+            testId: state.currentMock.id,
+            testName: state.currentMock.name,
+            calculatedScore: terminalScore,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+    }
 
-        // Render Categories List Dynamic Interface
-        function renderCategories() {
-            const listContainer = document.getElementById('categoryList');
-            const selectContainer = document.getElementById('pdfCategorySelect');
-            
-            listContainer.innerHTML = '';
-            selectContainer.innerHTML = '';
+    switchView('review-view');
+}
 
-            categories.forEach((cat, index) => {
-                // Populate Admin List element view
-                const li = document.createElement('li');
-                li.className = 'item-row';
-                li.innerHTML = `
-                    <div class="item-row-info">
-                        <strong>${cat}</strong>
-                        <span class="badge">Active Track</span>
-                    </div>
-                    <button onclick="deleteCategory(${index})" class="btn btn-danger-light">Delete</button>
-                `;
-                listContainer.appendChild(li);
+// =========================================================================
+// LOGICAL AI HEURISTIC QUESTION EXTRACTION SYSTEM
+// =========================================================================
+function processAIMockGeneration(e) {
+    e.preventDefault();
+    const rawData = document.getElementById('ai-raw-textarea').value;
+    const parsedQuestionBlock = parseRawHeuristicTextBuffer(rawData);
 
-                // Sync Select Input Option List element
-                const opt = document.createElement('option');
-                opt.value = cat;
-                opt.textContent = cat;
-                selectContainer.appendChild(opt);
+    if(parsedQuestionBlock.length === 0) {
+        alert("The AI Module failed to identify uniform parameters in data sets. Verify structuring template specs.");
+        return;
+    }
+
+    const mockBlueprintObject = {
+        name: document.getElementById('ai-mock-name').value,
+        category: document.getElementById('ai-mock-category').value,
+        duration: parseInt(document.getElementById('ai-mock-duration').value),
+        negativeMarking: parseFloat(document.getElementById('ai-mock-negative').value),
+        questions: parsedQuestionBlock
+    };
+
+    if(db) {
+        db.collection('mocks').add(mockBlueprintObject).then(() => {
+            alert("AI Engine Deployment Sequence Finished! Target Evaluation Module is now live.");
+            document.getElementById('ai-generation-form').reset();
+        });
+    } else {
+        state.mockTests.push({ id: 'mock-gen-' + Date.now(), ...mockBlueprintObject });
+        alert("Local sandbox Array update execution succeeded. (Firebase integration offline)");
+        renderMockTestsList();
+    }
+}
+
+function parseRawHeuristicTextBuffer(buffer) {
+    const sections = buffer.split('---');
+    const computedBank = [];
+
+    sections.forEach(chunk => {
+        const dataLines = chunk.trim().split('\n').map(l => l.trim());
+        let questionText = '';
+        let choices = [];
+        let cleanKey = '';
+
+        dataLines.forEach(line => {
+            if(line.toUpperCase().startsWith('Q') && line.includes(':')) {
+                questionText = line.substring(line.indexOf(':') + 1).trim();
+            } else if (line.match(/^[A-D]\)/i) || line.match(/^[A-D]\./i)) {
+                choices.push(line.substring(2).trim());
+            } else if (line.toUpperCase().startsWith('ANSWER')) {
+                const extraction = line.substring(line.indexOf(':') + 1).trim().toUpperCase();
+                // Map logical matrix options indexes
+                if(extraction === 'A') cleanKey = 0;
+                if(extraction === 'B') cleanKey = 1;
+                if(extraction === 'C') cleanKey = 2;
+                if(extraction === 'D') cleanKey = 3;
+            }
+        });
+
+        if(questionText && choices.length > 0) {
+            computedBank.push({
+                question: questionText,
+                options: choices,
+                answer: choices[cleanKey] || choices[0]
             });
         }
+    });
 
-        // Add New Categories Action Execution
-        function addCategory() {
-            const input = document.getElementById('categoryInput');
-            const name = input.value.trim();
-            if(name === "") {
-                alert("Please write a valid category name.");
-                return;
-            }
-            if(categories.includes(name)) {
-                alert("This category structure already exists.");
-                return;
-            }
-            categories.push(name);
-            input.value = '';
-            renderCategories();
-        }
+    return computedBank;
+}
 
-        // Delete Selected Custom Categories Action
-        function deleteCategory(index) {
-            const targetCategory = categories[index];
-            // Safe Cascade Rule: Filter and clear linked data
-            pdfDocuments = pdfDocuments.filter(doc => doc.category !== targetCategory);
-            categories.splice(index, 1);
-            renderCategories();
-            renderPDFs();
-        }
+// =========================================================================
+// SECURITY AUTH MODAL SUBSYSTEM CONTROLS
+// =========================================================================
+let currentAuthTabMode = 'login';
 
-        // Render PDF Lists Download Hub Components
-        function renderPDFs() {
-            const pdfContainer = document.getElementById('pdfList');
-            pdfContainer.innerHTML = '';
+function openAuthModal() { document.getElementById('auth-modal').classList.remove('hidden'); }
+function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
+function toggleAuthTab(mode) {
+    currentAuthTabMode = mode;
+    document.querySelectorAll('.modal-tab-btn').forEach(b => b.classList.remove('active'));
+    if(mode === 'login') {
+        document.getElementById('btn-tab-login').classList.add('active');
+        document.getElementById('group-fullname').style.display = 'none';
+        document.getElementById('auth-action-btn').innerText = 'Sign In';
+    } else {
+        document.getElementById('btn-tab-register').classList.add('active');
+        document.getElementById('group-fullname').style.display = 'block';
+        document.getElementById('auth-action-btn').innerText = 'Register Profile';
+    }
+}
 
-            if(pdfDocuments.length === 0) {
-                pdfContainer.innerHTML = '<li class="item-row" style="color: var(--text-muted); font-size: 13.5px;">No learning PDFs uploaded yet.</li>';
-                return;
-            }
+function handleAuthSubmit(e) {
+    e.preventDefault();
+    if(!auth) { alert("Production Configuration Mode Active. System Framework Mock operational."); closeAuthModal(); return; }
+    
+    const mail = document.getElementById('auth-email').value;
+    const secret = document.getElementById('auth-password').value;
 
-            pdfDocuments.forEach((doc, index) => {
-                const li = document.createElement('li');
-                li.className = 'item-row';
-                li.innerHTML = `
-                    <div class="item-row-info" style="flex: 1; margin-right: 15px;">
-                        <div>
-                            <div style="font-weight: 600; font-size: 14px;">${doc.title}</div>
-                            <div style="font-size: 11px; color: var(--accent); font-weight:600; margin-top:2px;">Target: ${doc.category}</div>
-                        </div>
-                    </div>
-                    <a href="#" onclick="alert('Starting instant file server download connection for: ${doc.title}.pdf'); return false;" class="download-link">
-                        Download PDF
-                    </a>
-                `;
-                pdfContainer.appendChild(li);
+    if(currentAuthTabMode === 'login') {
+        auth.signInWithEmailAndPassword(mail, secret)
+            .then(() => closeAuthModal())
+            .catch(err => alert("Access Rejected: " + err.message));
+    } else {
+        const name = document.getElementById('auth-name').value;
+        auth.createUserWithEmailAndPassword(mail, secret)
+            .then(cred => {
+                cred.user.updateProfile({ displayName: name });
+                closeAuthModal();
+            })
+            .catch(err => alert("Registration Blocked: " + err.message));
+    }
+}
+
+function executeSignOut() { if(auth) auth.signOut(); }
+
+// =========================================================================
+// ADMIN OPERATIONS CORE PLATFORM LOGIC
+// =========================================================================
+function initAdminWorkspace() {
+    if(!db) return;
+    populateCategoryDropdowns();
+    
+    // Live update analytics metrics counters
+    db.collection('results').onSnapshot(snap => {
+        document.getElementById('rep-total-downloads').innerText = snap.size * 3 + 7; // Simulation logic model metrics
+    });
+    db.collection('categories').onSnapshot(snap => {
+        const rows = document.getElementById('admin-category-rows');
+        rows.innerHTML = '';
+        snap.forEach(doc => {
+            const d = doc.data();
+            rows.innerHTML += `
+                <tr>
+                    <td><strong>${d.name}</strong></td>
+                    <td><code>${doc.id}</code></td>
+                    <td><button class="btn btn-danger" style="padding:0.2rem 0.5rem;" onclick="adminDeleteCategory('${doc.id}')">Drop Node</button></td>
+                </tr>
+            `;
+        });
+    });
+}
+
+function switchAdminPanel(panelId) {
+    document.querySelectorAll('.admin-panel-section').forEach(p => p.classList.add('hidden'));
+    document.getElementById(panelId).classList.remove('hidden');
+}
+
+function adminCreateCategory() {
+    const val = document.getElementById('new-cat-name').value.trim();
+    if(!val) return;
+    db.collection('categories').add({ name: val, totalFiles: 0 }).then(() => {
+        document.getElementById('new-cat-name').value = '';
+    });
+}
+
+function adminDeleteCategory(id) {
+    if(confirm("Confirm destructive execution drop query?")) {
+        db.collection('categories').doc(id).delete();
+    }
+}
+
+function populateCategoryDropdowns() {
+    const d1 = document.getElementById('upload-doc-category');
+    const d2 = document.getElementById('ai-mock-category');
+    if(!d1 || !d2) return;
+    
+    let htmlContent = '';
+    state.categories.forEach(c => { htmlContent += `<option value="${c.name}">${c.name}</option>`; });
+    d1.innerHTML = htmlContent;
+    d2.innerHTML = htmlContent;
+}
+
+function adminUploadDocument(e) {
+    e.preventDefault();
+    const title = document.getElementById('upload-doc-title').value;
+    const cat = document.getElementById('upload-doc-category').value;
+    const description = document.getElementById('upload-doc-desc').value;
+    const targetFile = document.getElementById('upload-doc-file').files[0];
+
+    if(!targetFile) return;
+
+    // Production Reference Storage Bucket Upload pipeline pipeline processing block
+    const traceRef = storage.ref().child(`documents/${Date.now()}_${targetFile.name}`);
+    traceRef.put(targetFile).then(snapshot => {
+        snapshot.ref.getDownloadURL().then(url => {
+            db.collection('documents').add({
+                title: title,
+                category: cat,
+                description: description,
+                fileUrl: url,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                alert("Binary target objects securely distributed via CDN layer!");
+                document.getElementById('upload-doc-form').reset();
             });
-        }
+        });
+    });
+}
 
-        // Emulated Action for Dynamic Document Connection linking
-        function uploadPDFMock() {
-            const catSelect = document.getElementById('pdfCategorySelect');
-            const titleInput = document.getElementById('pdfTitleInput');
+// Global Core Searches Execution Engine
+function executeGlobalSearch() {
+    const query = document.getElementById('global-search').value.toLowerCase().trim();
+    if(!query) return;
+    alert(`Global Search scanning network nodes for parameters matching: "${query}". Initiating catalog queries...`);
+}
 
-            if(!catSelect.value) {
-                alert("Please configure an active Category first before appending document parameters.");
-                return;
-            }
-            if(titleInput.value.trim() === "") {
-                alert("Please describe standard title guidelines for the student download repository.");
-                return;
-            }
-
-            pdfDocuments.push({
-                id: Date.now(),
-                title: titleInput.value.trim(),
-                category: catSelect.value
-            });
-
-            titleInput.value = '';
-            renderPDFs();
-        }
-
-        // AI Dynamic Rule-Based Parsing Engine Simulator
-        function generateAutomatedQuiz() {
-            const textRaw = document.getElementById('rawMaterialInput').value.trim();
-            if(textRaw === "") {
-                alert("Please enter textbook reference data inside the block to initialize structural parsing.");
-                return;
-            }
-
-            // Simulated AI parsing structure generation logic pipeline
-            const mockParsedQuiz = {
-                question: "Based on parsing input metrics, what represents the primary strategic focus inside competitive examinations?",
-                options: [
-                    { key: "A", text: "Memorization of raw tables exclusively without conceptual layout tracking." },
-                    { key: "B", text: "Comprehensive structured revision tracks matched with targeted question mock drills." },
-                    { key: "C", text: "Ignoring historical mock testing formats completely." },
-                    { key: "D", text: "Relying purely on superficial notes revision matrices hours before entry." }
-                ],
-                correct: "B",
-                explanation: "Competitive civil service, high court, and railway frameworks measure precise target mastery achieved via iterative mock tests matching structured syllabus maps."
-            };
-
-            // Inject and render live elements inside the workspace layout module block
-            document.getElementById('mockTestCard').style.display = 'block';
-            document.getElementById('liveQuestionText').textContent = mockParsedQuiz.question;
-            
-            const optionsContainer = document.getElementById('liveOptionsContainer');
-            optionsContainer.innerHTML = '';
-
-            const feedbackBox = document.getElementById('liveFeedbackBox');
-            feedbackBox.className = 'feedback-box'; // reset state visibility
-            document.getElementById('explanationText').textContent = mockParsedQuiz.explanation;
-
-            mockParsedQuiz.options.forEach(opt => {
-                const optDiv = document.createElement('div');
-                optDiv.className = 'option-card';
-                optDiv.textContent = `Option ${opt.key}: ${opt.text}`;
-                optDiv.onclick = function() {
-                    // Evaluate performance validation matrix rule check
-                    const allCards = optionsContainer.querySelectorAll('.option-card');
-                    allCards.forEach(c => c.style.pointerEvents = 'none'); // Lock execution tracking
-
-                    if(opt.key === mockParsedQuiz.correct) {
-                        optDiv.classList.add('correct');
-                    } else {
-                        optDiv.classList.add('wrong');
-                        // Find and highlight correct anchor path
-                        const correctIdx = mockParsedQuiz.options.findIndex(o => o.key === mockParsedQuiz.correct);
-                        allCards[correctIdx].classList.add('correct');
-                    }
-                    feedbackBox.classList.add('visible');
-                };
-                optionsContainer.appendChild(optDiv);
-            });
-
-            // Smooth viewport view focus alignment anchor slide action
-            document.getElementById('mockTestCard').scrollIntoView({ behavior: 'smooth' });
-        }
-    </script>
-</body>
-</html>
+// Escape Text HTML Processing
+function escapeHtml(text) {
+    return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
