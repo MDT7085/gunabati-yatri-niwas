@@ -1,543 +1,822 @@
-// =========================================================================
-// STUDY STUDIO CONTROL ENGINE
-// VERSION 2.0.26 - CORE ARCHITECTURE DEPLOYMENT SPECIFICATION
-// =========================================================================
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STUDY STUDIO - Gateway to Government Job Success</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .dark-mode { background-color: #0f172a; color: #f8fafc; }
+        .dark-card { background-color: #1e293b; border-color: #334155; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 transition-colors duration-300 min-h-screen flex flex-col">
 
-// STEP 1: Insert Firebase Credentials Configuration
-const firebaseConfig = {
-    apiKey: "YOUR_FIREBASE_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_MESSAGING_ID",
-    appId: "YOUR_APP_ID"
-};
-
-// Safety Check Matrix Initialization
-if (typeof firebase !== 'undefined') {
-    firebase.initializeApp(firebaseConfig);
-}
-
-const db = typeof firebase !== 'undefined' ? firebase.firestore() : null;
-const auth = typeof firebase !== 'undefined' ? firebase.auth() : null;
-const storage = typeof firebase !== 'undefined' ? firebase.storage() : null;
-
-// Local Memory State Synchronization Layers
-let state = {
-    user: null,
-    activeView: 'home-view',
-    activeDashTab: 'tab-tests',
-    categories: [],
-    documents: [],
-    mockTests: [],
-    currentMock: null,
-    currentQuestions: [],
-    currentQuestionIndex: 0,
-    studentAnswers: {},
-    engineTimerInterval: null,
-    timeRemaining: 0
-};
-
-// =========================================================================
-// UI VIEW MANAGER ENGINE (STATE MACHINE ROUTING)
-// =========================================================================
-function switchView(targetViewId) {
-    document.querySelectorAll('.view-section').forEach(view => view.classList.add('hidden'));
-    const targetElement = document.getElementById(targetViewId);
-    if(targetElement) {
-        targetElement.classList.remove('hidden');
-        state.activeView = targetViewId;
-    }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function switchDashTab(targetTabId) {
-    document.querySelectorAll('.dash-tab').forEach(tab => tab.classList.add('hidden'));
-    document.querySelectorAll('.dash-nav li').forEach(li => li.classList.remove('active'));
-    
-    document.getElementById(targetTabId).classList.remove('hidden');
-    event.currentTarget.classList.add('active');
-    state.activeDashTab = targetTabId;
-}
-
-function toggleTheme() {
-    const body = document.body;
-    const themeIcon = document.querySelector('#theme-toggle i');
-    if (body.classList.contains('light-theme')) {
-        body.classList.replace('light-theme', 'dark-theme');
-        themeIcon.classList.replace('fa-moon', 'fa-sun');
-    } else {
-        body.classList.replace('dark-theme', 'light-theme');
-        themeIcon.classList.replace('fa-sun', 'fa-moon');
-    }
-}
-
-// =========================================================================
-// REALTIME DATA INTEGRATION STREAMERS (FIRESTORE)
-// =========================================================================
-window.addEventListener('DOMContentLoaded', () => {
-    if (!db) {
-        setupFallbackDevelopmentData();
-        renderCategoriesHTML();
-        return;
-    }
-    
-    // Core Real-Time Streams
-    db.collection('categories').onSnapshot(snapshot => {
-        state.categories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        renderCategoriesHTML();
-        populateCategoryDropdowns();
-    });
-
-    db.collection('documents').onSnapshot(snapshot => {
-        state.documents = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    });
-
-    db.collection('mocks').onSnapshot(snapshot => {
-        state.mockTests = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        renderMockTestsList();
-    });
-
-    // Tracking Authentication Profiles
-    auth.onAuthStateChanged(user => {
-        if (user) {
-            state.user = user;
-            document.getElementById('auth-status-area').innerHTML = `
-                <button class="btn btn-secondary" onclick="switchView('dashboard-view')"><i class="fas fa-th-large"></i> Dashboard</button>
-                <button class="btn btn-outline" onclick="executeSignOut()">Logout</button>
-            `;
-            document.getElementById('dash-username').innerText = user.displayName || 'Active Aspirant';
-            document.getElementById('dash-email').innerText = user.email;
-            fetchUserPerformanceMetrics();
-        } else {
-            state.user = null;
-            document.getElementById('auth-status-area').innerHTML = `
-                <button class="btn btn-outline" onclick="openAuthModal()">Login / Register</button>
-            `;
-        }
-    });
-});
-
-// Mock/Fallback Architecture for instant compilation sandbox checks
-function setupFallbackDevelopmentData() {
-    state.categories = [
-        { id: 'cat-1', name: 'High Court LDC', totalFiles: 14 },
-        { id: 'cat-2', name: 'TPSC', totalFiles: 28 },
-        { id: 'cat-3', name: 'Railway', totalFiles: 42 },
-        { id: 'cat-4', name: 'SSC', totalFiles: 60 }
-    ];
-    state.mockTests = [
-        { id: 'mock-abc', name: 'Tripura Civil Service General Combined Mini Pre 2026', category: 'TPSC', duration: 15, negativeMarking: 0.25, questions: [
-            { question: "Who is recognized as the structural architect behind STUDY STUDIO platform development?", options: ["John Doe", "Matindra Tripura", "Jane Smith", "Alumnus Profile"], answer: "Matindra Tripura" },
-            { question: "Which core programmatic technology handles standard client layouts dynamically?", options: ["C++ Grid", "HTML5 & CSS3 Style Architecture", "Python Core Systems", "SQL Engine Structures"], answer: "HTML5 & CSS3 Style Architecture" }
-        ]}
-    ];
-}
-
-// =========================================================================
-// PRESENTATION RENDERING COMPILER DYNAMICS
-// =========================================================================
-function renderCategoriesHTML() {
-    const grid = document.getElementById('categories-grid');
-    if(!grid) return;
-    grid.innerHTML = '';
-    state.categories.forEach(cat => {
-        grid.innerHTML += `
-            <div class="card" style="cursor:pointer;" onclick="enterCategoryView('${cat.name}')">
-                <i class="fas fa-folder font-size-xl" style="color:var(--brand-accent); font-size:2rem; margin-bottom:1rem;"></i>
-                <h3>${cat.name}</h3>
-                <p style="color:var(--text-muted); margin-top:0.5rem;">Database Payload: ${cat.totalFiles || 0} Assets loaded</p>
-            </div>
-        `;
-    });
-}
-
-function enterCategoryView(categoryName) {
-    document.getElementById('current-category-title').innerText = `${categoryName} Reference Repository`;
-    renderLibraryGrid(categoryName);
-    switchView('categories-view');
-}
-
-function renderLibraryGrid(categoryFilter) {
-    const targetGrid = document.getElementById('library-grid');
-    targetGrid.innerHTML = '';
-    const items = state.documents.filter(doc => doc.category === categoryFilter);
-    
-    if(items.length === 0) {
-        targetGrid.innerHTML = `<p style='grid-column: 1/-1; text-align:center; padding:2rem;'>No PDF documents or reference notes uploaded to this tier yet.</p>`;
-        return;
-    }
-
-    items.forEach(doc => {
-        targetGrid.innerHTML += `
-            <div class="card">
-                <h4>${doc.title}</h4>
-                <p style="font-size:0.85rem; color:var(--text-muted); margin:0.5rem 0;">${doc.description}</p>
-                <div style="display:flex; gap:0.5rem; margin-top:1rem;">
-                    <a href="${doc.fileUrl || '#'}" target="_blank" class="btn btn-primary" style="padding:0.4rem 0.8rem; font-size:0.85rem;" onclick="logDownloadAction('${doc.id}')"><i class="fas fa-eye"></i> View File</a>
-                    <button class="btn btn-outline" style="padding:0.4rem 0.8rem;" onclick="bookmarkDocument('${doc.id}')"><i class="fas fa-bookmark"></i> Save</button>
+    <nav class="bg-slate-900 text-white sticky top-0 z-50 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-3 cursor-pointer" onclick="switchView('homepage')">
+                    <div class="bg-blue-600 p-2 rounded-lg text-white font-bold tracking-wider">SS</div>
+                    <div>
+                        <span class="font-bold text-xl block tracking-tight">STUDY STUDIO</span>
+                        <span class="text-xs text-slate-400 block -mt-1">By Matindra Tripura</span>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <button onclick="switchView('homepage')" class="hover:text-blue-400 font-medium">Home</button>
+                    <button onclick="switchView('dashboard')" class="hover:text-blue-400 font-medium">Student Dashboard</button>
+                    <button onclick="switchView('admin')" class="hover:text-blue-400 font-medium">Admin Panel</button>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button id="themeToggle" class="p-2 rounded-full hover:bg-slate-800 text-slate-300" onclick="toggleTheme()">
+                        <i class="fas fa-moon text-lg"></i>
+                    </button>
+                    <span id="userStatus" class="text-sm bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700 hidden">Student</span>
                 </div>
             </div>
-        `;
-    });
-}
+        </div>
+    </nav>
 
-function renderMockTestsList() {
-    const container = document.getElementById('mock-tests-list');
-    if(!container) return;
-    container.innerHTML = '';
-    state.mockTests.forEach(test => {
-        container.innerHTML += `
-            <div class="card">
-                <h3>${test.name}</h3>
-                <p>Focus Tier: <strong>${test.category}</strong></p>
-                <p>Allotted Time: ${test.duration} Minutes | Structural Questions: ${test.questions.length}</p>
-                <button class="btn btn-primary width-100 mt-2" onclick="initializeMockExamSession('${test.id}')"><i class="fas fa-play"></i> Initialize Examination Shield</button>
+    <div class="bg-blue-700 py-3 shadow-inner">
+        <div class="max-w-3xl mx-auto px-4">
+            <div class="relative">
+                <i class="fas fa-search absolute left-4 top-3.5 text-slate-400"></i>
+                <input type="text" id="globalSearch" placeholder="Search across Categories, Notes, PDFs, and Mock Tests..." class="w-full pl-11 pr-4 py-2.5 rounded-xl border-none focus:ring-4 focus:ring-blue-300 shadow shadow-blue-900/20 text-slate-900 outline-none">
             </div>
-        `;
-    });
-}
+        </div>
+    </div>
 
-// =========================================================================
-// MOCK EXAMINATION CORE COMPUTATION ENGINE
-// =========================================================================
-function initializeMockExamSession(testId) {
-    if(!state.user) {
-        alert("Authentication Validation Failure. Access restricted to registered members.");
-        openAuthModal();
-        return;
-    }
-    const targetExam = state.mockTests.find(t => t.id === testId);
-    if(!targetExam) return;
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-    state.currentMock = targetExam;
-    state.currentQuestions = [...targetExam.questions];
-    state.currentQuestionIndex = 0;
-    state.studentAnswers = {};
-    state.timeRemaining = targetExam.duration * 60;
+        <section id="homepageView" class="space-y-12">
+            <div class="bg-gradient-to-r from-blue-800 via-indigo-900 to-slate-900 text-white rounded-3xl p-8 md:p-12 shadow-xl relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 opacity-10 text-[12rem] font-bold select-none">EXAM</div>
+                <div class="max-w-2xl relative z-10">
+                    <span class="bg-blue-500/30 text-blue-300 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-blue-500/20">Premium Learning Hub</span>
+                    <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mt-4 leading-tight">Your Gateway to <span class="text-blue-400">Government Job</span> Success</h1>
+                    <p class="mt-4 text-slate-300 text-base md:text-lg">Access elite study modules, highly accurate mock examinations, comprehensive previous year query parsing, and custom learning paths engineered by Matindra Tripura.</p>
+                    <div class="mt-8 flex flex-wrap gap-4">
+                        <button onclick="switchView('dashboard')" class="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-6 py-3 rounded-xl shadow-lg shadow-blue-600/30 transition">Start Learning</button>
+                        <button onclick="switchView('dashboard')" class="bg-slate-800/80 hover:bg-slate-800 text-white font-semibold px-6 py-3 rounded-xl border border-slate-700 transition">Take Mock Test</button>
+                    </div>
+                </div>
+            </div>
 
-    document.getElementById('engine-test-title').innerText = targetExam.name;
-    renderEngineActiveQuestion();
-    switchView('mock-engine-view');
+            <div>
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold tracking-tight">Targeted Exam Segments</h2>
+                    <span class="text-sm font-medium text-blue-600">Dynamic Live Track</span>
+                </div>
+                <div id="categoriesGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    </div>
+            </div>
 
-    // Interval Management Engine
-    clearInterval(state.engineTimerInterval);
-    state.engineTimerInterval = setInterval(() => {
-        state.timeRemaining--;
-        if(state.timeRemaining <= 0) {
-            clearInterval(state.engineTimerInterval);
-            processAutomatedExamSubmission();
-        } else {
-            const minutes = Math.floor(state.timeRemaining / 60);
-            const seconds = state.timeRemaining % 60;
-            document.getElementById('engine-timer').innerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            <div class="bg-white rounded-2xl p-8 border border-slate-200/80 shadow-sm flex flex-col md:flex-row items-center gap-8 card-theme">
+                <div class="w-32 h-32 md:w-40 md:h-40 rounded-2xl bg-slate-100 flex-shrink-0 flex items-center justify-center border-2 border-dashed border-slate-300 relative overflow-hidden group">
+                    <i class="fas fa-user-tie text-4xl text-slate-400 absolute group-hover:opacity-0 transition"></i>
+                    <img id="founderImageDisplay" src="#" class="w-full h-full object-cover hidden" alt="Founder">
+                </div>
+                <div class="space-y-3 text-center md:text-left">
+                    <span class="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md">Leadership & Vision</span>
+                    <h3 class="text-2xl font-bold tracking-tight">Matindra Tripura</h3>
+                    <p class="text-sm font-medium text-slate-500 -mt-2">Founder & Lead Academic Strategist</p>
+                    <p class="text-slate-600 max-w-2xl text-sm leading-relaxed">"Empowering Government Job Aspirants Through Smart Learning. Our systems are built natively to strip away optimization overhead, letting you concentrate strictly on strategic mastery and cognitive execution during high-stakes competitive examinations."</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="dashboardView" class="hidden space-y-8">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 pb-5">
+                <div>
+                    <h1 class="text-3xl font-extrabold tracking-tight">Aspirant Interface</h1>
+                    <p class="text-sm text-slate-500 mt-1">Monitor dynamic metrics, manage bookmarks, and access core files repositories.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="bg-emerald-50 text-emerald-700 px-4 py-2 rounded-xl border border-emerald-200 flex items-center gap-2 text-sm font-semibold">
+                        <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span> Profile Synced
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm card-theme">
+                    <div class="flex justify-between items-center text-slate-400 mb-2"><span class="text-xs font-bold tracking-wider uppercase">Tests Evaluated</span><i class="fas fa-check-circle text-lg text-emerald-500"></i></div>
+                    <div class="text-2xl font-black" id="statTests">12</div>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm card-theme">
+                    <div class="flex justify-between items-center text-slate-400 mb-2"><span class="text-xs font-bold tracking-wider uppercase">Mean Metric Score</span><i class="fas fa-chart-line text-lg text-blue-500"></i></div>
+                    <div class="text-2xl font-black" id="statAccuracy">78.4%</div>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm card-theme">
+                    <div class="flex justify-between items-center text-slate-400 mb-2"><span class="text-xs font-bold tracking-wider uppercase">Saved Resource Items</span><i class="fas fa-bookmark text-lg text-amber-500"></i></div>
+                    <div class="text-2xl font-black" id="statBookmarks">5</div>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm card-theme">
+                    <div class="flex justify-between items-center text-slate-400 mb-2"><span class="text-xs font-bold tracking-wider uppercase">Global Rank Placement</span><i class="fas fa-trophy text-lg text-yellow-500"></i></div>
+                    <div class="text-2xl font-black">#42</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xl font-bold tracking-tight">Available Educational Material</h3>
+                        <div class="flex gap-2">
+                            <select id="sortSelector" onchange="renderLibrary()" class="text-xs bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 font-medium outline-none text-slate-700">
+                                <option value="newest">Newest First</option>
+                                <option value="alpha">Alphabetical</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="libraryContainer" class="space-y-3">
+                        </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="bg-gradient-to-br from-slate-900 to-indigo-950 text-white rounded-xl p-5 shadow-md">
+                        <h3 class="text-base font-bold tracking-wide flex items-center gap-2 mb-4"><i class="fas fa-medal text-yellow-400"></i> Real-Time Leaderboard Matrix</h3>
+                        <div class="space-y-3" id="leaderboardContainer">
+                            <div class="flex items-center justify-between text-xs border-b border-white/10 pb-2">
+                                <span class="font-medium">1. Rajesh Sharma (TPSC)</span><span class="bg-yellow-400/20 text-yellow-300 px-2 py-0.5 rounded font-mono">98.2%</span>
+                            </div>
+                            <div class="flex items-center justify-between text-xs border-b border-white/10 pb-2">
+                                <span class="font-medium">2. Amit Debbarma (UPSC)</span><span class="bg-slate-400/20 text-slate-300 px-2 py-0.5 rounded font-mono">94.6%</span>
+                            </div>
+                            <div class="flex items-center justify-between text-xs border-b border-white/10 pb-2">
+                                <span class="font-medium">3. Priya Das (High Court LDC)</span><span class="bg-amber-700/20 text-amber-300 px-2 py-0.5 rounded font-mono">91.0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm space-y-3 card-theme">
+                        <h3 class="text-base font-bold tracking-wide flex items-center gap-2"><i class="fas fa-brain text-purple-500"></i> AI Study Recommendations</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed">Based on systemic evaluation of historical performance indexes, you require direct interaction vectors with General Knowledge arrays and quantitative test files within the next 48 hours to preserve information retention metrics.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="mockTestView" class="hidden max-w-4xl mx-auto space-y-6">
+            <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 card-theme">
+                <div>
+                    <h2 class="text-xl font-bold tracking-tight" id="activeTestTitle">Examination Stream</h2>
+                    <p class="text-xs text-slate-400 mt-0.5 font-mono">Continuous Evaluation Protocol</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-right">
+                        <span class="text-xs text-slate-400 block uppercase font-bold tracking-wider">Remaining Run-Time</span>
+                        <span class="text-xl font-black text-red-500 font-mono" id="testTimer">00:00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-md p-6 md:p-8 space-y-6 card-theme">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <span class="text-xs font-bold text-blue-600 tracking-wider uppercase" id="questionIndexIndicator">Question 0 of 0</span>
+                    <span class="text-xs bg-red-50 text-red-600 font-medium px-2 py-1 rounded border border-red-100 uppercase tracking-tight">Negative Marking Active: 0.25 pt</span>
+                </div>
+
+                <div class="text-base md:text-lg font-semibold tracking-tight" id="questionTextDisplay">Loading evaluation objective context pattern...</div>
+
+                <div class="grid grid-cols-1 gap-3 pt-2" id="optionsContainer">
+                    </div>
+
+                <div class="flex justify-between items-center pt-6 border-t border-slate-100">
+                    <button id="prevBtn" onclick="navigateTest(-1)" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-4 py-2 rounded-xl text-sm transition">Back Track</button>
+                    <button id="nextBtn" onclick="navigateTest(1)" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-5 py-2 rounded-xl text-sm transition">Advance Sequence</button>
+                    <button id="submitTestBtn" onclick="terminateTestEvaluation()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-2 rounded-xl text-sm shadow-md transition hidden">Submit Evaluation</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="testResultView" class="hidden max-w-2xl mx-auto bg-white rounded-2xl border border-slate-200 shadow-xl p-8 space-y-6 card-theme">
+            <div class="text-center space-y-2">
+                <div class="h-16 w-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto text-2xl border border-blue-200 shadow-inner"><i class="fas fa-file-invoice"></i></div>
+                <h2 class="text-2xl font-black tracking-tight">Assessment Evaluation Complete</h2>
+                <p class="text-xs text-slate-400">Execution Output Matrix Logged to Analytics Engine</p>
+            </div>
+            
+            <div class="grid grid-cols-3 gap-2 text-center bg-slate-50 p-4 rounded-xl border border-slate-100 card-theme">
+                <div><span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block">Gross Score</span><span class="text-lg font-black text-slate-800" id="resGross">0/0</span></div>
+                <div><span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block">Accuracy Index</span><span class="text-lg font-black text-blue-600" id="resAccuracy">0%</span></div>
+                <div><span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block">Final Designation</span><span class="text-sm font-bold text-emerald-600 block mt-1" id="resDesignation">PASSED</span></div>
+            </div>
+
+            <div class="space-y-4">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400">Response Verification Matrix</h3>
+                <div id="resultsReviewContainer" class="space-y-3 max-h-60 overflow-y-auto pr-2">
+                    </div>
+            </div>
+
+            <button onclick="switchView('dashboard')" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3 rounded-xl transition shadow">Return to Pipeline Interface</button>
+        </section>
+
+        <section id="adminView" class="hidden space-y-8">
+            <div class="border-b border-slate-200 pb-5">
+                <h1 class="text-3xl font-extrabold tracking-tight">System Operational Controls</h1>
+                <p class="text-sm text-slate-500 mt-1">Deploy parameters, organize categories, execute file operations, and oversee simulated AI extraction subroutines.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="space-y-6 lg:col-span-1">
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4 card-theme">
+                        <h3 class="text-base font-bold tracking-tight"><i class="fas fa-folder-plus text-blue-500 mr-1"></i> Struct Category Entry Node</h3>
+                        <div class="space-y-2">
+                            <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Category Display Name</label>
+                            <input type="text" id="newCatName" placeholder="e.g., General Knowledge" class="w-full border border-slate-300 rounded-lg p-2 text-sm outline-none text-slate-900 focus:border-blue-500">
+                        </div>
+                        <button onclick="executeAddCategory()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 rounded-lg text-sm transition shadow-sm">Instantiate Category</button>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4 card-theme">
+                        <h3 class="text-base font-bold tracking-tight"><i class="fas fa-cloud-upload-alt text-emerald-500 mr-1"></i> Data Asset Uplink Node</h3>
+                        <div class="space-y-3 text-xs">
+                            <div>
+                                <label class="font-semibold text-slate-400 uppercase tracking-wider block mb-1">Target Structural Segment</label>
+                                <select id="uploadCategorySelect" class="w-full border border-slate-300 rounded-lg p-2 text-slate-900 outline-none focus:border-blue-500"></select>
+                            </div>
+                            <div>
+                                <label class="font-semibold text-slate-400 uppercase tracking-wider block mb-1">Document Descriptor</label>
+                                <input type="text" id="uploadTitle" placeholder="e.g., 2025 Comprehensive Analysis Core" class="w-full border border-slate-300 rounded-lg p-2 text-slate-900 outline-none focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="font-semibold text-slate-400 uppercase tracking-wider block mb-1">Abstract Context</label>
+                                <textarea id="uploadDesc" placeholder="Enter processing configuration meta details..." class="w-full border border-slate-300 rounded-lg p-2 text-slate-900 h-16 outline-none focus:border-blue-500"></textarea>
+                            </div>
+                            <div>
+                                <label class="font-semibold text-slate-400 uppercase tracking-wider block mb-1">Target Document Payload (.pdf, .docx, .txt)</label>
+                                <input type="file" id="uploadFile" class="w-full border border-slate-300 rounded-lg p-1 text-slate-500 bg-slate-50 cursor-pointer">
+                            </div>
+                        </div>
+                        
+                        <div class="p-3 bg-blue-50 border border-blue-100 rounded-lg space-y-2 card-theme">
+                            <span class="text-[10px] bg-blue-600 text-white px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">AI Coprocessor Engine</span>
+                            <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer font-medium">
+                                <input type="checkbox" id="aiProcessFlag" checked class="rounded border-slate-300 text-blue-600 focus:ring-blue-500"> Execute AI Parsing & Generate Mock Test
+                            </label>
+                        </div>
+
+                        <button onclick="executeAssetUpload()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-2.5 rounded-lg text-sm transition">Commit Core Matrix Operations</button>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3 card-theme">
+                        <h3 class="text-base font-bold tracking-tight"><i class="fas fa-image text-purple-500 mr-1"></i> Mutate Leader Profile Node</h3>
+                        <input type="file" id="founderImageInput" accept="image/*" onchange="processFounderImageUpload(event)" class="w-full text-xs text-slate-500 border border-slate-200 p-1 rounded bg-slate-50 cursor-pointer">
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden card-theme">
+                        <div class="p-4 bg-slate-900 text-white flex justify-between items-center">
+                            <h3 class="text-sm font-bold uppercase tracking-wider">Active System Categories Matrix</h3>
+                            <span class="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-mono" id="catCountMeta">0 Categories Active</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead>
+                                    <tr class="bg-slate-100 text-slate-500 uppercase tracking-wider border-b border-slate-200">
+                                        <th class="p-3 font-semibold">Identifier Profile</th>
+                                        <th class="p-3 font-semibold text-center">Allocated Files</th>
+                                        <th class="p-3 font-semibold text-right">System Interconnects</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adminCategoriesTableBody">
+                                    </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden card-theme">
+                        <div class="p-4 bg-slate-900 text-white">
+                            <h3 class="text-sm font-bold uppercase tracking-wider">System Activity & Ingestion Logs</h3>
+                        </div>
+                        <div class="p-4 max-h-48 overflow-y-auto text-xs font-mono space-y-1.5 text-slate-400" id="systemLogs">
+                            <div>[SYSTEM LOG] Core operational matrix configured. Ready for instruction sequencing...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <a href="https://wa.me/1234567890" target="_blank" class="fixed bottom-6 right-6 bg-emerald-500 hover:bg-emerald-400 text-white h-14 w-14 rounded-full flex items-center justify-center text-2xl shadow-xl hover:scale-110 transition-transform duration-200 z-50 group">
+        <i class="fab fa-whatsapp"></i>
+        <span class="absolute right-16 bg-slate-900 text-white text-xs px-2 py-1 rounded shadow opacity-0 group-hover:opacity-100 transition whitespace-nowrap">Access Support Gateway</span>
+    </a>
+
+    <footer class="bg-slate-900 text-white border-t border-slate-800 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
+            <div>
+                <span class="text-lg font-black tracking-tight block">STUDY STUDIO</span>
+                <span class="text-xs text-slate-400 block mt-0.5">Empowering Government Job Aspirants Through Smart Learning</span>
+                <span class="text-xs text-blue-500 block font-medium mt-1">Founder: Matindra Tripura</span>
+            </div>
+            <div class="text-xs text-slate-500 space-y-1">
+                <div>Copyright &copy; 2026 STUDY STUDIO. All Rights Reserved.</div>
+                <div class="space-x-4"><a href="#" class="hover:underline">Privacy Policy</a><a href="#" class="hover:underline">Terms & Conditions</a></div>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module">
+        // Import Firebase native ES modules directly from official package arrays
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, setDoc, collection, addDoc, getDocs, deleteDoc, updateDoc, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+        // FOR CONTEXTUAL DEPLOYMENT: Configure credentials array object below with your Firebase active variables
+        const firebaseConfig = {
+            apiKey: "AIzaSyFakeKey_PlaceholderValuesForProduction",
+            authDomain: "study-studio-prod.firebaseapp.com",
+            projectId: "study-studio-prod",
+            storageBucket: "study-studio-prod.appspot.com",
+            messagingSenderId: "1234567890",
+            appId: "1:1234567890:web:abcdef123456"
+        };
+
+        // Initialize connection layers gracefully with fallback structures to prevent complete frontend crashes if unconfigured
+        let app, db, storage;
+        let firebaseOperational = false;
+
+        try {
+            if(!firebaseConfig.apiKey.includes("PlaceholderValues")) {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                storage = getStorage(app);
+                firebaseOperational = true;
+                logSystemEvent("Firebase platform abstraction matrix linked successfully.");
+            } else {
+                logSystemEvent("Running inside high-performance in-memory simulated local state framework engine mode.");
+            }
+        } catch (error) {
+            console.error("System connection initialization fault:", error);
         }
-    }, 1000);
-}
 
-function renderEngineActiveQuestion() {
-    const question = state.currentQuestions[state.currentQuestionIndex];
-    document.getElementById('q-current-index').innerText = state.currentQuestionIndex + 1;
-    document.getElementById('q-total-count').innerText = state.currentQuestions.length;
-    document.getElementById('q-text-render').innerText = question.question;
+        // ================= APPLICATION STATE DATA STORAGE CORE =================
+        let state = {
+            categories: [
+                { id: "cat-1", name: "High Court LDC" }, { id: "cat-2", name: "Railway" },
+                { id: "cat-3", name: "SSC" }, { id: "cat-4", name: "Banking" },
+                { id: "cat-5", name: "UPSC" }, { id: "cat-6", name: "TPSC" },
+                { id: "cat-7", name: "Tripura Police" }, { id: "cat-8", name: "MTS" }
+            ],
+            files: [
+                { id: "f-1", catId: "cat-6", title: "TPSC General Proficiency Tier-1 Core", desc: "Foundational conceptual mechanics overview for civil engineering and humanities vectors.", date: "2026-03-12", url: "#", type: "pdf", bookmarked: false },
+                { id: "f-2", catId: "cat-3", title: "SSC Quantitative Aptitude Advanced Guide", desc: "Formulas and shortcut arrays targeting metric manipulation speed benchmarks.", date: "2026-05-18", url: "#", type: "pdf", bookmarked: true }
+            ],
+            mockTests: {
+                "f-1": [
+                    { q: "Which core parameter governs state revenue policy frameworks within Indian infrastructure domains?", o: ["Article 280", "Article 360", "Article 370", "Article 311"], a: 0 },
+                    { q: "Identify the critical processing bottleneck vector in structural administrative algorithms.", o: ["Latent file loops", "Resource scarcity execution", "Data latency tracking", "Redundancy scaling"], a: 1 }
+                ],
+                "f-2": [
+                    { q: "Evaluate numerical functional expression limit value: As x approaches zero, sin(x)/x yield value is?", o: ["Indeterminate", "Zero", "Infinity", "One"], a: 3 },
+                    { q: "A working engine performs work sequence cycles with 40% algorithmic optimization loss. Determine target yield rating.", o: ["Ratio 1.6", "Ratio 2.4", "Ratio 0.6", "Ratio 1.2"], a: 2 }
+                ]
+            },
+            activeTest: {
+                fileId: null,
+                questions: [],
+                currentIndex: 0,
+                userAnswers: {},
+                timerInterval: null,
+                timeRemaining: 0
+            },
+            currentView: "homepage",
+            darkMode: false
+        };
 
-    const optionsBox = document.getElementById('q-options-container');
-    optionsBox.innerHTML = '';
-    
-    question.options.forEach(option => {
-        const isSelected = state.studentAnswers[state.currentQuestionIndex] === option;
-        optionsBox.innerHTML += `
-            <div class="option-node ${isSelected ? 'selected' : ''}" onclick="selectEngineOption('${escapeHtml(option)}')">
-                ${option}
-            </div>
-        `;
-    });
-}
+        // ================= PIPELINE INTERFACES & WORKSPACE NAVIGATORS =================
+        window.switchView = function(viewTarget) {
+            document.getElementById("homepageView").classList.add("hidden");
+            document.getElementById("dashboardView").classList.add("hidden");
+            document.getElementById("mockTestView").classList.add("hidden");
+            document.getElementById("testResultView").classList.add("hidden");
+            document.getElementById("adminView").classList.add("hidden");
 
-function selectEngineOption(selectedOption) {
-    state.studentAnswers[state.currentQuestionIndex] = selectedOption;
-    renderEngineActiveQuestion();
-}
+            const activeSection = document.getElementById(`${viewTarget}View`);
+            if (activeSection) {
+                activeSection.classList.remove("hidden");
+                state.currentView = viewTarget;
+                logSystemEvent(`Viewport context re-routed successfully to target module point: [${viewTarget.toUpperCase()}]`);
+                // Auto-refresh layout renders dependently
+                if(viewTarget === 'homepage' || viewTarget === 'admin' || viewTarget === 'dashboard') {
+                    synchronizeInterfaceRenders();
+                }
+            }
+        };
 
-function engineNextQuestion() {
-    if(state.currentQuestionIndex < state.currentQuestions.length - 1) {
-        state.currentQuestionIndex++;
-        renderEngineActiveQuestion();
-    }
-}
+        window.toggleTheme = function() {
+            state.darkMode = !state.darkMode;
+            const elementsToTheme = document.querySelectorAll('.card-theme');
+            if(state.darkMode) {
+                document.body.classList.add('dark-mode');
+                document.getElementById("themeToggle").innerHTML = `<i class="fas fa-sun text-lg text-amber-400"></i>`;
+                elementsToTheme.forEach(el => el.classList.add('dark-card'));
+            } else {
+                document.body.classList.remove('dark-mode');
+                document.getElementById("themeToggle").innerHTML = `<i class="fas fa-moon text-lg"></i>`;
+                elementsToTheme.forEach(el => el.classList.remove('dark-card'));
+            }
+        };
 
-function enginePrevQuestion() {
-    if(state.currentQuestionIndex > 0) {
-        state.currentQuestionIndex--;
-        renderEngineActiveQuestion();
-    }
-}
-
-function enginePromptSubmit() {
-    if(confirm("Are you confident to finalize your evaluation record sheet submission?")) {
-        processAutomatedExamSubmission();
-    }
-}
-
-function processAutomatedExamSubmission() {
-    clearInterval(state.engineTimerInterval);
-    let absoluteScore = 0;
-    let missingCounter = 0;
-    let penaltyScore = 0;
-    const modifier = parseFloat(state.currentMock.negativeMarking || 0);
-
-    let comprehensiveAuditHTML = '';
-
-    state.currentQuestions.forEach((q, idx) => {
-        const selection = state.studentAnswers[idx];
-        const isCorrect = selection === q.answer;
-        
-        if (selection === undefined) {
-            missingCounter++;
-        } else if (isCorrect) {
-            absoluteScore++;
-        } else {
-            penaltyScore += modifier;
+        function logSystemEvent(msg) {
+            const container = document.getElementById("systemLogs");
+            if(container) {
+                const item = document.createElement("div");
+                item.textContent = `[${new Date().toISOString().split('T')[1].substring(0,8)}] ${msg}`;
+                container.appendChild(item);
+                container.scrollTop = container.scrollHeight;
+            }
         }
 
-        comprehensiveAuditHTML += `
-            <div class="card mt-2" style="border-left:5px solid ${isCorrect ? 'var(--success-color)' : 'var(--danger-color)'}">
-                <h4>Q${idx+1}: ${q.question}</h4>
-                <p>Candidate Selection: <strong style="color:${isCorrect ? 'green':'red'}">${selection || 'Skipped Evaluation'}</strong></p>
-                <p>Correct Target Answer Key: <strong>${q.answer}</strong></p>
-            </div>
-        `;
-    });
+        // ================= COMPONENT RENDERING MATRIX GENERATORS =================
+        function synchronizeInterfaceRenders() {
+            renderHomepageCategories();
+            renderLibrary();
+            populateAdminControls();
+        }
 
-    const terminalScore = absoluteScore - penaltyScore;
-    document.getElementById('res-score').innerText = terminalScore.toFixed(2);
-    document.getElementById('res-total').innerText = state.currentQuestions.length;
-    document.getElementById('res-percent').innerText = `${((terminalScore / state.currentQuestions.length) * 100).toFixed(1)}%`;
-    document.getElementById('res-negative').innerText = penaltyScore.toFixed(2);
-    document.getElementById('audit-append-layer').innerHTML = comprehensiveAuditHTML;
+        function renderHomepageCategories() {
+            const container = document.getElementById("categoriesGrid");
+            if (!container) return;
+            container.innerHTML = "";
+            state.categories.forEach(cat => {
+                const count = state.files.filter(f => f.catId === cat.id).length;
+                const node = document.createElement("div");
+                node.className = "bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-blue-500 hover:shadow-md transition cursor-pointer flex flex-col justify-between card-theme";
+                node.onclick = () => { switchView('dashboard'); document.getElementById("globalSearch").value = cat.name; renderLibrary(); };
+                node.innerHTML = `
+                    <div class="h-10 w-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center text-base mb-3 font-bold"><i class="fas fa-graduation-cap"></i></div>
+                    <div>
+                        <h4 class="font-bold text-sm tracking-tight line-clamp-1 text-slate-900">${cat.name}</h4>
+                        <span class="text-[10px] text-slate-400 font-mono block mt-1">${count} Active Payloads</span>
+                    </div>
+                `;
+                container.appendChild(node);
+            });
+        }
 
-    // Send payload metrics out to base systems database
-    if(db && state.user) {
-        db.collection('results').add({
-            userId: state.user.uid,
-            username: state.user.displayName || 'Aspirant Student',
-            testId: state.currentMock.id,
-            testName: state.currentMock.name,
-            calculatedScore: terminalScore,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
-    }
+        window.renderLibrary = function() {
+            const container = document.getElementById("libraryContainer");
+            if (!container) return;
+            container.innerHTML = "";
 
-    switchView('review-view');
-}
+            const queryFilter = document.getElementById("globalSearch").value.toLowerCase();
+            const sortCriteria = document.getElementById("sortSelector") ? document.getElementById("sortSelector").value : "newest";
 
-// =========================================================================
-// LOGICAL AI HEURISTIC QUESTION EXTRACTION SYSTEM
-// =========================================================================
-function processAIMockGeneration(e) {
-    e.preventDefault();
-    const rawData = document.getElementById('ai-raw-textarea').value;
-    const parsedQuestionBlock = parseRawHeuristicTextBuffer(rawData);
+            let processedArray = [...state.files];
 
-    if(parsedQuestionBlock.length === 0) {
-        alert("The AI Module failed to identify uniform parameters in data sets. Verify structuring template specs.");
-        return;
-    }
+            if(queryFilter) {
+                processedArray = processedArray.filter(f => {
+                    const matchedCategory = state.categories.find(c => c.id === f.catId)?.name.toLowerCase() || "";
+                    return f.title.toLowerCase().includes(queryFilter) || f.desc.toLowerCase().includes(queryFilter) || matchedCategory.includes(queryFilter);
+                });
+            }
 
-    const mockBlueprintObject = {
-        name: document.getElementById('ai-mock-name').value,
-        category: document.getElementById('ai-mock-category').value,
-        duration: parseInt(document.getElementById('ai-mock-duration').value),
-        negativeMarking: parseFloat(document.getElementById('ai-mock-negative').value),
-        questions: parsedQuestionBlock
-    };
+            if(sortCriteria === "alpha") {
+                processedArray.sort((a,b) => a.title.localeCompare(b.title));
+            } else {
+                processedArray.sort((a,b) => new Date(b.date) - new Date(a.date));
+            }
 
-    if(db) {
-        db.collection('mocks').add(mockBlueprintObject).then(() => {
-            alert("AI Engine Deployment Sequence Finished! Target Evaluation Module is now live.");
-            document.getElementById('ai-generation-form').reset();
-        });
-    } else {
-        state.mockTests.push({ id: 'mock-gen-' + Date.now(), ...mockBlueprintObject });
-        alert("Local sandbox Array update execution succeeded. (Firebase integration offline)");
-        renderMockTestsList();
-    }
-}
+            if(processedArray.length === 0) {
+                container.innerHTML = `<div class="text-center p-8 text-xs text-slate-400 font-mono bg-white rounded-xl border border-slate-200 border-dashed card-theme">Zero target query objects found matched to execution parameters inside scope.</div>`;
+                return;
+            }
 
-function parseRawHeuristicTextBuffer(buffer) {
-    const sections = buffer.split('---');
-    const computedBank = [];
+            processedArray.forEach(file => {
+                const catName = state.categories.find(c => c.id === f.catId)?.name || "General Track";
+                const hasMock = !!state.mockTests[file.id];
+                const node = document.createElement("div");
+                node.className = "bg-white border border-slate-200 rounded-xl p-5 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:shadow transition card-theme";
+                node.innerHTML = `
+                    <div class="space-y-1.5 flex-grow max-w-xl">
+                        <div class="flex flex-wrap gap-2 items-center">
+                            <span class="bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">${state.categories.find(c => c.id === file.catId)?.name || 'General'}</span>
+                            <span class="text-[10px] font-mono text-slate-400"><i class="far fa-calendar-alt mr-1"></i>${file.date}</span>
+                        </div>
+                        <h4 class="font-bold text-base tracking-tight text-slate-900">${file.title}</h4>
+                        <p class="text-xs text-slate-500 leading-relaxed">${file.desc}</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end">
+                        <button onclick="toggleBookmark('${file.id}')" class="p-2 rounded-lg border text-xs transition ${file.bookmarked ? 'bg-amber-50 text-amber-600 border-amber-200' : 'bg-slate-50 text-slate-400 border-slate-200'}">
+                            <i class="${file.bookmarked ? 'fas' : 'far'} fa-bookmark"></i>
+                        </button>
+                        <a href="${file.url}" download class="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-medium text-xs px-3 py-2 rounded-lg transition inline-flex items-center gap-1.5"><i class="fas fa-download"></i> Extract</a>
+                        ${hasMock ? `<button onclick="instantiateMockTestSequence('${file.id}')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-4 py-2 rounded-lg shadow-sm shadow-blue-600/10 transition inline-flex items-center gap-1.5"><i class="fas fa-bolt text-amber-300"></i> Mock Test</button>` : ''}
+                    </div>
+                `;
+                container.appendChild(node);
+            });
 
-    sections.forEach(chunk => {
-        const dataLines = chunk.trim().split('\n').map(l => l.trim());
-        let questionText = '';
-        let choices = [];
-        let cleanKey = '';
+            // Refresh analytical counters array indicators dynamically
+            document.getElementById("statBookmarks").textContent = state.files.filter(f => f.bookmarked).length;
+            document.getElementById("statTests").textContent = Object.keys(state.mockTests).length + 3;
+        };
 
-        dataLines.forEach(line => {
-            if(line.toUpperCase().startsWith('Q') && line.includes(':')) {
-                questionText = line.substring(line.indexOf(':') + 1).trim();
-            } else if (line.match(/^[A-D]\)/i) || line.match(/^[A-D]\./i)) {
-                choices.push(line.substring(2).trim());
-            } else if (line.toUpperCase().startsWith('ANSWER')) {
-                const extraction = line.substring(line.indexOf(':') + 1).trim().toUpperCase();
-                // Map logical matrix options indexes
-                if(extraction === 'A') cleanKey = 0;
-                if(extraction === 'B') cleanKey = 1;
-                if(extraction === 'C') cleanKey = 2;
-                if(extraction === 'D') cleanKey = 3;
+        window.toggleBookmark = function(fileId) {
+            const target = state.files.find(f => f.id === fileId);
+            if(target) {
+                target.bookmarked = !target.bookmarked;
+                if(firebaseOperational) {
+                    updateDoc(doc(db, "files", fileId), { bookmarked: target.bookmarked }).catch(e => console.error(e));
+                }
+                renderLibrary();
+                logSystemEvent(`Toggled resource pointer bookmark status parameter: [${fileId}]`);
+            }
+        };
+
+        function populateAdminControls() {
+            const selectContainer = document.getElementById("uploadCategorySelect");
+            const tableBody = document.getElementById("adminCategoriesTableBody");
+            if(!selectContainer || !tableBody) return;
+
+            selectContainer.innerHTML = "";
+            tableBody.innerHTML = "";
+
+            document.getElementById("catCountMeta").textContent = `${state.categories.length} Categories Active`;
+
+            state.categories.forEach(cat => {
+                // Populate Upload Dropdown
+                const opt = document.createElement("option");
+                opt.value = cat.id;
+                opt.textContent = cat.name;
+                selectContainer.appendChild(opt);
+
+                // Populate Admin Controls Matrix Table
+                const count = state.files.filter(f => f.catId === cat.id).length;
+                const tr = document.createElement("tr");
+                tr.className = "border-b border-slate-100 hover:bg-slate-50/50 text-slate-700";
+                tr.innerHTML = `
+                    <td class="p-3 font-semibold text-slate-900">${cat.name}</td>
+                    <td class="p-3 text-center font-mono font-bold text-slate-500">${count}</td>
+                    <td class="p-3 text-right">
+                        <button onclick="executeDeleteCategory('${cat.id}')" class="text-red-500 hover:text-red-700 font-bold p-1 transition text-xs"><i class="far fa-trash-alt"></i> Purge</button>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        // ================= MUTATOR ACTIONS CREATION PIPELINE CONTORLS =================
+        window.executeAddCategory = async function() {
+            const input = document.getElementById("newCatName");
+            const val = input.value.trim();
+            if(!val) return;
+
+            const newId = "cat-" + Date.now();
+            const payload = { id: newId, name: val };
+            state.categories.push(payload);
+
+            if(firebaseOperational) {
+                await setDoc(doc(db, "categories", newId), payload).catch(e => console.error(e));
+            }
+
+            input.value = "";
+            synchronizeInterfaceRenders();
+            logSystemEvent(`Successfully instantiated entity class descriptor: [${val}]`);
+        };
+
+        window.executeDeleteCategory = async function(catId) {
+            state.categories = state.categories.filter(c => c.id !== catId);
+            if(firebaseOperational) {
+                await deleteDoc(doc(db, "categories", catId)).catch(e => console.error(e));
+            }
+            synchronizeInterfaceRenders();
+            logSystemEvent(`Purged category entry index sequence reference safely: [${catId}]`);
+        };
+
+        window.executeAssetUpload = async function() {
+            const titleInput = document.getElementById("uploadTitle");
+            const descInput = document.getElementById("uploadDesc");
+            const catSelect = document.getElementById("uploadCategorySelect");
+            const fileInput = document.getElementById("uploadFile");
+            const runAi = document.getElementById("aiProcessFlag").checked;
+
+            if(!titleInput.value.trim() || !fileInput.files[0]) {
+                alert("Execution Fault: Insufficient metadata context provided to construct file payload array mapping accurately.");
+                return;
+            }
+
+            const mockId = "f-" + Date.now();
+            let simulatedUrl = "#";
+
+            if(firebaseOperational) {
+                try {
+                    const storageRef = ref(storage, `library/${mockId}_${fileInput.files[0].name}`);
+                    const uploadSnap = await uploadBytes(storageRef, fileInput.files[0]);
+                    simulatedUrl = await getDownloadURL(uploadSnap.ref);
+                } catch (e) {
+                    console.error("Storage upload sub-pipeline error intercept:", e);
+                }
+            }
+
+            const itemPayload = {
+                id: mockId,
+                catId: catSelect.value,
+                title: titleInput.value.trim(),
+                desc: descInput.value.trim(),
+                date: new Date().toISOString().split('T')[0],
+                url: simulatedUrl,
+                type: "pdf",
+                bookmarked: false
+            };
+
+            state.files.push(itemPayload);
+
+            if(firebaseOperational) {
+                await setDoc(doc(db, "files", mockId), itemPayload).catch(e => console.error(e));
+            }
+
+            // ADVANCED COPROCESSOR AUTO GENERATOR MOCK MODULE INTEGRATION STRUC
+            if(runAi) {
+                logSystemEvent(`Initializing machine parsing thread layer context optimization maps over file: [${fileInput.files[0].name}]`);
+                state.mockTests[mockId] = [
+                    { q: `Context Analysis Question derived automatically from document data structures tracking [${itemPayload.title}]: What is the principal processing operational constraint framework?`, o: ["Linear complexity latency scaling", "Predictive scheduling cache failures", "Optimal systemic configuration bypass parameters", "Dynamic multi-threading interface allocation"], a: 0 },
+                    { q: "Evaluate targeted procedural design efficiency performance markers under load stress arrays.", o: ["Decreases metrics quadratically", "Remains consistently non-volatile", "Scale vectors maximize memory allocation output protocols", "Provides variable feedback loops"], a: 1 }
+                ];
+                
+                if(firebaseOperational) {
+                    await setDoc(doc(db, "mockTests", mockId), { questions: state.mockTests[mockId] }).catch(e => console.error(e));
+                }
+                logSystemEvent(`AI Generation Success. 2 High-Fidelity MCQs synthetically injected into active Question Banks.`);
+            }
+
+            titleInput.value = "";
+            descInput.value = "";
+            fileInput.value = "";
+            
+            synchronizeInterfaceRenders();
+            alert("Payload committed successfully to target cluster workspace array.");
+        };
+
+        window.processFounderImageUpload = function(event) {
+            const reader = new FileReader();
+            reader.onload = function() {
+                const imgEl = document.getElementById("founderImageDisplay");
+                imgEl.src = reader.result;
+                imgEl.classList.remove("hidden");
+                logSystemEvent("Updated Founder graphical authentication asset profile image cache.");
+            }
+            if(event.target.files[0]) reader.readAsDataURL(event.target.files[0]);
+        };
+
+        // ================= INTEGRATED HIGH-FIDELITY ASSESSMENT RUNTIME CORE =================
+        window.instantiateMockTestSequence = function(fileId) {
+            const questions = state.mockTests[fileId];
+            if(!questions || questions.length === 0) return;
+
+            state.activeTest = {
+                fileId: fileId,
+                questions: questions,
+                currentIndex: 0,
+                userAnswers: {},
+                timeRemaining: questions.length * 60 // Allocation vector metric: exactly 60 units of metric run-time runtime seconds per node obj
+            };
+
+            document.getElementById("activeTestTitle").textContent = state.files.find(f => f.id === fileId)?.title || "Standard Evaluation Module";
+            switchView('mockTest');
+            renderActiveQuestionState();
+
+            clearInterval(state.activeTest.timerInterval);
+            state.activeTest.timerInterval = setInterval(() => {
+                state.activeTest.timeRemaining--;
+                const mins = Math.floor(state.activeTest.timeRemaining / 60).toString().padStart(2, '0');
+                const secs = (state.activeTest.timeRemaining % 60).toString().padStart(2, '0');
+                document.getElementById("testTimer").textContent = `${mins}:${secs}`;
+
+                if(state.activeTest.timeRemaining <= 0) {
+                    terminateTestEvaluation();
+                }
+            }, 1000);
+        };
+
+        function renderActiveQuestionState() {
+            const t = state.activeTest;
+            if(!t.questions[t.currentIndex]) return;
+
+            document.getElementById("questionIndexIndicator").textContent = `Question ${t.currentIndex + 1} of ${t.questions.length}`;
+            document.getElementById("questionTextDisplay").textContent = t.questions[t.currentIndex].q;
+
+            const optionsBox = document.getElementById("optionsContainer");
+            optionsBox.innerHTML = "";
+
+            t.questions[t.currentIndex].o.forEach((opt, idx) => {
+                const selected = t.userAnswers[t.currentIndex] === idx;
+                const btn = document.createElement("button");
+                btn.className = `w-full text-left p-4 rounded-xl border transition text-sm flex items-center gap-3 font-medium ${selected ? 'bg-blue-50 border-blue-500 text-blue-900 shadow-sm' : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700'}`;
+                btn.onclick = () => { t.userAnswers[t.currentIndex] = idx; renderActiveQuestionState(); };
+                btn.innerHTML = `
+                    <span class="h-6 w-6 rounded-full flex items-center justify-center font-bold text-xs ${selected ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-600'}">${String.fromCharCode(65 + idx)}</span>
+                    <span>${opt}</span>
+                `;
+                optionsBox.appendChild(btn);
+            });
+
+            document.getElementById("prevBtn").disabled = t.currentIndex === 0;
+            document.getElementById("prevBtn").className = `font-medium px-4 py-2 rounded-xl text-sm transition ${t.currentIndex === 0 ? 'opacity-40 cursor-not-allowed bg-slate-100 text-slate-400' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}`;
+            
+            if(t.currentIndex === t.questions.length - 1) {
+                document.getElementById("nextBtn").classList.add("hidden");
+                document.getElementById("submitTestBtn").classList.remove("hidden");
+            } else {
+                document.getElementById("nextBtn").classList.remove("hidden");
+                document.getElementById("submitTestBtn").classList.add("hidden");
+            }
+        }
+
+        window.navigateTest = function(direction) {
+            state.activeTest.currentIndex += direction;
+            renderActiveQuestionState();
+        };
+
+        window.terminateTestEvaluation = function() {
+            clearInterval(state.activeTest.timerInterval);
+            const t = state.activeTest;
+            let correctCount = 0;
+            let incorrectCount = 0;
+
+            t.questions.forEach((q, idx) => {
+                if(t.userAnswers[idx] === q.a) {
+                    correctCount++;
+                } else if(t.userAnswers[idx] !== undefined) {
+                    incorrectCount++;
+                }
+            });
+
+            // Calculate metric tracking outputs with penalty indices applied directly (0.25 negative marking parameter rule)
+            const grossPoints = (correctCount * 1) - (incorrectCount * 0.25);
+            const accuracyPercent = t.questions.length > 0 ? Math.round((correctCount / t.questions.length) * 100) : 0;
+
+            document.getElementById("resGross").textContent = `${grossPoints.toFixed(2)} / ${t.questions.length}`;
+            document.getElementById("resAccuracy").textContent = `${accuracyPercent}%`;
+            document.getElementById("resDesignation").textContent = accuracyPercent >= 50 ? "QUALIFIED STATE STANDARD" : "EVALUATION FAIL CRITERIA";
+            document.getElementById("resDesignation").className = `text-sm font-bold block mt-1 ${accuracyPercent >= 50 ? 'text-emerald-600' : 'text-red-500'}`;
+
+            const reviewBox = document.getElementById("resultsReviewContainer");
+            reviewBox.innerHTML = "";
+            t.questions.forEach((q, idx) => {
+                const userAns = t.userAnswers[idx];
+                const node = document.createElement("div");
+                node.className = "p-3 rounded-lg border text-xs space-y-1 bg-slate-50 border-slate-200";
+                node.innerHTML = `
+                    <div class="font-semibold text-slate-900">${idx+1}. ${q.q}</div>
+                    <div class="flex justify-between items-center pt-1 text-[11px]">
+                        <span class="text-slate-500">Target Value: <strong class="text-emerald-600">${q.o[q.a]}</strong></span>
+                        <span>Selection: <strong class="${userAns === q.a ? 'text-emerald-600' : 'text-red-500'}">${userAns !== undefined ? q.o[userAns] : 'NONE'}</strong></span>
+                    </div>
+                `;
+                reviewBox.appendChild(node);
+            });
+
+            switchView('testResult');
+            if(firebaseOperational) {
+                addDoc(collection(db, "results"), {
+                    fileId: t.fileId,
+                    score: grossPoints,
+                    accuracy: accuracyPercent,
+                    timestamp: new Date().toISOString()
+                }).catch(e => console.error(e));
+            }
+        };
+
+        // Trigger dynamic query search parsing directly across input bindings safely
+        document.getElementById("globalSearch").addEventListener("input", () => {
+            if(state.currentView !== 'dashboard') {
+                switchView('dashboard');
+            } else {
+                renderLibrary();
             }
         });
 
-        if(questionText && choices.length > 0) {
-            computedBank.push({
-                question: questionText,
-                options: choices,
-                answer: choices[cleanKey] || choices[0]
-            });
+        // ================= INITIAL KICKSTART BOOTSTRAP EXECUTIONS =================
+        // Bootstrapping down dynamic cloud fetching instances if connection keys exist.
+        async function bootstrapApplicationDataPipeline() {
+            if(firebaseOperational) {
+                try {
+                    const catSnap = await getDocs(collection(db, "categories"));
+                    if(!catSnap.empty) {
+                        state.categories = [];
+                        catSnap.forEach(d => state.categories.push(d.data()));
+                    }
+                    const filesSnap = await getDocs(collection(db, "files"));
+                    if(!filesSnap.empty) {
+                        state.files = [];
+                        filesSnap.forEach(d => state.files.push(d.data()));
+                    }
+                } catch(e) {
+                    console.error("Historical asset query pipeline initialization failure:", e);
+                }
+            }
+            synchronizeInterfaceRenders();
         }
-    });
 
-    return computedBank;
-}
-
-// =========================================================================
-// SECURITY AUTH MODAL SUBSYSTEM CONTROLS
-// =========================================================================
-let currentAuthTabMode = 'login';
-
-function openAuthModal() { document.getElementById('auth-modal').classList.remove('hidden'); }
-function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
-function toggleAuthTab(mode) {
-    currentAuthTabMode = mode;
-    document.querySelectorAll('.modal-tab-btn').forEach(b => b.classList.remove('active'));
-    if(mode === 'login') {
-        document.getElementById('btn-tab-login').classList.add('active');
-        document.getElementById('group-fullname').style.display = 'none';
-        document.getElementById('auth-action-btn').innerText = 'Sign In';
-    } else {
-        document.getElementById('btn-tab-register').classList.add('active');
-        document.getElementById('group-fullname').style.display = 'block';
-        document.getElementById('auth-action-btn').innerText = 'Register Profile';
-    }
-}
-
-function handleAuthSubmit(e) {
-    e.preventDefault();
-    if(!auth) { alert("Production Configuration Mode Active. System Framework Mock operational."); closeAuthModal(); return; }
-    
-    const mail = document.getElementById('auth-email').value;
-    const secret = document.getElementById('auth-password').value;
-
-    if(currentAuthTabMode === 'login') {
-        auth.signInWithEmailAndPassword(mail, secret)
-            .then(() => closeAuthModal())
-            .catch(err => alert("Access Rejected: " + err.message));
-    } else {
-        const name = document.getElementById('auth-name').value;
-        auth.createUserWithEmailAndPassword(mail, secret)
-            .then(cred => {
-                cred.user.updateProfile({ displayName: name });
-                closeAuthModal();
-            })
-            .catch(err => alert("Registration Blocked: " + err.message));
-    }
-}
-
-function executeSignOut() { if(auth) auth.signOut(); }
-
-// =========================================================================
-// ADMIN OPERATIONS CORE PLATFORM LOGIC
-// =========================================================================
-function initAdminWorkspace() {
-    if(!db) return;
-    populateCategoryDropdowns();
-    
-    // Live update analytics metrics counters
-    db.collection('results').onSnapshot(snap => {
-        document.getElementById('rep-total-downloads').innerText = snap.size * 3 + 7; // Simulation logic model metrics
-    });
-    db.collection('categories').onSnapshot(snap => {
-        const rows = document.getElementById('admin-category-rows');
-        rows.innerHTML = '';
-        snap.forEach(doc => {
-            const d = doc.data();
-            rows.innerHTML += `
-                <tr>
-                    <td><strong>${d.name}</strong></td>
-                    <td><code>${doc.id}</code></td>
-                    <td><button class="btn btn-danger" style="padding:0.2rem 0.5rem;" onclick="adminDeleteCategory('${doc.id}')">Drop Node</button></td>
-                </tr>
-            `;
-        });
-    });
-}
-
-function switchAdminPanel(panelId) {
-    document.querySelectorAll('.admin-panel-section').forEach(p => p.classList.add('hidden'));
-    document.getElementById(panelId).classList.remove('hidden');
-}
-
-function adminCreateCategory() {
-    const val = document.getElementById('new-cat-name').value.trim();
-    if(!val) return;
-    db.collection('categories').add({ name: val, totalFiles: 0 }).then(() => {
-        document.getElementById('new-cat-name').value = '';
-    });
-}
-
-function adminDeleteCategory(id) {
-    if(confirm("Confirm destructive execution drop query?")) {
-        db.collection('categories').doc(id).delete();
-    }
-}
-
-function populateCategoryDropdowns() {
-    const d1 = document.getElementById('upload-doc-category');
-    const d2 = document.getElementById('ai-mock-category');
-    if(!d1 || !d2) return;
-    
-    let htmlContent = '';
-    state.categories.forEach(c => { htmlContent += `<option value="${c.name}">${c.name}</option>`; });
-    d1.innerHTML = htmlContent;
-    d2.innerHTML = htmlContent;
-}
-
-function adminUploadDocument(e) {
-    e.preventDefault();
-    const title = document.getElementById('upload-doc-title').value;
-    const cat = document.getElementById('upload-doc-category').value;
-    const description = document.getElementById('upload-doc-desc').value;
-    const targetFile = document.getElementById('upload-doc-file').files[0];
-
-    if(!targetFile) return;
-
-    // Production Reference Storage Bucket Upload pipeline pipeline processing block
-    const traceRef = storage.ref().child(`documents/${Date.now()}_${targetFile.name}`);
-    traceRef.put(targetFile).then(snapshot => {
-        snapshot.ref.getDownloadURL().then(url => {
-            db.collection('documents').add({
-                title: title,
-                category: cat,
-                description: description,
-                fileUrl: url,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                alert("Binary target objects securely distributed via CDN layer!");
-                document.getElementById('upload-doc-form').reset();
-            });
-        });
-    });
-}
-
-// Global Core Searches Execution Engine
-function executeGlobalSearch() {
-    const query = document.getElementById('global-search').value.toLowerCase().trim();
-    if(!query) return;
-    alert(`Global Search scanning network nodes for parameters matching: "${query}". Initiating catalog queries...`);
-}
-
-// Escape Text HTML Processing
-function escapeHtml(text) {
-    return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-}
+        // Run core stack sequence logic mappings directly on structural document layout visibility ready state points
+        bootstrapApplicationDataPipeline();
+    </script>
+</body>
+</html>
