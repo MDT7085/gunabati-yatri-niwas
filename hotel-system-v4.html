@@ -3,820 +3,646 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STUDY STUDIO - Gateway to Government Job Success</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>STUDY STUDIO - Government Exam Preparation Platform</title>
+    <meta name="description" content="Access PDFs, study materials, previous year papers, and AI-powered mock tests for SSC, UPSC, Banking, and Railways.">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .dark-mode { background-color: #0f172a; color: #f8fafc; }
-        .dark-card { background-color: #1e293b; border-color: #334155; }
+        :root {
+            --primary: #0A2540;
+            --secondary: #00D4B2;
+            --accent: #639FAB;
+            --light-blue: #EAF2F8;
+            --bg-light: #F8FAFC;
+            --text-light: #1E293B;
+            --surface: #FFFFFF;
+            --border: #E2E8F0;
+            --transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] {
+            --primary: #020C1B;
+            --secondary: #00D4B2;
+            --light-blue: #1E293B;
+            --bg-light: #0B192C;
+            --text-light: #F8FAFC;
+            --surface: #15253F;
+            --border: #334155;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-light);
+            transition: var(--transition);
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        nav {
+            background: var(--primary);
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .logo span { color: var(--secondary); }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #E2E8F0;
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--secondary);
+        }
+
+        .btn-premium {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: var(--primary) !important;
+            padding: 0.5rem 1.2rem;
+            border-radius: 20px;
+            font-weight: 600 !important;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, #1E3A8A 100%);
+            color: white;
+            padding: 8rem 5% 6rem;
+            text-align: center;
+            clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%);
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            letter-spacing: -1px;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            max-width: 700px;
+            margin: 0 auto 2.5rem;
+            opacity: 0.9;
+        }
+
+        .hero-btns {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.8rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary { background: var(--secondary); color: var(--primary); }
+        .btn-primary:hover { opacity: 0.9; transform: translateY(-2px); }
+        .btn-secondary { background: transparent; border: 2px solid white; color: white; }
+        .btn-secondary:hover { background: white; color: var(--primary); }
+
+        /* Dashboard & Layout Container */
+        .container {
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: var(--secondary);
+            border-radius: 2px;
+        }
+
+        /* Category Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: var(--transition);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        }
+
+        .card-img {
+            height: 160px;
+            background: var(--light-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: var(--primary);
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .card-body h3 { margin-bottom: 0.5rem; }
+        .card-body p { color: #64748B; font-size: 0.9rem; margin-bottom: 1.5rem; }
+
+        /* Dynamic Mock Test Arena */
+        .test-container {
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            gap: 2rem;
+            background: var(--surface);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .test-main { padding: 2.5rem; }
+        .test-sidebar { background: var(--light-blue); padding: 2rem; border-left: 1px solid var(--border); }
+
+        .options-list {
+            list-style: none;
+            margin: 2rem 0;
+        }
+
+        .option-item {
+            background: var(--bg-light);
+            padding: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .option-item:hover { border-color: var(--secondary); }
+        .option-item.selected { border-color: var(--secondary); background: rgba(0, 212, 178, 0.1); }
+
+        .palette-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .palette-btn {
+            padding: 0.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            text-align: center;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .palette-btn.answered { background: #22C55E; color: white; }
+
+        /* Embedded PDF Viewer Modal */
+        .pdf-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .pdf-content {
+            width: 90%;
+            height: 90%;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pdf-header {
+            padding: 1rem;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pdf-frame {
+            flex-grow: 1;
+            border: none;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--primary);
+            color: #fff;
+            padding: 3rem 5% 1.5rem;
+            margin-top: 6rem;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-logo h2 { color: white; margin-bottom: 1rem; }
+        .footer-links h4 { margin-bottom: 1rem; color: var(--secondary); }
+        .footer-links ul { list-style: none; }
+        .footer-links ul li { margin-bottom: 0.5rem; }
+        .footer-links ul li a { color: #CBD5E1; text-decoration: none; }
+
+        .copyright { text-align: center; color: #94A3B8; font-size: 0.9rem; }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 968px) {
+            .test-container { grid-template-columns: 1fr; }
+            .test-sidebar { border-left: none; border-top: 1px solid var(--border); }
+            .hero h1 { font-size: 2.5rem; }
+            .nav-links { display: none; } /* Add burger menu wrapper here if needed */
+        }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 transition-colors duration-300 min-h-screen flex flex-col">
+<body>
 
-    <nav class="bg-slate-900 text-white sticky top-0 z-50 shadow-md">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex items-center gap-3 cursor-pointer" onclick="switchView('homepage')">
-                    <div class="bg-blue-600 p-2 rounded-lg text-white font-bold tracking-wider">SS</div>
-                    <div>
-                        <span class="font-bold text-xl block tracking-tight">STUDY STUDIO</span>
-                        <span class="text-xs text-slate-400 block -mt-1">By Matindra Tripura</span>
-                    </div>
-                </div>
-                <div class="hidden md:flex items-center space-x-6">
-                    <button onclick="switchView('homepage')" class="hover:text-blue-400 font-medium">Home</button>
-                    <button onclick="switchView('dashboard')" class="hover:text-blue-400 font-medium">Student Dashboard</button>
-                    <button onclick="switchView('admin')" class="hover:text-blue-400 font-medium">Admin Panel</button>
-                </div>
-                <div class="flex items-center gap-4">
-                    <button id="themeToggle" class="p-2 rounded-full hover:bg-slate-800 text-slate-300" onclick="toggleTheme()">
-                        <i class="fas fa-moon text-lg"></i>
-                    </button>
-                    <span id="userStatus" class="text-sm bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700 hidden">Student</span>
-                </div>
-            </div>
-        </div>
+    <nav>
+        <div class="logo">STUDY <span>STUDIO</span></div>
+        <ul class="nav-links">
+            <li><a href="#" class="active">Home</a></li>
+            <li><a href="#categories">Exams</a></li>
+            <li><a href="#mock-test">Mock Tests</a></li>
+            <li><a href="#premium" class="btn-premium"><i class="fa-solid fa-crown"></i> Go Premium</a></li>
+            <li><button class="theme-toggle" id="themeBtn"><i class="fa-solid fa-moon"></i></button></li>
+        </ul>
     </nav>
 
-    <div class="bg-blue-700 py-3 shadow-inner">
-        <div class="max-w-3xl mx-auto px-4">
-            <div class="relative">
-                <i class="fas fa-search absolute left-4 top-3.5 text-slate-400"></i>
-                <input type="text" id="globalSearch" placeholder="Search across Categories, Notes, PDFs, and Mock Tests..." class="w-full pl-11 pr-4 py-2.5 rounded-xl border-none focus:ring-4 focus:ring-blue-300 shadow shadow-blue-900/20 text-slate-900 outline-none">
+    <header class="hero">
+        <h1>STUDY STUDIO</h1>
+        <p>Your Complete Government Competitive Exam Preparation Platform. Master your future with AI-driven testing frameworks and premium structured syllabi.</p>
+        <div class="hero-btns">
+            <a href="#categories" class="btn btn-primary">Start Learning</a>
+            <a href="#mock-test" class="btn btn-secondary">Take Mock Test</a>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <section id="categories" style="margin-bottom: 5rem;">
+            <h2 class="section-title">Target Exam Categories</h2>
+            <div class="grid">
+                <div class="card">
+                    <div class="card-img"><i class="fa-solid fa-building-columns"></i></div>
+                    <div class="card-body">
+                        <h3>SSC Selection Pack</h3>
+                        <p>Complete Tier 1 & Tier 2 materials including CGL, CHSL, and MTS resources.</p>
+                        <button class="btn btn-primary" onclick="openPdfViewer('https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'SSC Practice Set 2026')">Open Syllabus PDF</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-img"><i class="fa-solid fa-train"></i></div>
+                    <div class="card-body">
+                        <h3>Railways (RRB)</h3>
+                        <p>Comprehensive tests for NTPC, Group D, and ALP technical exam metrics.</p>
+                        <button class="btn btn-primary" onclick="openPdfViewer('#', 'RRB Guide')">Browse Resources</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-img"><i class="fa-solid fa-graduation-cap"></i></div>
+                    <div class="card-body">
+                        <h3>UPSC & State PSC</h3>
+                        <p>Curated conceptual notes, analysis documents, and static GS question archives.</p>
+                        <button class="btn btn-primary" onclick="openPdfViewer('#', 'Civil Services Strategy')">Access Notes</button>
+                    </div>
+                </div>
             </div>
+        </section>
+
+        <section id="mock-test">
+            <h2 class="section-title">Live Dynamic Mock Engine</h2>
+            <div class="test-container">
+                <div class="test-main">
+                    <div style="display:flex; justify-content:space-between; margin-bottom: 1.5rem;">
+                        <span style="font-weight:600; color:var(--accent);" id="question-number">Question 1 of 100</span>
+                        <span style="color: #EF4444; font-weight:700;"><i class="fa-regular fa-clock"></i> <span id="timer">59:59</span></span>
+                    </div>
+                    <h3 id="question-text">The dynamic core content question text will live parse here asynchronously from the AI engine?</h3>
+                    <ul class="options-list">
+                        <li class="option-item" onclick="selectOption(this)"><span>A</span> <span class="opt-text">Option payload text placeholder alpha</span></li>
+                        <li class="option-item" onclick="selectOption(this)"><span>B</span> <span class="opt-text">Option payload text placeholder beta</span></li>
+                        <li class="option-item" onclick="selectOption(this)"><span>C</span> <span class="opt-text">Option payload text placeholder gamma</span></li>
+                        <li class="option-item" onclick="selectOption(this)"><span>D</span> <span class="opt-text">Option payload text placeholder delta</span></li>
+                    </ul>
+                    <div style="display:flex; justify-content: space-between;">
+                        <button class="btn btn-secondary" style="color:var(--primary); border-color:var(--border)">Previous</button>
+                        <button class="btn btn-primary" id="next-btn">Save & Next</button>
+                    </div>
+                </div>
+                <div class="test-sidebar">
+                    <h4>Question Palette</h4>
+                    <div class="palette-grid">
+                        <div class="palette-btn answered">1</div>
+                        <div class="palette-btn">2</div>
+                        <div class="palette-btn">3</div>
+                        <div class="palette-btn">4</div>
+                        <div class="palette-btn">5</div>
+                        <div class="palette-btn">6</div>
+                        <div class="palette-btn">7</div>
+                        <div class="palette-btn">8</div>
+                    </div>
+                    <button class="btn btn-primary" style="width:100%; margin-top:2rem; background:#EF4444; color:white;">Submit Exam</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <div class="pdf-modal" id="pdfModal">
+        <div class="pdf-content">
+            <div class="pdf-header">
+                <h3 id="pdfTitle">Document Preview Mode</h3>
+                <div style="display:flex; gap: 1rem; align-items:center;">
+                    <a href="#" id="pdfDownloadLink" class="btn btn-primary" style="padding:0.4rem 1rem; font-size:0.9rem;" download><i class="fa-solid fa-download"></i> Download</a>
+                    <button onclick="closePdfViewer()" style="background:none; border:none; color:white; font-size:1.5rem; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+            <iframe class="pdf-frame" id="pdfFrame" src=""></iframe>
         </div>
     </div>
 
-    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
-        <section id="homepageView" class="space-y-12">
-            <div class="bg-gradient-to-r from-blue-800 via-indigo-900 to-slate-900 text-white rounded-3xl p-8 md:p-12 shadow-xl relative overflow-hidden">
-                <div class="absolute -right-10 -bottom-10 opacity-10 text-[12rem] font-bold select-none">EXAM</div>
-                <div class="max-w-2xl relative z-10">
-                    <span class="bg-blue-500/30 text-blue-300 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-blue-500/20">Premium Learning Hub</span>
-                    <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mt-4 leading-tight">Your Gateway to <span class="text-blue-400">Government Job</span> Success</h1>
-                    <p class="mt-4 text-slate-300 text-base md:text-lg">Access elite study modules, highly accurate mock examinations, comprehensive previous year query parsing, and custom learning paths engineered by Matindra Tripura.</p>
-                    <div class="mt-8 flex flex-wrap gap-4">
-                        <button onclick="switchView('dashboard')" class="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-6 py-3 rounded-xl shadow-lg shadow-blue-600/30 transition">Start Learning</button>
-                        <button onclick="switchView('dashboard')" class="bg-slate-800/80 hover:bg-slate-800 text-white font-semibold px-6 py-3 rounded-xl border border-slate-700 transition">Take Mock Test</button>
-                    </div>
-                </div>
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-logo">
+                <h2>STUDY STUDIO</h2>
+                <p>Architecting academic breakthroughs through data-driven performance analysis and premium documentation libraries.</p>
             </div>
-
-            <div>
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-2xl font-bold tracking-tight">Targeted Exam Segments</h2>
-                    <span class="text-sm font-medium text-blue-600">Dynamic Live Track</span>
-                </div>
-                <div id="categoriesGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                    </div>
+            <div class="footer-links">
+                <h4>Founder Framework</h4>
+                <p style="color:#CBD5E1;"><strong>Matindra Tripura</strong><br>Visionary Academic Architect behind the Study Studio ecosystem.</p>
             </div>
-
-            <div class="bg-white rounded-2xl p-8 border border-slate-200/80 shadow-sm flex flex-col md:flex-row items-center gap-8 card-theme">
-                <div class="w-32 h-32 md:w-40 md:h-40 rounded-2xl bg-slate-100 flex-shrink-0 flex items-center justify-center border-2 border-dashed border-slate-300 relative overflow-hidden group">
-                    <i class="fas fa-user-tie text-4xl text-slate-400 absolute group-hover:opacity-0 transition"></i>
-                    <img id="founderImageDisplay" src="#" class="w-full h-full object-cover hidden" alt="Founder">
-                </div>
-                <div class="space-y-3 text-center md:text-left">
-                    <span class="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md">Leadership & Vision</span>
-                    <h3 class="text-2xl font-bold tracking-tight">Matindra Tripura</h3>
-                    <p class="text-sm font-medium text-slate-500 -mt-2">Founder & Lead Academic Strategist</p>
-                    <p class="text-slate-600 max-w-2xl text-sm leading-relaxed">"Empowering Government Job Aspirants Through Smart Learning. Our systems are built natively to strip away optimization overhead, letting you concentrate strictly on strategic mastery and cognitive execution during high-stakes competitive examinations."</p>
-                </div>
+            <div class="footer-links">
+                <h4>Legal & Info</h4>
+                <ul>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Deployment</a></li>
+                    <li><a href="#">Refund Structure</a></li>
+                </ul>
             </div>
-        </section>
-
-        <section id="dashboardView" class="hidden space-y-8">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 pb-5">
-                <div>
-                    <h1 class="text-3xl font-extrabold tracking-tight">Aspirant Interface</h1>
-                    <p class="text-sm text-slate-500 mt-1">Monitor dynamic metrics, manage bookmarks, and access core files repositories.</p>
-                </div>
-                <div class="flex items-center gap-3">
-                    <div class="bg-emerald-50 text-emerald-700 px-4 py-2 rounded-xl border border-emerald-200 flex items-center gap-2 text-sm font-semibold">
-                        <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span> Profile Synced
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm card-theme">
-                    <div class="flex justify-between items-center text-slate-400 mb-2"><span class="text-xs font-bold tracking-wider uppercase">Tests Evaluated</span><i class="fas fa-check-circle text-lg text-emerald-500"></i></div>
-                    <div class="text-2xl font-black" id="statTests">12</div>
-                </div>
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm card-theme">
-                    <div class="flex justify-between items-center text-slate-400 mb-2"><span class="text-xs font-bold tracking-wider uppercase">Mean Metric Score</span><i class="fas fa-chart-line text-lg text-blue-500"></i></div>
-                    <div class="text-2xl font-black" id="statAccuracy">78.4%</div>
-                </div>
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm card-theme">
-                    <div class="flex justify-between items-center text-slate-400 mb-2"><span class="text-xs font-bold tracking-wider uppercase">Saved Resource Items</span><i class="fas fa-bookmark text-lg text-amber-500"></i></div>
-                    <div class="text-2xl font-black" id="statBookmarks">5</div>
-                </div>
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm card-theme">
-                    <div class="flex justify-between items-center text-slate-400 mb-2"><span class="text-xs font-bold tracking-wider uppercase">Global Rank Placement</span><i class="fas fa-trophy text-lg text-yellow-500"></i></div>
-                    <div class="text-2xl font-black">#42</div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="lg:col-span-2 space-y-6">
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-xl font-bold tracking-tight">Available Educational Material</h3>
-                        <div class="flex gap-2">
-                            <select id="sortSelector" onchange="renderLibrary()" class="text-xs bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 font-medium outline-none text-slate-700">
-                                <option value="newest">Newest First</option>
-                                <option value="alpha">Alphabetical</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div id="libraryContainer" class="space-y-3">
-                        </div>
-                </div>
-
-                <div class="space-y-6">
-                    <div class="bg-gradient-to-br from-slate-900 to-indigo-950 text-white rounded-xl p-5 shadow-md">
-                        <h3 class="text-base font-bold tracking-wide flex items-center gap-2 mb-4"><i class="fas fa-medal text-yellow-400"></i> Real-Time Leaderboard Matrix</h3>
-                        <div class="space-y-3" id="leaderboardContainer">
-                            <div class="flex items-center justify-between text-xs border-b border-white/10 pb-2">
-                                <span class="font-medium">1. Rajesh Sharma (TPSC)</span><span class="bg-yellow-400/20 text-yellow-300 px-2 py-0.5 rounded font-mono">98.2%</span>
-                            </div>
-                            <div class="flex items-center justify-between text-xs border-b border-white/10 pb-2">
-                                <span class="font-medium">2. Amit Debbarma (UPSC)</span><span class="bg-slate-400/20 text-slate-300 px-2 py-0.5 rounded font-mono">94.6%</span>
-                            </div>
-                            <div class="flex items-center justify-between text-xs border-b border-white/10 pb-2">
-                                <span class="font-medium">3. Priya Das (High Court LDC)</span><span class="bg-amber-700/20 text-amber-300 px-2 py-0.5 rounded font-mono">91.0%</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm space-y-3 card-theme">
-                        <h3 class="text-base font-bold tracking-wide flex items-center gap-2"><i class="fas fa-brain text-purple-500"></i> AI Study Recommendations</h3>
-                        <p class="text-xs text-slate-500 leading-relaxed">Based on systemic evaluation of historical performance indexes, you require direct interaction vectors with General Knowledge arrays and quantitative test files within the next 48 hours to preserve information retention metrics.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="mockTestView" class="hidden max-w-4xl mx-auto space-y-6">
-            <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 card-theme">
-                <div>
-                    <h2 class="text-xl font-bold tracking-tight" id="activeTestTitle">Examination Stream</h2>
-                    <p class="text-xs text-slate-400 mt-0.5 font-mono">Continuous Evaluation Protocol</p>
-                </div>
-                <div class="flex items-center gap-4">
-                    <div class="text-right">
-                        <span class="text-xs text-slate-400 block uppercase font-bold tracking-wider">Remaining Run-Time</span>
-                        <span class="text-xl font-black text-red-500 font-mono" id="testTimer">00:00</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-md p-6 md:p-8 space-y-6 card-theme">
-                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
-                    <span class="text-xs font-bold text-blue-600 tracking-wider uppercase" id="questionIndexIndicator">Question 0 of 0</span>
-                    <span class="text-xs bg-red-50 text-red-600 font-medium px-2 py-1 rounded border border-red-100 uppercase tracking-tight">Negative Marking Active: 0.25 pt</span>
-                </div>
-
-                <div class="text-base md:text-lg font-semibold tracking-tight" id="questionTextDisplay">Loading evaluation objective context pattern...</div>
-
-                <div class="grid grid-cols-1 gap-3 pt-2" id="optionsContainer">
-                    </div>
-
-                <div class="flex justify-between items-center pt-6 border-t border-slate-100">
-                    <button id="prevBtn" onclick="navigateTest(-1)" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-4 py-2 rounded-xl text-sm transition">Back Track</button>
-                    <button id="nextBtn" onclick="navigateTest(1)" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-5 py-2 rounded-xl text-sm transition">Advance Sequence</button>
-                    <button id="submitTestBtn" onclick="terminateTestEvaluation()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-2 rounded-xl text-sm shadow-md transition hidden">Submit Evaluation</button>
-                </div>
-            </div>
-        </section>
-
-        <section id="testResultView" class="hidden max-w-2xl mx-auto bg-white rounded-2xl border border-slate-200 shadow-xl p-8 space-y-6 card-theme">
-            <div class="text-center space-y-2">
-                <div class="h-16 w-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto text-2xl border border-blue-200 shadow-inner"><i class="fas fa-file-invoice"></i></div>
-                <h2 class="text-2xl font-black tracking-tight">Assessment Evaluation Complete</h2>
-                <p class="text-xs text-slate-400">Execution Output Matrix Logged to Analytics Engine</p>
-            </div>
-            
-            <div class="grid grid-cols-3 gap-2 text-center bg-slate-50 p-4 rounded-xl border border-slate-100 card-theme">
-                <div><span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block">Gross Score</span><span class="text-lg font-black text-slate-800" id="resGross">0/0</span></div>
-                <div><span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block">Accuracy Index</span><span class="text-lg font-black text-blue-600" id="resAccuracy">0%</span></div>
-                <div><span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block">Final Designation</span><span class="text-sm font-bold text-emerald-600 block mt-1" id="resDesignation">PASSED</span></div>
-            </div>
-
-            <div class="space-y-4">
-                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400">Response Verification Matrix</h3>
-                <div id="resultsReviewContainer" class="space-y-3 max-h-60 overflow-y-auto pr-2">
-                    </div>
-            </div>
-
-            <button onclick="switchView('dashboard')" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3 rounded-xl transition shadow">Return to Pipeline Interface</button>
-        </section>
-
-        <section id="adminView" class="hidden space-y-8">
-            <div class="border-b border-slate-200 pb-5">
-                <h1 class="text-3xl font-extrabold tracking-tight">System Operational Controls</h1>
-                <p class="text-sm text-slate-500 mt-1">Deploy parameters, organize categories, execute file operations, and oversee simulated AI extraction subroutines.</p>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="space-y-6 lg:col-span-1">
-                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4 card-theme">
-                        <h3 class="text-base font-bold tracking-tight"><i class="fas fa-folder-plus text-blue-500 mr-1"></i> Struct Category Entry Node</h3>
-                        <div class="space-y-2">
-                            <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Category Display Name</label>
-                            <input type="text" id="newCatName" placeholder="e.g., General Knowledge" class="w-full border border-slate-300 rounded-lg p-2 text-sm outline-none text-slate-900 focus:border-blue-500">
-                        </div>
-                        <button onclick="executeAddCategory()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 rounded-lg text-sm transition shadow-sm">Instantiate Category</button>
-                    </div>
-
-                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4 card-theme">
-                        <h3 class="text-base font-bold tracking-tight"><i class="fas fa-cloud-upload-alt text-emerald-500 mr-1"></i> Data Asset Uplink Node</h3>
-                        <div class="space-y-3 text-xs">
-                            <div>
-                                <label class="font-semibold text-slate-400 uppercase tracking-wider block mb-1">Target Structural Segment</label>
-                                <select id="uploadCategorySelect" class="w-full border border-slate-300 rounded-lg p-2 text-slate-900 outline-none focus:border-blue-500"></select>
-                            </div>
-                            <div>
-                                <label class="font-semibold text-slate-400 uppercase tracking-wider block mb-1">Document Descriptor</label>
-                                <input type="text" id="uploadTitle" placeholder="e.g., 2025 Comprehensive Analysis Core" class="w-full border border-slate-300 rounded-lg p-2 text-slate-900 outline-none focus:border-blue-500">
-                            </div>
-                            <div>
-                                <label class="font-semibold text-slate-400 uppercase tracking-wider block mb-1">Abstract Context</label>
-                                <textarea id="uploadDesc" placeholder="Enter processing configuration meta details..." class="w-full border border-slate-300 rounded-lg p-2 text-slate-900 h-16 outline-none focus:border-blue-500"></textarea>
-                            </div>
-                            <div>
-                                <label class="font-semibold text-slate-400 uppercase tracking-wider block mb-1">Target Document Payload (.pdf, .docx, .txt)</label>
-                                <input type="file" id="uploadFile" class="w-full border border-slate-300 rounded-lg p-1 text-slate-500 bg-slate-50 cursor-pointer">
-                            </div>
-                        </div>
-                        
-                        <div class="p-3 bg-blue-50 border border-blue-100 rounded-lg space-y-2 card-theme">
-                            <span class="text-[10px] bg-blue-600 text-white px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">AI Coprocessor Engine</span>
-                            <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer font-medium">
-                                <input type="checkbox" id="aiProcessFlag" checked class="rounded border-slate-300 text-blue-600 focus:ring-blue-500"> Execute AI Parsing & Generate Mock Test
-                            </label>
-                        </div>
-
-                        <button onclick="executeAssetUpload()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-2.5 rounded-lg text-sm transition">Commit Core Matrix Operations</button>
-                    </div>
-
-                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3 card-theme">
-                        <h3 class="text-base font-bold tracking-tight"><i class="fas fa-image text-purple-500 mr-1"></i> Mutate Leader Profile Node</h3>
-                        <input type="file" id="founderImageInput" accept="image/*" onchange="processFounderImageUpload(event)" class="w-full text-xs text-slate-500 border border-slate-200 p-1 rounded bg-slate-50 cursor-pointer">
-                    </div>
-                </div>
-
-                <div class="lg:col-span-2 space-y-6">
-                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden card-theme">
-                        <div class="p-4 bg-slate-900 text-white flex justify-between items-center">
-                            <h3 class="text-sm font-bold uppercase tracking-wider">Active System Categories Matrix</h3>
-                            <span class="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-mono" id="catCountMeta">0 Categories Active</span>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse text-xs">
-                                <thead>
-                                    <tr class="bg-slate-100 text-slate-500 uppercase tracking-wider border-b border-slate-200">
-                                        <th class="p-3 font-semibold">Identifier Profile</th>
-                                        <th class="p-3 font-semibold text-center">Allocated Files</th>
-                                        <th class="p-3 font-semibold text-right">System Interconnects</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="adminCategoriesTableBody">
-                                    </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden card-theme">
-                        <div class="p-4 bg-slate-900 text-white">
-                            <h3 class="text-sm font-bold uppercase tracking-wider">System Activity & Ingestion Logs</h3>
-                        </div>
-                        <div class="p-4 max-h-48 overflow-y-auto text-xs font-mono space-y-1.5 text-slate-400" id="systemLogs">
-                            <div>[SYSTEM LOG] Core operational matrix configured. Ready for instruction sequencing...</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <a href="https://wa.me/1234567890" target="_blank" class="fixed bottom-6 right-6 bg-emerald-500 hover:bg-emerald-400 text-white h-14 w-14 rounded-full flex items-center justify-center text-2xl shadow-xl hover:scale-110 transition-transform duration-200 z-50 group">
-        <i class="fab fa-whatsapp"></i>
-        <span class="absolute right-16 bg-slate-900 text-white text-xs px-2 py-1 rounded shadow opacity-0 group-hover:opacity-100 transition whitespace-nowrap">Access Support Gateway</span>
-    </a>
-
-    <footer class="bg-slate-900 text-white border-t border-slate-800 mt-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
-            <div>
-                <span class="text-lg font-black tracking-tight block">STUDY STUDIO</span>
-                <span class="text-xs text-slate-400 block mt-0.5">Empowering Government Job Aspirants Through Smart Learning</span>
-                <span class="text-xs text-blue-500 block font-medium mt-1">Founder: Matindra Tripura</span>
-            </div>
-            <div class="text-xs text-slate-500 space-y-1">
-                <div>Copyright &copy; 2026 STUDY STUDIO. All Rights Reserved.</div>
-                <div class="space-x-4"><a href="#" class="hover:underline">Privacy Policy</a><a href="#" class="hover:underline">Terms & Conditions</a></div>
-            </div>
+        </div>
+        <div class="copyright">
+            &copy; 2026 STUDY STUDIO. Founder: Matindra Tripura. All Rights Reserved.
         </div>
     </footer>
 
-    <script type="module">
-        // Import Firebase native ES modules directly from official package arrays
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, collection, addDoc, getDocs, deleteDoc, updateDoc, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
-
-        // FOR CONTEXTUAL DEPLOYMENT: Configure credentials array object below with your Firebase active variables
-        const firebaseConfig = {
-            apiKey: "AIzaSyFakeKey_PlaceholderValuesForProduction",
-            authDomain: "study-studio-prod.firebaseapp.com",
-            projectId: "study-studio-prod",
-            storageBucket: "study-studio-prod.appspot.com",
-            messagingSenderId: "1234567890",
-            appId: "1:1234567890:web:abcdef123456"
-        };
-
-        // Initialize connection layers gracefully with fallback structures to prevent complete frontend crashes if unconfigured
-        let app, db, storage;
-        let firebaseOperational = false;
-
-        try {
-            if(!firebaseConfig.apiKey.includes("PlaceholderValues")) {
-                app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                storage = getStorage(app);
-                firebaseOperational = true;
-                logSystemEvent("Firebase platform abstraction matrix linked successfully.");
-            } else {
-                logSystemEvent("Running inside high-performance in-memory simulated local state framework engine mode.");
-            }
-        } catch (error) {
-            console.error("System connection initialization fault:", error);
-        }
-
-        // ================= APPLICATION STATE DATA STORAGE CORE =================
-        let state = {
-            categories: [
-                { id: "cat-1", name: "High Court LDC" }, { id: "cat-2", name: "Railway" },
-                { id: "cat-3", name: "SSC" }, { id: "cat-4", name: "Banking" },
-                { id: "cat-5", name: "UPSC" }, { id: "cat-6", name: "TPSC" },
-                { id: "cat-7", name: "Tripura Police" }, { id: "cat-8", name: "MTS" }
-            ],
-            files: [
-                { id: "f-1", catId: "cat-6", title: "TPSC General Proficiency Tier-1 Core", desc: "Foundational conceptual mechanics overview for civil engineering and humanities vectors.", date: "2026-03-12", url: "#", type: "pdf", bookmarked: false },
-                { id: "f-2", catId: "cat-3", title: "SSC Quantitative Aptitude Advanced Guide", desc: "Formulas and shortcut arrays targeting metric manipulation speed benchmarks.", date: "2026-05-18", url: "#", type: "pdf", bookmarked: true }
-            ],
-            mockTests: {
-                "f-1": [
-                    { q: "Which core parameter governs state revenue policy frameworks within Indian infrastructure domains?", o: ["Article 280", "Article 360", "Article 370", "Article 311"], a: 0 },
-                    { q: "Identify the critical processing bottleneck vector in structural administrative algorithms.", o: ["Latent file loops", "Resource scarcity execution", "Data latency tracking", "Redundancy scaling"], a: 1 }
-                ],
-                "f-2": [
-                    { q: "Evaluate numerical functional expression limit value: As x approaches zero, sin(x)/x yield value is?", o: ["Indeterminate", "Zero", "Infinity", "One"], a: 3 },
-                    { q: "A working engine performs work sequence cycles with 40% algorithmic optimization loss. Determine target yield rating.", o: ["Ratio 1.6", "Ratio 2.4", "Ratio 0.6", "Ratio 1.2"], a: 2 }
-                ]
-            },
-            activeTest: {
-                fileId: null,
-                questions: [],
-                currentIndex: 0,
-                userAnswers: {},
-                timerInterval: null,
-                timeRemaining: 0
-            },
-            currentView: "homepage",
-            darkMode: false
-        };
-
-        // ================= PIPELINE INTERFACES & WORKSPACE NAVIGATORS =================
-        window.switchView = function(viewTarget) {
-            document.getElementById("homepageView").classList.add("hidden");
-            document.getElementById("dashboardView").classList.add("hidden");
-            document.getElementById("mockTestView").classList.add("hidden");
-            document.getElementById("testResultView").classList.add("hidden");
-            document.getElementById("adminView").classList.add("hidden");
-
-            const activeSection = document.getElementById(`${viewTarget}View`);
-            if (activeSection) {
-                activeSection.classList.remove("hidden");
-                state.currentView = viewTarget;
-                logSystemEvent(`Viewport context re-routed successfully to target module point: [${viewTarget.toUpperCase()}]`);
-                // Auto-refresh layout renders dependently
-                if(viewTarget === 'homepage' || viewTarget === 'admin' || viewTarget === 'dashboard') {
-                    synchronizeInterfaceRenders();
-                }
-            }
-        };
-
-        window.toggleTheme = function() {
-            state.darkMode = !state.darkMode;
-            const elementsToTheme = document.querySelectorAll('.card-theme');
-            if(state.darkMode) {
-                document.body.classList.add('dark-mode');
-                document.getElementById("themeToggle").innerHTML = `<i class="fas fa-sun text-lg text-amber-400"></i>`;
-                elementsToTheme.forEach(el => el.classList.add('dark-card'));
-            } else {
-                document.body.classList.remove('dark-mode');
-                document.getElementById("themeToggle").innerHTML = `<i class="fas fa-moon text-lg"></i>`;
-                elementsToTheme.forEach(el => el.classList.remove('dark-card'));
-            }
-        };
-
-        function logSystemEvent(msg) {
-            const container = document.getElementById("systemLogs");
-            if(container) {
-                const item = document.createElement("div");
-                item.textContent = `[${new Date().toISOString().split('T')[1].substring(0,8)}] ${msg}`;
-                container.appendChild(item);
-                container.scrollTop = container.scrollHeight;
-            }
-        }
-
-        // ================= COMPONENT RENDERING MATRIX GENERATORS =================
-        function synchronizeInterfaceRenders() {
-            renderHomepageCategories();
-            renderLibrary();
-            populateAdminControls();
-        }
-
-        function renderHomepageCategories() {
-            const container = document.getElementById("categoriesGrid");
-            if (!container) return;
-            container.innerHTML = "";
-            state.categories.forEach(cat => {
-                const count = state.files.filter(f => f.catId === cat.id).length;
-                const node = document.createElement("div");
-                node.className = "bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-blue-500 hover:shadow-md transition cursor-pointer flex flex-col justify-between card-theme";
-                node.onclick = () => { switchView('dashboard'); document.getElementById("globalSearch").value = cat.name; renderLibrary(); };
-                node.innerHTML = `
-                    <div class="h-10 w-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center text-base mb-3 font-bold"><i class="fas fa-graduation-cap"></i></div>
-                    <div>
-                        <h4 class="font-bold text-sm tracking-tight line-clamp-1 text-slate-900">${cat.name}</h4>
-                        <span class="text-[10px] text-slate-400 font-mono block mt-1">${count} Active Payloads</span>
-                    </div>
-                `;
-                container.appendChild(node);
-            });
-        }
-
-        window.renderLibrary = function() {
-            const container = document.getElementById("libraryContainer");
-            if (!container) return;
-            container.innerHTML = "";
-
-            const queryFilter = document.getElementById("globalSearch").value.toLowerCase();
-            const sortCriteria = document.getElementById("sortSelector") ? document.getElementById("sortSelector").value : "newest";
-
-            let processedArray = [...state.files];
-
-            if(queryFilter) {
-                processedArray = processedArray.filter(f => {
-                    const matchedCategory = state.categories.find(c => c.id === f.catId)?.name.toLowerCase() || "";
-                    return f.title.toLowerCase().includes(queryFilter) || f.desc.toLowerCase().includes(queryFilter) || matchedCategory.includes(queryFilter);
-                });
-            }
-
-            if(sortCriteria === "alpha") {
-                processedArray.sort((a,b) => a.title.localeCompare(b.title));
-            } else {
-                processedArray.sort((a,b) => new Date(b.date) - new Date(a.date));
-            }
-
-            if(processedArray.length === 0) {
-                container.innerHTML = `<div class="text-center p-8 text-xs text-slate-400 font-mono bg-white rounded-xl border border-slate-200 border-dashed card-theme">Zero target query objects found matched to execution parameters inside scope.</div>`;
-                return;
-            }
-
-            processedArray.forEach(file => {
-                const catName = state.categories.find(c => c.id === f.catId)?.name || "General Track";
-                const hasMock = !!state.mockTests[file.id];
-                const node = document.createElement("div");
-                node.className = "bg-white border border-slate-200 rounded-xl p-5 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:shadow transition card-theme";
-                node.innerHTML = `
-                    <div class="space-y-1.5 flex-grow max-w-xl">
-                        <div class="flex flex-wrap gap-2 items-center">
-                            <span class="bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">${state.categories.find(c => c.id === file.catId)?.name || 'General'}</span>
-                            <span class="text-[10px] font-mono text-slate-400"><i class="far fa-calendar-alt mr-1"></i>${file.date}</span>
-                        </div>
-                        <h4 class="font-bold text-base tracking-tight text-slate-900">${file.title}</h4>
-                        <p class="text-xs text-slate-500 leading-relaxed">${file.desc}</p>
-                    </div>
-                    <div class="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end">
-                        <button onclick="toggleBookmark('${file.id}')" class="p-2 rounded-lg border text-xs transition ${file.bookmarked ? 'bg-amber-50 text-amber-600 border-amber-200' : 'bg-slate-50 text-slate-400 border-slate-200'}">
-                            <i class="${file.bookmarked ? 'fas' : 'far'} fa-bookmark"></i>
-                        </button>
-                        <a href="${file.url}" download class="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-medium text-xs px-3 py-2 rounded-lg transition inline-flex items-center gap-1.5"><i class="fas fa-download"></i> Extract</a>
-                        ${hasMock ? `<button onclick="instantiateMockTestSequence('${file.id}')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-4 py-2 rounded-lg shadow-sm shadow-blue-600/10 transition inline-flex items-center gap-1.5"><i class="fas fa-bolt text-amber-300"></i> Mock Test</button>` : ''}
-                    </div>
-                `;
-                container.appendChild(node);
-            });
-
-            // Refresh analytical counters array indicators dynamically
-            document.getElementById("statBookmarks").textContent = state.files.filter(f => f.bookmarked).length;
-            document.getElementById("statTests").textContent = Object.keys(state.mockTests).length + 3;
-        };
-
-        window.toggleBookmark = function(fileId) {
-            const target = state.files.find(f => f.id === fileId);
-            if(target) {
-                target.bookmarked = !target.bookmarked;
-                if(firebaseOperational) {
-                    updateDoc(doc(db, "files", fileId), { bookmarked: target.bookmarked }).catch(e => console.error(e));
-                }
-                renderLibrary();
-                logSystemEvent(`Toggled resource pointer bookmark status parameter: [${fileId}]`);
-            }
-        };
-
-        function populateAdminControls() {
-            const selectContainer = document.getElementById("uploadCategorySelect");
-            const tableBody = document.getElementById("adminCategoriesTableBody");
-            if(!selectContainer || !tableBody) return;
-
-            selectContainer.innerHTML = "";
-            tableBody.innerHTML = "";
-
-            document.getElementById("catCountMeta").textContent = `${state.categories.length} Categories Active`;
-
-            state.categories.forEach(cat => {
-                // Populate Upload Dropdown
-                const opt = document.createElement("option");
-                opt.value = cat.id;
-                opt.textContent = cat.name;
-                selectContainer.appendChild(opt);
-
-                // Populate Admin Controls Matrix Table
-                const count = state.files.filter(f => f.catId === cat.id).length;
-                const tr = document.createElement("tr");
-                tr.className = "border-b border-slate-100 hover:bg-slate-50/50 text-slate-700";
-                tr.innerHTML = `
-                    <td class="p-3 font-semibold text-slate-900">${cat.name}</td>
-                    <td class="p-3 text-center font-mono font-bold text-slate-500">${count}</td>
-                    <td class="p-3 text-right">
-                        <button onclick="executeDeleteCategory('${cat.id}')" class="text-red-500 hover:text-red-700 font-bold p-1 transition text-xs"><i class="far fa-trash-alt"></i> Purge</button>
-                    </td>
-                `;
-                tableBody.appendChild(tr);
-            });
-        }
-
-        // ================= MUTATOR ACTIONS CREATION PIPELINE CONTORLS =================
-        window.executeAddCategory = async function() {
-            const input = document.getElementById("newCatName");
-            const val = input.value.trim();
-            if(!val) return;
-
-            const newId = "cat-" + Date.now();
-            const payload = { id: newId, name: val };
-            state.categories.push(payload);
-
-            if(firebaseOperational) {
-                await setDoc(doc(db, "categories", newId), payload).catch(e => console.error(e));
-            }
-
-            input.value = "";
-            synchronizeInterfaceRenders();
-            logSystemEvent(`Successfully instantiated entity class descriptor: [${val}]`);
-        };
-
-        window.executeDeleteCategory = async function(catId) {
-            state.categories = state.categories.filter(c => c.id !== catId);
-            if(firebaseOperational) {
-                await deleteDoc(doc(db, "categories", catId)).catch(e => console.error(e));
-            }
-            synchronizeInterfaceRenders();
-            logSystemEvent(`Purged category entry index sequence reference safely: [${catId}]`);
-        };
-
-        window.executeAssetUpload = async function() {
-            const titleInput = document.getElementById("uploadTitle");
-            const descInput = document.getElementById("uploadDesc");
-            const catSelect = document.getElementById("uploadCategorySelect");
-            const fileInput = document.getElementById("uploadFile");
-            const runAi = document.getElementById("aiProcessFlag").checked;
-
-            if(!titleInput.value.trim() || !fileInput.files[0]) {
-                alert("Execution Fault: Insufficient metadata context provided to construct file payload array mapping accurately.");
-                return;
-            }
-
-            const mockId = "f-" + Date.now();
-            let simulatedUrl = "#";
-
-            if(firebaseOperational) {
-                try {
-                    const storageRef = ref(storage, `library/${mockId}_${fileInput.files[0].name}`);
-                    const uploadSnap = await uploadBytes(storageRef, fileInput.files[0]);
-                    simulatedUrl = await getDownloadURL(uploadSnap.ref);
-                } catch (e) {
-                    console.error("Storage upload sub-pipeline error intercept:", e);
-                }
-            }
-
-            const itemPayload = {
-                id: mockId,
-                catId: catSelect.value,
-                title: titleInput.value.trim(),
-                desc: descInput.value.trim(),
-                date: new Date().toISOString().split('T')[0],
-                url: simulatedUrl,
-                type: "pdf",
-                bookmarked: false
-            };
-
-            state.files.push(itemPayload);
-
-            if(firebaseOperational) {
-                await setDoc(doc(db, "files", mockId), itemPayload).catch(e => console.error(e));
-            }
-
-            // ADVANCED COPROCESSOR AUTO GENERATOR MOCK MODULE INTEGRATION STRUC
-            if(runAi) {
-                logSystemEvent(`Initializing machine parsing thread layer context optimization maps over file: [${fileInput.files[0].name}]`);
-                state.mockTests[mockId] = [
-                    { q: `Context Analysis Question derived automatically from document data structures tracking [${itemPayload.title}]: What is the principal processing operational constraint framework?`, o: ["Linear complexity latency scaling", "Predictive scheduling cache failures", "Optimal systemic configuration bypass parameters", "Dynamic multi-threading interface allocation"], a: 0 },
-                    { q: "Evaluate targeted procedural design efficiency performance markers under load stress arrays.", o: ["Decreases metrics quadratically", "Remains consistently non-volatile", "Scale vectors maximize memory allocation output protocols", "Provides variable feedback loops"], a: 1 }
-                ];
-                
-                if(firebaseOperational) {
-                    await setDoc(doc(db, "mockTests", mockId), { questions: state.mockTests[mockId] }).catch(e => console.error(e));
-                }
-                logSystemEvent(`AI Generation Success. 2 High-Fidelity MCQs synthetically injected into active Question Banks.`);
-            }
-
-            titleInput.value = "";
-            descInput.value = "";
-            fileInput.value = "";
-            
-            synchronizeInterfaceRenders();
-            alert("Payload committed successfully to target cluster workspace array.");
-        };
-
-        window.processFounderImageUpload = function(event) {
-            const reader = new FileReader();
-            reader.onload = function() {
-                const imgEl = document.getElementById("founderImageDisplay");
-                imgEl.src = reader.result;
-                imgEl.classList.remove("hidden");
-                logSystemEvent("Updated Founder graphical authentication asset profile image cache.");
-            }
-            if(event.target.files[0]) reader.readAsDataURL(event.target.files[0]);
-        };
-
-        // ================= INTEGRATED HIGH-FIDELITY ASSESSMENT RUNTIME CORE =================
-        window.instantiateMockTestSequence = function(fileId) {
-            const questions = state.mockTests[fileId];
-            if(!questions || questions.length === 0) return;
-
-            state.activeTest = {
-                fileId: fileId,
-                questions: questions,
-                currentIndex: 0,
-                userAnswers: {},
-                timeRemaining: questions.length * 60 // Allocation vector metric: exactly 60 units of metric run-time runtime seconds per node obj
-            };
-
-            document.getElementById("activeTestTitle").textContent = state.files.find(f => f.id === fileId)?.title || "Standard Evaluation Module";
-            switchView('mockTest');
-            renderActiveQuestionState();
-
-            clearInterval(state.activeTest.timerInterval);
-            state.activeTest.timerInterval = setInterval(() => {
-                state.activeTest.timeRemaining--;
-                const mins = Math.floor(state.activeTest.timeRemaining / 60).toString().padStart(2, '0');
-                const secs = (state.activeTest.timeRemaining % 60).toString().padStart(2, '0');
-                document.getElementById("testTimer").textContent = `${mins}:${secs}`;
-
-                if(state.activeTest.timeRemaining <= 0) {
-                    terminateTestEvaluation();
-                }
-            }, 1000);
-        };
-
-        function renderActiveQuestionState() {
-            const t = state.activeTest;
-            if(!t.questions[t.currentIndex]) return;
-
-            document.getElementById("questionIndexIndicator").textContent = `Question ${t.currentIndex + 1} of ${t.questions.length}`;
-            document.getElementById("questionTextDisplay").textContent = t.questions[t.currentIndex].q;
-
-            const optionsBox = document.getElementById("optionsContainer");
-            optionsBox.innerHTML = "";
-
-            t.questions[t.currentIndex].o.forEach((opt, idx) => {
-                const selected = t.userAnswers[t.currentIndex] === idx;
-                const btn = document.createElement("button");
-                btn.className = `w-full text-left p-4 rounded-xl border transition text-sm flex items-center gap-3 font-medium ${selected ? 'bg-blue-50 border-blue-500 text-blue-900 shadow-sm' : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700'}`;
-                btn.onclick = () => { t.userAnswers[t.currentIndex] = idx; renderActiveQuestionState(); };
-                btn.innerHTML = `
-                    <span class="h-6 w-6 rounded-full flex items-center justify-center font-bold text-xs ${selected ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-600'}">${String.fromCharCode(65 + idx)}</span>
-                    <span>${opt}</span>
-                `;
-                optionsBox.appendChild(btn);
-            });
-
-            document.getElementById("prevBtn").disabled = t.currentIndex === 0;
-            document.getElementById("prevBtn").className = `font-medium px-4 py-2 rounded-xl text-sm transition ${t.currentIndex === 0 ? 'opacity-40 cursor-not-allowed bg-slate-100 text-slate-400' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}`;
-            
-            if(t.currentIndex === t.questions.length - 1) {
-                document.getElementById("nextBtn").classList.add("hidden");
-                document.getElementById("submitTestBtn").classList.remove("hidden");
-            } else {
-                document.getElementById("nextBtn").classList.remove("hidden");
-                document.getElementById("submitTestBtn").classList.add("hidden");
-            }
-        }
-
-        window.navigateTest = function(direction) {
-            state.activeTest.currentIndex += direction;
-            renderActiveQuestionState();
-        };
-
-        window.terminateTestEvaluation = function() {
-            clearInterval(state.activeTest.timerInterval);
-            const t = state.activeTest;
-            let correctCount = 0;
-            let incorrectCount = 0;
-
-            t.questions.forEach((q, idx) => {
-                if(t.userAnswers[idx] === q.a) {
-                    correctCount++;
-                } else if(t.userAnswers[idx] !== undefined) {
-                    incorrectCount++;
-                }
-            });
-
-            // Calculate metric tracking outputs with penalty indices applied directly (0.25 negative marking parameter rule)
-            const grossPoints = (correctCount * 1) - (incorrectCount * 0.25);
-            const accuracyPercent = t.questions.length > 0 ? Math.round((correctCount / t.questions.length) * 100) : 0;
-
-            document.getElementById("resGross").textContent = `${grossPoints.toFixed(2)} / ${t.questions.length}`;
-            document.getElementById("resAccuracy").textContent = `${accuracyPercent}%`;
-            document.getElementById("resDesignation").textContent = accuracyPercent >= 50 ? "QUALIFIED STATE STANDARD" : "EVALUATION FAIL CRITERIA";
-            document.getElementById("resDesignation").className = `text-sm font-bold block mt-1 ${accuracyPercent >= 50 ? 'text-emerald-600' : 'text-red-500'}`;
-
-            const reviewBox = document.getElementById("resultsReviewContainer");
-            reviewBox.innerHTML = "";
-            t.questions.forEach((q, idx) => {
-                const userAns = t.userAnswers[idx];
-                const node = document.createElement("div");
-                node.className = "p-3 rounded-lg border text-xs space-y-1 bg-slate-50 border-slate-200";
-                node.innerHTML = `
-                    <div class="font-semibold text-slate-900">${idx+1}. ${q.q}</div>
-                    <div class="flex justify-between items-center pt-1 text-[11px]">
-                        <span class="text-slate-500">Target Value: <strong class="text-emerald-600">${q.o[q.a]}</strong></span>
-                        <span>Selection: <strong class="${userAns === q.a ? 'text-emerald-600' : 'text-red-500'}">${userAns !== undefined ? q.o[userAns] : 'NONE'}</strong></span>
-                    </div>
-                `;
-                reviewBox.appendChild(node);
-            });
-
-            switchView('testResult');
-            if(firebaseOperational) {
-                addDoc(collection(db, "results"), {
-                    fileId: t.fileId,
-                    score: grossPoints,
-                    accuracy: accuracyPercent,
-                    timestamp: new Date().toISOString()
-                }).catch(e => console.error(e));
-            }
-        };
-
-        // Trigger dynamic query search parsing directly across input bindings safely
-        document.getElementById("globalSearch").addEventListener("input", () => {
-            if(state.currentView !== 'dashboard') {
-                switchView('dashboard');
-            } else {
-                renderLibrary();
-            }
+    <script>
+        // Theme Engine Configuration
+        const themeBtn = document.getElementById('themeBtn');
+        themeBtn.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const targetTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', targetTheme);
+            themeBtn.innerHTML = targetTheme === 'dark' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
         });
 
-        // ================= INITIAL KICKSTART BOOTSTRAP EXECUTIONS =================
-        // Bootstrapping down dynamic cloud fetching instances if connection keys exist.
-        async function bootstrapApplicationDataPipeline() {
-            if(firebaseOperational) {
-                try {
-                    const catSnap = await getDocs(collection(db, "categories"));
-                    if(!catSnap.empty) {
-                        state.categories = [];
-                        catSnap.forEach(d => state.categories.push(d.data()));
-                    }
-                    const filesSnap = await getDocs(collection(db, "files"));
-                    if(!filesSnap.empty) {
-                        state.files = [];
-                        filesSnap.forEach(d => state.files.push(d.data()));
-                    }
-                } catch(e) {
-                    console.error("Historical asset query pipeline initialization failure:", e);
-                }
-            }
-            synchronizeInterfaceRenders();
+        // PDF View Controller Engine
+        function openPdfViewer(url, title) {
+            document.getElementById('pdfTitle').innerText = title;
+            // Native inline preview context optimization
+            document.getElementById('pdfFrame').src = url;
+            document.getElementById('pdfDownloadLink').href = url;
+            document.getElementById('pdfModal').style.display = 'flex';
         }
 
-        // Run core stack sequence logic mappings directly on structural document layout visibility ready state points
-        bootstrapApplicationDataPipeline();
+        function closePdfViewer() {
+            document.getElementById('pdfModal').style.display = 'none';
+            document.getElementById('pdfFrame').src = '';
+        }
+
+        // Exam Interaction Handler Selection
+        function selectOption(element) {
+            const items = element.parentElement.querySelectorAll('.option-item');
+            items.forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+        }
     </script>
 </body>
 </html>
+// Mock Test State Management Engine Object
+const MockTestEngine = {
+    totalDurationSeconds: 3600, // 60 Minutes
+    timerInterval: null,
+    currentQuestionIndex: 0,
+    userResponses: {}, // Structures mapping: { questionId: selectedOptionIndex }
+    
+    questionsArray: [
+        {
+            id: 101,
+            text: "Which tracking matrix correctly represents Indian Fiscal Policies?",
+            options: ["Option Alpha Struct", "Option Beta Matrix", "Option Gamma Variant", "Option Delta Sector"],
+            correctIndex: 1,
+            explanation: "Option Beta Matrix covers absolute liquidity measures under RBI regulations."
+        }
+    ],
+
+    initializeTest: function() {
+        this.startTimer();
+        this.renderQuestion(this.currentQuestionIndex);
+    },
+
+    startTimer: function() {
+        let timeRemaining = this.totalDurationSeconds;
+        const display = document.getElementById('timer');
+        
+        this.timerInterval = setInterval(() => {
+            let minutes = Math.floor(timeRemaining / 60);
+            let seconds = timeRemaining % 60;
+            
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+            
+            display.textContent = `${minutes}:${seconds}`;
+            
+            if (--timeRemaining < 0) {
+                clearInterval(this.timerInterval);
+                this.autoSubmitExam();
+            }
+        }, 1000);
+    },
+
+    renderQuestion: function(index) {
+        const activeQuestion = this.questionsArray[index];
+        document.getElementById('question-number').innerText = `Question ${index + 1} of ${this.questionsArray.length}`;
+        document.getElementById('question-text').innerText = activeQuestion.text;
+        
+        const optionNodes = document.querySelectorAll('.opt-text');
+        activeQuestion.options.forEach((optText, idx) => {
+            optionNodes[idx].innerText = optText;
+        });
+    },
+
+    autoSubmitExam: function() {
+        alert("Time limit expired. Evaluation process starting...");
+        // Call score evaluation logic here
+    }
+};
+                // Backend Controller Concept: /controllers/aiGeneratorController.js
+const pdfParse = require('pdf-parse'); 
+const { GoogleGenAI } = require('@google/genai');
+
+const aiEngineInstance = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+exports.processPdfToMcq = async (req, res) => {
+    try {
+        const pdfBuffer = req.file.buffer; // File read from file input pipeline
+        const parsedPdfData = await pdfParse(pdfBuffer);
+        const extractedText = parsedPdfData.text;
+
+        // Structured execution prompt context
+        const promptText = `
+            Analyze the text extracted from the document below. Generate 5 highly relevant multiple-choice questions (MCQs) for government exam preparation based on this text.
+            
+            Return the output strictly as a valid JSON array matching this format:
+            [
+              {
+                "text": "Question text here?",
+                "options": ["Option A", "Option B", "Option C", "Option D"],
+                "correctIndex": 0,
+                "explanation": "Detailed validation detail logic text background here."
+              }
+            ]
+
+            Document Content:
+            ${extractedText.substring(0, 6000)} // Bounds checking optimization
+        `;
+
+        const response = await aiEngineInstance.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: promptText,
+            config: { responseMimeType: "application/json" }
+        });
+
+        const generatedJsonMcqs = JSON.parse(response.text);
+        
+        // Save logic to MongoDB database repository layer here
+        // Example: await MockTestDbSchema.insertMany(generatedJsonMcqs);
+
+        return res.status(200).json({ success: true, payload: generatedJsonMcqs });
+    } catch (err) {
+        return res.status(500).json({ error: "AI Parsing pipeline failure", internalLog: err.message });
+    }
+};
+                const mongoose = require('mongoose');
+
+// User Schema Specification
+const UserSchema = new mongoose.Schema({
+    fullName: { type: String, required: true },
+    email: { type: String, unique: true, required: true },
+    passwordHash: { type: String, required: true },
+    accountTier: { type: String, enum: ['FREE', 'PREMIUM'], default: 'FREE' },
+    razorpayOrderId: { type: String, default: null },
+    createdAt: { type: Date, default: Date.now }
+});
+
+// Category & Nested Asset Allocation Schema
+const CategorySchema = new mongoose.Schema({
+    title: { type: String, required: true }, // e.g. "High Court LDC"
+    description: { type: String },
+    vectorIconName: { type: String, default: 'fa-book' },
+    uploadedPdfs: [{
+        title: { type: String, required: true },
+        s3StorageUrl: { type: String, required: true },
+        isPremiumAsset: { type: Boolean, default: false }
+    }]
+});
+                function triggerPremiumCheckout(computedOrderPrice) {
+    const paymentGatewayOptions = {
+        "key": "YOUR_RAZORPAY_KEY_ID", // Input configured public credential matching system variable
+        "amount": (computedOrderPrice * 100).toString(), // Conversion logic processing absolute paisa integers
+        "currency": "INR",
+        "name": "STUDY STUDIO",
+        "description": "Unlock Unlimited Government Mock Packs & AI PDF Analyzers",
+        "image": "https://yourdomain.com/assets/logo.png",
+        "handler": function (transactionResponse){
+            // Secure server-side validation callback trigger pipeline
+            fetch("/api/payments/verify-signature", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    razorpay_payment_id: transactionResponse.razorpay_payment_id,
+                    razorpay_order_id: transactionResponse.razorpay_order_id,
+                    razorpay_signature: transactionResponse.razorpay_signature
+                })
+            }).then(res => res.json()).then(data => {
+                if(data.verified) window.location.reload(); 
+            });
+        },
+        "theme": { "color": "#0A2540" } // Custom branding theme sync matching STUDY STUDIO blueprint primary palette 
+    };
+    
+    const gatewayInstance = new Razorpay(paymentGatewayOptions);
+    gatewayInstance.open();
+}
